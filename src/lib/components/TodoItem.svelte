@@ -6,6 +6,7 @@
     extractClosestEdge,
   } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge'
   import { startDrag } from '$lib/drag-state.svelte'
+  import { enterMoveMode, getKeyboardMoveState } from '$lib/keyboard-move-state.svelte'
   import type { Todo } from '$lib/todos.svelte'
 
   let {
@@ -14,13 +15,27 @@
     index,
     onToggle,
     onDelete,
+    columnOrder = [],
+    dropEdge = null,
   }: {
     todo: Todo
     fromDate: string
     index: number
     onToggle: () => void
     onDelete: () => void
+    columnOrder?: string[]
+    dropEdge?: 'top' | 'bottom' | null
   } = $props()
+
+  const keyboardMoveMode = $derived(getKeyboardMoveState())
+  const isKeyboardMoving = $derived(keyboardMoveMode?.todoId === todo.id)
+
+  function handleKeydown(e: KeyboardEvent) {
+    if ((e.key === 'm' || e.key === 'M') && !keyboardMoveMode && columnOrder.length > 0) {
+      e.preventDefault()
+      enterMoveMode(todo.id, fromDate, index)
+    }
+  }
 
   type TodoItemState =
     | { type: 'idle' }
@@ -34,7 +49,7 @@
 
   function setupItem(outerNode: HTMLElement) {
     const innerNode = outerNode.querySelector<HTMLElement>('[data-draggable]')
-    if (!innerNode) return () => {}
+    if (!innerNode) return { destroy: () => {} }
     const cleanup = combine(
       draggable({
         element: innerNode,
@@ -62,24 +77,21 @@
         onDragEnter: ({ source, self }) => {
           const data = source.data as { todoId?: string; rect?: DOMRect }
           if (data.todoId === todo.id) return
-          const closestEdge = extractClosestEdge(self.data)
-          if (!closestEdge) return
+          const edge = extractClosestEdge(self.data) as 'top' | 'bottom' | null
+          if (!edge || (edge !== 'top' && edge !== 'bottom')) return
           const rect = data.rect
           if (!rect) return
-          state = { type: 'is-over', closestEdge, draggingRect: rect }
+          state = { type: 'is-over', closestEdge: edge, draggingRect: rect }
         },
         onDrag: ({ source, self }) => {
           const data = source.data as { todoId?: string; rect?: DOMRect }
           if (data.todoId === todo.id) return
-          const closestEdge = extractClosestEdge(self.data)
-          if (!closestEdge) return
+          const edge = extractClosestEdge(self.data) as 'top' | 'bottom' | null
+          if (!edge || (edge !== 'top' && edge !== 'bottom')) return
           const rect = data.rect
           if (!rect) return
-          const proposed: TodoItemState = { type: 'is-over', closestEdge, draggingRect: rect }
-          if (
-            state.type === 'is-over' &&
-            state.closestEdge === proposed.closestEdge
-          ) {
+          const proposed: TodoItemState = { type: 'is-over', closestEdge: edge, draggingRect: rect }
+          if (state.type === 'is-over' && state.closestEdge === proposed.closestEdge) {
             return
           }
           state = proposed
@@ -106,10 +118,12 @@
   data-todo-id={todo.id}
   class="flex flex-col"
 >
-  {#if state.type === 'is-over' && state.closestEdge === 'top'}
+  {#if (state.type === 'is-over' && state.closestEdge === 'top') || dropEdge === 'top'}
     <div
       class="my-0.5 flex items-center gap-2 rounded border border-dashed border-accent-blue bg-accent-blue/5 px-1 py-1"
-      style="min-height: {state.draggingRect.height}px"
+      style="min-height: {state.type === 'is-over' && state.closestEdge === 'top'
+        ? state.draggingRect.height + 'px'
+        : '2rem'}"
     >
       <div class="h-3.5 w-3.5 shrink-0 rounded-sm border border-accent-blue/40"></div>
       <div class="h-2.5 w-3/5 rounded-full bg-accent-blue/20"></div>
@@ -117,8 +131,14 @@
   {/if}
   <div
     data-draggable
+    tabindex="0"
+    role="option"
+    aria-selected={isKeyboardMoving}
+    aria-keyshortcuts="m"
+    aria-label="Todo: {todo.text}. Press m to move."
+    onkeydown={handleKeydown}
     class="group flex cursor-grab items-center gap-2 border-b border-border px-1 py-1 transition-opacity hover:bg-bg-elevated focus-within:bg-bg-elevated active:cursor-grabbing {state.type ===
-      'is-dragging'
+      'is-dragging' || isKeyboardMoving
         ? 'opacity-40'
         : state.type === 'is-dragging-and-left-self'
           ? 'hidden'
@@ -186,10 +206,12 @@
         ×
       </button>
     </div>
-    {#if state.type === 'is-over' && state.closestEdge === 'bottom'}
+    {#if (state.type === 'is-over' && state.closestEdge === 'bottom') || dropEdge === 'bottom'}
       <div
         class="my-0.5 flex items-center gap-2 rounded border border-dashed border-accent-blue bg-accent-blue/5 px-1 py-1"
-        style="min-height: {state.draggingRect.height}px"
+        style="min-height: {state.type === 'is-over' && state.closestEdge === 'bottom'
+          ? state.draggingRect.height + 'px'
+          : '2rem'}"
       >
         <div class="h-3.5 w-3.5 shrink-0 rounded-sm border border-accent-blue/40"></div>
         <div class="h-2.5 w-3/5 rounded-full bg-accent-blue/20"></div>
