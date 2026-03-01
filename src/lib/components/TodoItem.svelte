@@ -117,7 +117,7 @@
   {/if}
   <div
     data-draggable
-    class="group flex cursor-grab items-center gap-2 border-b border-border px-1 py-1 transition-opacity hover:bg-bg-elevated active:cursor-grabbing {state.type ===
+    class="group flex cursor-grab items-center gap-2 border-b border-border px-1 py-1 transition-opacity hover:bg-bg-elevated focus-within:bg-bg-elevated active:cursor-grabbing {state.type ===
       'is-dragging'
         ? 'opacity-40'
         : state.type === 'is-dragging-and-left-self'
@@ -125,7 +125,7 @@
           : 'opacity-100'}"
     >
       <div
-        class="flex w-0 min-w-0 shrink-0 overflow-hidden transition-[width] duration-200 ease-out group-hover:w-3.5 group-hover:min-w-3.5"
+        class="flex w-0 min-w-0 shrink-0 overflow-hidden transition-[width] duration-200 ease-out group-hover:w-3.5 group-hover:min-w-3.5 group-focus-within:w-3.5 group-focus-within:min-w-3.5"
       >
         <label class="flex cursor-pointer">
           <input
@@ -144,8 +144,9 @@
               peer-checked:[&_.check-icon]:animate-[check-pop_0.3s_ease-out]
               peer-checked:hover:[&_.x-icon]:opacity-100 peer-checked:hover:[&_.x-icon]:delay-[400ms]
               relative flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border
-              opacity-0 transition-opacity duration-200 ease-out group-hover:opacity-100
-              border-text-muted hover:border-accent-blue transition-colors duration-150"
+              opacity-0 transition-opacity duration-200 ease-out group-hover:opacity-100 group-focus-within:opacity-100
+              border-text-muted hover:border-accent-blue transition-colors duration-150
+              peer-focus-visible:ring-2 peer-focus-visible:ring-accent-blue peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-bg-surface"
           >
             <svg
               class="check-icon h-2 w-2 opacity-0 transition-opacity"
@@ -173,14 +174,14 @@
         </label>
       </div>
       <span
-        class="-ml-2 flex-1 text-sm transition-[margin-left] duration-200 ease-out group-hover:ml-0 {todo.completed ? 'text-text-muted line-through' : 'text-text-primary'}"
+        class="-ml-2 flex-1 text-sm transition-[margin-left] duration-200 ease-out group-hover:ml-0 group-focus-within:ml-0 {todo.completed ? 'text-text-muted line-through' : 'text-text-primary'}"
       >
         {todo.text}
       </span>
       <button
         onclick={onDelete}
         aria-label="Delete todo"
-        class="cursor-pointer leading-none text-text-muted opacity-0 transition-opacity group-hover:opacity-100 hover:text-text-primary"
+        class="cursor-pointer leading-none text-text-muted opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue focus-visible:ring-offset-2 focus-visible:ring-offset-bg-surface"
       >
         ×
       </button>
