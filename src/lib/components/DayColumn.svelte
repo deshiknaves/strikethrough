@@ -88,7 +88,7 @@
     <span class="text-text-primary">{label}</span>
     <span class="text-text-secondary">{sublabel}</span>
   </h2>
-  <div class="min-h-0 flex-1 overflow-y-auto">
+  <div class="min-h-0 flex-1 overflow-visible">
     {#each todos as todo, index (todo.id)}
       {@const dropEdge =
         keyboardMoveMode?.targetDateKey === dateKey &&

@@ -164,7 +164,7 @@
     aria-keyshortcuts="m"
     aria-label="Todo: {todo.text}. Press m to move, Space to toggle, Delete to remove."
     onkeydown={handleKeydown}
-    class="group flex cursor-grab items-center gap-2 border-b border-border px-1 py-1 transition-opacity focus-within:bg-bg-elevated hover:bg-bg-elevated active:cursor-grabbing {state.type ===
+    class="group flex cursor-grab items-center gap-2 rounded border-b border-border px-1 py-1 transition-opacity focus-within:bg-bg-elevated hover:bg-bg-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/60 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-surface active:cursor-grabbing {state.type ===
     'is-dragging'
       ? 'opacity-40'
       : state.type === 'is-dragging-and-left-self' || isKeyboardMoving
