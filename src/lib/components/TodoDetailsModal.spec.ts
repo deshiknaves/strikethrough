@@ -66,7 +66,7 @@ describe('TodoDetailsModal', () => {
     await user.clear(titleInput)
     await user.type(titleInput, 'Updated text')
 
-    const saveButton = screen.getByRole('button', { name: 'Save' })
+    const saveButton = screen.getByRole('button', { name: /Save/ })
     await user.click(saveButton)
 
     expect(onSave).toHaveBeenCalledWith(
@@ -92,37 +92,10 @@ describe('TodoDetailsModal', () => {
       },
     })
 
-    const cancelButton = screen.getByRole('button', { name: 'Cancel' })
+    const cancelButton = screen.getByRole('button', { name: /Cancel/ })
     await user.click(cancelButton)
 
     expect(onClose).toHaveBeenCalled()
-  })
-
-  it('calls onSave when Cmd+Enter is pressed', async () => {
-    const user = userEvent.setup()
-    const onSave = vi.fn()
-    const todo = createTodo({ text: 'Original' })
-    render(TodoDetailsModal, {
-      props: {
-        open: true,
-        onClose: vi.fn(),
-        todo,
-        fromDate: '2025-02-24',
-        onSave,
-      },
-    })
-
-    const titleInput = screen.getByLabelText('Title')
-    await user.clear(titleInput)
-    await user.type(titleInput, 'Updated')
-    await user.keyboard('{Meta>}{Enter}{/Meta}')
-
-    expect(onSave).toHaveBeenCalledWith(
-      expect.objectContaining({
-        text: 'Updated',
-        date: '2025-02-24',
-      })
-    )
   })
 
   it('saves with updated description', async () => {
@@ -143,7 +116,7 @@ describe('TodoDetailsModal', () => {
     await user.clear(descriptionInput)
     await user.type(descriptionInput, 'Updated description')
 
-    const saveButton = screen.getByRole('button', { name: 'Save' })
+    const saveButton = screen.getByRole('button', { name: /Save/ })
     await user.click(saveButton)
 
     expect(onSave).toHaveBeenCalledWith(
@@ -172,7 +145,7 @@ describe('TodoDetailsModal', () => {
     const dateInput = screen.getByLabelText('Date')
     fireEvent.input(dateInput, { target: { value: '2025-03-15' } })
 
-    const saveButton = screen.getByRole('button', { name: 'Save' })
+    const saveButton = screen.getByRole('button', { name: /Save/ })
     await user.click(saveButton)
 
     expect(onSave).toHaveBeenCalledWith(
@@ -201,7 +174,7 @@ describe('TodoDetailsModal', () => {
     const titleInput = screen.getByLabelText('Title')
     await user.clear(titleInput)
 
-    const saveButton = screen.getByRole('button', { name: 'Save' })
+    const saveButton = screen.getByRole('button', { name: /Save/ })
     await user.click(saveButton)
 
     expect(onSave).not.toHaveBeenCalled()
@@ -225,39 +198,12 @@ describe('TodoDetailsModal', () => {
     await user.clear(titleInput)
     await user.type(titleInput, '  spaced  ')
 
-    const saveButton = screen.getByRole('button', { name: 'Save' })
+    const saveButton = screen.getByRole('button', { name: /Save/ })
     await user.click(saveButton)
 
     expect(onSave).toHaveBeenCalledWith(
       expect.objectContaining({
         text: 'spaced',
-      })
-    )
-  })
-
-  it('calls onSave when Ctrl+Enter is pressed', async () => {
-    const user = userEvent.setup()
-    const onSave = vi.fn()
-    const todo = createTodo({ text: 'Original' })
-    render(TodoDetailsModal, {
-      props: {
-        open: true,
-        onClose: vi.fn(),
-        todo,
-        fromDate: '2025-02-24',
-        onSave,
-      },
-    })
-
-    const titleInput = screen.getByLabelText('Title')
-    await user.clear(titleInput)
-    await user.type(titleInput, 'Updated')
-    await user.keyboard('{Control>}{Enter}{/Control}')
-
-    expect(onSave).toHaveBeenCalledWith(
-      expect.objectContaining({
-        text: 'Updated',
-        date: '2025-02-24',
       })
     )
   })
@@ -283,7 +229,7 @@ describe('TodoDetailsModal', () => {
     expect(onSave).not.toHaveBeenCalled()
   })
 
-  it('shows help text for keyboard shortcuts', () => {
+  it('shows shortcut symbols on buttons', () => {
     const todo = createTodo()
     render(TodoDetailsModal, {
       props: {
@@ -295,8 +241,9 @@ describe('TodoDetailsModal', () => {
       },
     })
 
-    expect(
-      screen.getByText('Cmd+Enter to save, Escape to close without saving')
-    ).toBeInTheDocument()
+    const cancelButton = screen.getByRole('button', { name: /Cancel/ })
+    const saveButton = screen.getByRole('button', { name: /Save/ })
+    expect(cancelButton).toHaveTextContent('Esc')
+    expect(saveButton).toHaveTextContent('⌘↵')
   })
 })

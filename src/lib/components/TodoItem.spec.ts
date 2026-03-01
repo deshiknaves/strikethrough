@@ -555,7 +555,7 @@ describe('TodoItem', () => {
     expect(onUpdateDetails).not.toHaveBeenCalled()
   })
 
-  it('calls onUpdateDetails when Cmd+Enter is pressed in details modal', async () => {
+  it('calls onUpdateDetails when Save is clicked in details modal', async () => {
     const user = userEvent.setup()
     const onUpdateDetails = vi.fn()
     const todo = createTodo({ text: 'Original', description: 'Initial desc' })
@@ -585,7 +585,8 @@ describe('TodoItem', () => {
     await user.clear(descriptionInput)
     await user.type(descriptionInput, 'Updated description')
 
-    await user.keyboard('{Meta>}{Enter}{/Meta}')
+    const saveButton = screen.getByRole('button', { name: /Save/ })
+    await user.click(saveButton)
 
     expect(onUpdateDetails).toHaveBeenCalledWith({
       text: 'Updated title',

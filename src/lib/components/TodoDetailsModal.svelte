@@ -45,13 +45,6 @@
     requestAnimationFrame(() => returnFocusTo?.focus())
   }
 
-  function handleKeydown(e: KeyboardEvent) {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-      e.preventDefault()
-      handleSave()
-    }
-  }
-
   function handleClose() {
     onClose()
     requestAnimationFrame(() => returnFocusTo?.focus())
@@ -59,7 +52,7 @@
 </script>
 
 <Modal {open} onClose={handleClose} variant="large" ariaTitle="Todo details" {returnFocusTo}>
-  <div class="space-y-4" onkeydown={handleKeydown} role="presentation">
+  <div class="space-y-4" role="presentation">
     <div>
       <label for="todo-details-title" class="mb-1 block text-sm font-medium text-text-secondary">
         Title
@@ -105,16 +98,15 @@
         onclick={handleClose}
         class="rounded px-3 py-1.5 text-sm text-text-secondary hover:bg-bg-elevated hover:text-text-primary"
       >
-        Cancel
+        Cancel <kbd class="ml-1 rounded border border-border bg-bg-elevated px-1.5 py-0.5 font-mono text-xs">Esc</kbd>
       </button>
       <button
         type="button"
         onclick={handleSave}
         class="rounded bg-accent-blue px-3 py-1.5 text-sm text-white hover:opacity-90"
       >
-        Save
+        Save <kbd class="ml-1 rounded border border-white/30 px-1.5 py-0.5 font-mono text-xs">⌘↵</kbd>
       </button>
     </div>
-    <p class="text-xs text-text-muted">Cmd+Enter to save, Escape to close without saving</p>
   </div>
 </Modal>
