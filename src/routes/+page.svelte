@@ -3,9 +3,10 @@
   import { browser } from '$app/environment'
   import { Temporal } from 'temporal-polyfill'
   import DayColumn from '$lib/components/DayColumn.svelte'
+  import TodoDetailsModal from '$lib/components/TodoDetailsModal.svelte'
   import { createBoardKeyboardHandler, focusFirstCell } from '$lib/board-keyboard-navigation'
   import { getKeyboardMoveState, updateTarget, exitMoveMode } from '$lib/keyboard-move-state.svelte'
-  import { getTodos, moveTodo, loadWeek } from '$lib/todos.svelte'
+  import { getTodos, moveTodo, loadWeek, addTodo } from '$lib/todos.svelte'
   import {
     getMondayOfWeek,
     getWeekDays,
@@ -19,6 +20,7 @@
 
   const today = Temporal.Now.plainDateISO()
   let viewMonday = $state(getMondayOfWeek(today))
+  let newTodoModalOpen = $state(false)
 
   const weekdays = $derived(getWeekDays(viewMonday))
   const weekend = $derived(getWeekendDays(viewMonday))
@@ -46,6 +48,18 @@
     }
   })
 
+  function handleNewTodo(updates: { text: string; description: string; date: string }) {
+    addTodo(updates.date, updates.text, updates.description)
+    const todoDate = Temporal.PlainDate.from(updates.date)
+    const todoMonday = getMondayOfWeek(todoDate)
+    if (todoMonday.toString() !== viewMonday.toString()) {
+      loadWeek(todoMonday, {
+        getIsCurrentView: () => viewMonday.toString() === todoMonday.toString(),
+      })
+      viewMonday = todoMonday
+    }
+  }
+
   onMount(() => {
     const handleKeydown = createBoardKeyboardHandler({
       getColumnOrder: () => columnOrder,
@@ -58,6 +72,7 @@
       onPreviousWeek: () => (viewMonday = addWeeks(viewMonday, -1)),
       getInitialFocusDateKey: () =>
         columnOrder.includes(today.toString()) ? today.toString() : columnOrder[0],
+      onNewTodo: () => (newTodoModalOpen = true),
     })
 
     document.addEventListener('keydown', handleKeydown, true)
@@ -118,4 +133,10 @@
       />
     {/each}
   </div>
+  <TodoDetailsModal
+    open={newTodoModalOpen}
+    onClose={() => (newTodoModalOpen = false)}
+    defaultDate={today.toString()}
+    onSave={handleNewTodo}
+  />
 </div>

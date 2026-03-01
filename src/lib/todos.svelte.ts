@@ -68,7 +68,7 @@ function mutateWithHandle(
   return false
 }
 
-export function addTodo(date: string, text: string): void {
+export function addTodo(date: string, text: string, description?: string): void {
   const todo: Todo = {
     id: crypto.randomUUID(),
     text,
@@ -76,7 +76,7 @@ export function addTodo(date: string, text: string): void {
     date,
     createdAt: now(),
     updatedAt: now(),
-    description: '',
+    description: description ?? '',
   }
   if (mutateWithHandle((h) => h.array.push([todo]))) return
   if (!todos[date]) todos[date] = []

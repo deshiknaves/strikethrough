@@ -246,4 +246,94 @@ describe('TodoDetailsModal', () => {
     expect(cancelButton).toHaveTextContent('Esc')
     expect(saveButton).toHaveTextContent('⌘↵')
   })
+
+  describe('create mode', () => {
+    it('renders with empty fields and default date when open', () => {
+      render(TodoDetailsModal, {
+        props: {
+          open: true,
+          onClose: vi.fn(),
+          defaultDate: '2025-02-24',
+          onSave: vi.fn(),
+        },
+      })
+
+      expect(screen.getByLabelText('Title')).toHaveValue('')
+      expect(screen.getByLabelText('Description')).toHaveValue('')
+      expect(screen.getByLabelText('Date')).toHaveValue('2025-02-24')
+      expect(screen.getByRole('dialog', { name: 'New todo' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /Add/ })).toBeInTheDocument()
+    })
+
+    it('calls onSave with text, description, and date when Add is clicked', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(TodoDetailsModal, {
+        props: {
+          open: true,
+          onClose: vi.fn(),
+          defaultDate: '2025-02-24',
+          onSave,
+        },
+      })
+
+      await user.type(screen.getByLabelText('Title'), 'New task')
+      await user.type(screen.getByLabelText('Description'), 'Some details')
+
+      const addButton = screen.getByRole('button', { name: /Add/ })
+      await user.click(addButton)
+
+      expect(onSave).toHaveBeenCalledWith({
+        text: 'New task',
+        description: 'Some details',
+        date: '2025-02-24',
+      })
+    })
+
+    it('does not save when title is empty in create mode', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(TodoDetailsModal, {
+        props: {
+          open: true,
+          onClose: vi.fn(),
+          defaultDate: '2025-02-24',
+          onSave,
+        },
+      })
+
+      await user.type(screen.getByLabelText('Description'), 'Description only')
+
+      const addButton = screen.getByRole('button', { name: /Add/ })
+      await user.click(addButton)
+
+      expect(onSave).not.toHaveBeenCalled()
+    })
+
+    it('saves with Cmd+Enter in create mode', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(TodoDetailsModal, {
+        props: {
+          open: true,
+          onClose: vi.fn(),
+          defaultDate: '2025-02-24',
+          onSave,
+        },
+      })
+
+      await user.type(screen.getByLabelText('Title'), 'Quick add')
+
+      const form = screen.getByRole('presentation')
+      fireEvent.keyDown(form, { key: 'Enter', metaKey: true })
+
+      expect(onSave).toHaveBeenCalledWith(
+        expect.objectContaining({
+          text: 'Quick add',
+          description: '',
+          date: '2025-02-24',
+        })
+      )
+    })
+  })
 })

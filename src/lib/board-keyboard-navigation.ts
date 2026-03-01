@@ -21,6 +21,8 @@ export type BoardKeyboardOptions = {
   onPreviousWeek?: () => void
   /** When provided, returns the dateKey to focus when starting navigation (today when viewing current week, else first column). */
   getInitialFocusDateKey?: () => string
+  /** When provided, pressing 'n' opens the new todo modal. */
+  onNewTodo?: () => void
 }
 
 const NAV_KEYS = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'j', 'k', 'h', 'l'] as const
@@ -75,6 +77,7 @@ export function createBoardKeyboardHandler(
     onNextWeek,
     onPreviousWeek,
     getInitialFocusDateKey,
+    onNewTodo,
   } = options
 
   return function handleKeydown(event: KeyboardEvent) {
@@ -84,6 +87,20 @@ export function createBoardKeyboardHandler(
       (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable)
 
     if (!isTyping) {
+      if (
+        (event.key === 'n' || event.key === 'N') &&
+        !event.shiftKey &&
+        !event.ctrlKey &&
+        !event.metaKey &&
+        onNewTodo &&
+        !active?.closest('[role="dialog"]') &&
+        !getKeyboardMoveState()
+      ) {
+        event.preventDefault()
+        event.stopPropagation()
+        onNewTodo()
+        return
+      }
       if (event.shiftKey) {
         if ((event.key === 'N' || event.key === 'n') && onNextWeek) {
           event.preventDefault()

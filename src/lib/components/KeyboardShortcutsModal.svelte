@@ -4,7 +4,13 @@
   let { open = false, onClose }: { open?: boolean; onClose: () => void } = $props()
 
   const shortcuts = [
-    { section: 'General', items: [{ keys: [['?']], description: 'Show keyboard shortcuts' }] },
+    {
+      section: 'General',
+      items: [
+        { keys: [['?']], description: 'Show keyboard shortcuts' },
+        { keys: [['n']], description: 'New todo (opens modal)' },
+      ],
+    },
     {
       section: 'Week navigation',
       items: [

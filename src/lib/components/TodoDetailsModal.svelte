@@ -6,18 +6,24 @@
   let {
     open = false,
     onClose,
-    todo,
-    fromDate,
+    todo = undefined,
+    fromDate = undefined,
+    defaultDate = undefined,
     onSave,
     returnFocusTo = null,
   }: {
     open?: boolean
     onClose: () => void
-    todo: Todo
-    fromDate: string
+    todo?: Todo
+    fromDate?: string
+    defaultDate?: string
     onSave: (updates: { text: string; description: string; date: string }) => void
     returnFocusTo?: HTMLElement | null
   } = $props()
+
+  const isCreateMode = $derived(!todo)
+  const ariaTitle = $derived(isCreateMode ? 'New todo' : 'Todo details')
+  const submitLabel = $derived(isCreateMode ? 'Add' : 'Save')
 
   let textValue = $state('')
   let descriptionValue = $state('')
@@ -26,9 +32,15 @@
 
   $effect(() => {
     if (open) {
-      textValue = todo.text
-      descriptionValue = todo.description ?? ''
-      dateValue = todo.date
+      if (isCreateMode && defaultDate) {
+        textValue = ''
+        descriptionValue = ''
+        dateValue = defaultDate
+      } else if (todo && fromDate) {
+        textValue = todo.text
+        descriptionValue = todo.description ?? ''
+        dateValue = todo.date
+      }
       tick().then(() => titleInputRef?.focus())
     }
   })
@@ -49,10 +61,17 @@
     onClose()
     requestAnimationFrame(() => returnFocusTo?.focus())
   }
+
+  function handleKeydown(event: KeyboardEvent) {
+    if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
+      event.preventDefault()
+      handleSave()
+    }
+  }
 </script>
 
-<Modal {open} onClose={handleClose} variant="large" ariaTitle="Todo details" {returnFocusTo}>
-  <div class="space-y-4" role="presentation">
+<Modal {open} onClose={handleClose} variant="large" ariaTitle={ariaTitle} {returnFocusTo}>
+  <div class="space-y-4" role="presentation" onkeydown={handleKeydown}>
     <div>
       <label for="todo-details-title" class="mb-1 block text-sm font-medium text-text-secondary">
         Title
@@ -63,7 +82,7 @@
         bind:value={textValue}
         type="text"
         class="w-full rounded border border-border bg-bg-surface px-3 py-2 text-sm text-text-primary focus:border-accent-blue focus:ring-1 focus:ring-accent-blue focus:outline-none"
-        placeholder="Todo title"
+        placeholder={isCreateMode ? 'What needs to be done?' : 'Todo title'}
       />
     </div>
     <div>
@@ -105,7 +124,7 @@
         onclick={handleSave}
         class="rounded bg-accent-blue px-3 py-1.5 text-sm text-white hover:opacity-90"
       >
-        Save <kbd class="ml-1 rounded border border-white/30 px-1.5 py-0.5 font-mono text-xs">⌘↵</kbd>
+        {submitLabel} <kbd class="ml-1 rounded border border-white/30 px-1.5 py-0.5 font-mono text-xs">⌘↵</kbd>
       </button>
     </div>
   </div>
