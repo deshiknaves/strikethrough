@@ -22,6 +22,7 @@
     onUpdate,
     columnOrder = [],
     dropEdge = null,
+    movingTodo = null,
   }: {
     todo: Todo
     fromDate: string
@@ -31,6 +32,7 @@
     onUpdate: (text: string) => void
     columnOrder?: string[]
     dropEdge?: 'top' | 'bottom' | null
+    movingTodo?: Todo | null
   } = $props()
 
   const keyboardMoveMode = $derived(getKeyboardMoveState())
@@ -208,15 +210,38 @@
 
 <div use:initializeDragAndDrop data-todo-id={todo.id} class="flex flex-col">
   {#if (dragState.type === 'is-over' && dragState.closestEdge === 'top') || dropEdge === 'top'}
-    <div
-      class="my-0.5 flex items-center gap-2 rounded border border-dashed border-accent-blue bg-accent-blue/5 px-1 py-1"
-      style="min-height: {dragState.type === 'is-over' && dragState.closestEdge === 'top'
-        ? dragState.draggingRect.height + 'px'
-        : '2rem'}"
-    >
-      <div class="h-3.5 w-3.5 shrink-0 rounded-sm border border-accent-blue/40"></div>
-      <div class="h-2.5 w-3/5 rounded-full bg-accent-blue/20"></div>
-    </div>
+    {#if dropEdge === 'top' && movingTodo}
+      <div
+        class="my-0.5 flex items-center gap-2 rounded border-2 border-accent-blue px-1 py-1"
+      >
+        <div class="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border border-accent-blue {movingTodo.completed
+          ? 'bg-accent-blue'
+          : 'border-text-muted'}">
+          {#if movingTodo.completed}
+            <svg class="h-2 w-2 text-white" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 6l3 3 5-6" />
+            </svg>
+          {/if}
+        </div>
+        <span
+          class="flex-1 text-sm {movingTodo.completed
+            ? 'text-text-muted line-through'
+            : 'text-text-primary'}"
+        >
+          {movingTodo.text}
+        </span>
+      </div>
+    {:else}
+      <div
+        class="my-0.5 flex items-center gap-2 rounded border border-dashed border-accent-blue bg-accent-blue/5 px-1 py-1"
+        style="min-height: {dragState.type === 'is-over' && dragState.closestEdge === 'top'
+          ? dragState.draggingRect.height + 'px'
+          : '2rem'}"
+      >
+        <div class="h-3.5 w-3.5 shrink-0 rounded-sm border border-accent-blue/40"></div>
+        <div class="h-2.5 w-3/5 rounded-full bg-accent-blue/20"></div>
+      </div>
+    {/if}
   {/if}
   <div
     bind:this={todoRowRef}

@@ -38,6 +38,11 @@
 
   let isOver = $state(false)
   const keyboardMoveMode = $derived(getKeyboardMoveState())
+  const movingTodo = $derived(
+    keyboardMoveMode
+      ? getTodos(keyboardMoveMode.fromDate).find((t) => t.id === keyboardMoveMode.todoId) ?? null
+      : null
+  )
 
   const todos = $derived(getTodos(dateKey))
 
@@ -123,19 +128,33 @@
           {index}
           {columnOrder}
           {dropEdge}
+          movingTodo={dropEdge ? movingTodo : null}
           onToggle={() => toggleTodo(dateKey, todo.id)}
           onDelete={() => deleteTodo(dateKey, todo.id)}
           onUpdate={(text) => updateTodo(dateKey, todo.id, text)}
         />
       </div>
     {/each}
-    {#if keyboardMoveMode?.targetDateKey === dateKey && keyboardMoveMode.targetIndex === todos.length}
+    {#if keyboardMoveMode?.targetDateKey === dateKey && keyboardMoveMode.targetIndex === todos.length && movingTodo}
       <div
-        class="my-0.5 flex items-center gap-2 rounded border border-dashed border-accent-blue bg-accent-blue/5 px-1 py-1"
-        style="min-height: 2rem"
+        class="my-0.5 flex items-center gap-2 rounded border-2 border-accent-blue px-1 py-1"
       >
-        <div class="h-3.5 w-3.5 shrink-0 rounded-sm border border-accent-blue/40"></div>
-        <div class="h-2.5 w-3/5 rounded-full bg-accent-blue/20"></div>
+        <div class="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border border-accent-blue {movingTodo.completed
+          ? 'bg-accent-blue'
+          : 'border-text-muted'}">
+          {#if movingTodo.completed}
+            <svg class="h-2 w-2 text-white" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 6l3 3 5-6" />
+            </svg>
+          {/if}
+        </div>
+        <span
+          class="flex-1 text-sm {movingTodo.completed
+            ? 'text-text-muted line-through'
+            : 'text-text-primary'}"
+        >
+          {movingTodo.text}
+        </span>
       </div>
     {/if}
     <div data-date-key={dateKey} data-todo-index="new">

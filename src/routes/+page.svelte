@@ -47,18 +47,22 @@
       <button
         type="button"
         aria-label="Previous week"
-        class="rounded border border-border bg-bg-surface px-2 py-1 text-text-primary transition-colors hover:bg-bg-elevated"
+        class="flex size-8 items-center justify-center rounded-full border border-border bg-bg-surface text-text-primary transition-colors hover:bg-bg-elevated"
         onclick={() => (viewMonday = addWeeks(viewMonday, -1))}
       >
-        ←
+        <svg class="size-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <polygon points="15,4 15,20 5,12" />
+        </svg>
       </button>
       <button
         type="button"
         aria-label="Next week"
-        class="rounded border border-border bg-bg-surface px-2 py-1 text-text-primary transition-colors hover:bg-bg-elevated"
+        class="flex size-8 items-center justify-center rounded-full border border-border bg-bg-surface text-text-primary transition-colors hover:bg-bg-elevated"
         onclick={() => (viewMonday = addWeeks(viewMonday, 1))}
       >
-        →
+        <svg class="size-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <polygon points="9,4 9,20 19,12" />
+        </svg>
       </button>
     </nav>
   </header>

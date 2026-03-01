@@ -397,4 +397,53 @@ describe('TodoItem', () => {
 
     exitMoveMode()
   })
+
+  it('shows moving todo content with blue border at drop target in keyboard move mode', () => {
+    const existingTodo = createTodo({ id: 'todo-2', text: 'Existing item' })
+    const movingTodo = createTodo({ id: 'todo-1', text: 'Moving item', completed: true })
+    render(TodoItem, {
+      props: {
+        todo: existingTodo,
+        fromDate: '2025-02-24',
+        index: 0,
+        onToggle: vi.fn(),
+        onDelete: vi.fn(),
+        onUpdate: vi.fn(),
+        dropEdge: 'top',
+        movingTodo,
+      },
+    })
+
+    expect(screen.getByText('Moving item')).toBeInTheDocument()
+    const movingText = screen.getByText('Moving item')
+    expect(movingText).toHaveClass('line-through')
+    const placeholder = movingText.closest('div')
+    expect(placeholder).toHaveClass('border-accent-blue')
+  })
+
+  it('hides original item when in keyboard move mode', async () => {
+    const todo = createTodo({ text: 'Item being moved' })
+    const columnOrder = ['2025-02-24', '2025-02-25']
+    render(TodoItem, {
+      props: {
+        todo,
+        fromDate: '2025-02-24',
+        index: 0,
+        onToggle: vi.fn(),
+        onDelete: vi.fn(),
+        onUpdate: vi.fn(),
+        columnOrder,
+      },
+    })
+
+    enterMoveMode(todo.id, '2025-02-24', 0)
+    await act()
+
+    const todoOption = screen.getByRole('option', {
+      name: /Todo: Item being moved\. Press m to move/i,
+    })
+    expect(todoOption).toHaveClass('hidden')
+
+    exitMoveMode()
+  })
 })

@@ -70,8 +70,12 @@ export function createBoardKeyboardHandler(
       }
 
       if (event.key === 'Enter' || event.key === ' ') {
-        moveTodo(mode.fromDate, mode.targetDateKey, mode.todoId, mode.targetIndex)
+        const { targetDateKey, targetIndex } = mode
+        moveTodo(mode.fromDate, targetDateKey, mode.todoId, targetIndex)
         exitMoveMode()
+        requestAnimationFrame(() => {
+          focusCell(targetDateKey, targetIndex)
+        })
         return
       }
 

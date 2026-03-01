@@ -459,6 +459,52 @@ describe('/+page.svelte', () => {
       expect(getTodos(toDate)).toHaveLength(2)
     })
 
+    it('focuses moved item after placing with Enter', async () => {
+      const user = userEvent.setup()
+      render(Page)
+
+      const columnOrder = getColumnOrder()
+      const fromDate = columnOrder[0]
+      const toDate = columnOrder[1]
+      addTodo(fromDate, 'Todo 1')
+      addTodo(toDate, 'Todo 2')
+      await act()
+
+      const todo1 = screen.getByRole('option', { name: /Todo: Todo 1/ })
+      todo1.focus()
+      await user.keyboard('m')
+      await user.keyboard('{ArrowRight}')
+      await user.keyboard('{Enter}')
+
+      await act()
+
+      const movedTodo = screen.getByRole('option', { name: /Todo: Todo 1/ })
+      expect(movedTodo).toHaveFocus()
+    })
+
+    it('focuses moved item after placing with Space', async () => {
+      const user = userEvent.setup()
+      render(Page)
+
+      const columnOrder = getColumnOrder()
+      const fromDate = columnOrder[0]
+      const toDate = columnOrder[1]
+      addTodo(fromDate, 'Todo 1')
+      addTodo(toDate, 'Todo 2')
+      await act()
+
+      const todo1 = screen.getByRole('option', { name: /Todo: Todo 1/ })
+      todo1.focus()
+      await user.keyboard('m')
+      await user.keyboard('{ArrowRight}')
+      await user.keyboard(' ')
+
+      await act()
+
+      const movedTodo = screen.getByRole('option', { name: /Todo: Todo 1/ })
+      expect(movedTodo).toHaveFocus()
+    })
+
     it('updates drop target when ArrowDown is pressed in move mode', async () => {
       const user = userEvent.setup()
       render(Page)
