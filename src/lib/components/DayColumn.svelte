@@ -7,6 +7,7 @@
   } from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
   import { getTodos, addTodo, toggleTodo, deleteTodo, moveTodo } from '$lib/todos.svelte'
   import { getDragState, updateDropIndicator, clearDragState } from '$lib/drag-state.svelte'
+  import type { Todo } from '$lib/todos.svelte'
   import TodoItem from './TodoItem.svelte'
   import NewTodoInput from './NewTodoInput.svelte'
 
@@ -22,12 +23,26 @@
     class?: string
   } = $props()
 
+  type DisplayItem = { type: 'todo'; todo: Todo; index: number } | { type: 'placeholder' }
+
   const dropIndex = $derived(
     getDragState()?.dropIndicator?.toDate === dateKey
       ? getDragState()!.dropIndicator!.index
       : null,
   )
   const isOver = $derived(dropIndex !== null)
+
+  const displayItems = $derived.by<DisplayItem[]>(() => {
+    const todos = getTodos(dateKey)
+    const idx = dropIndex
+    const todoItems: DisplayItem[] = todos.map((todo, i) => ({ type: 'todo', todo, index: i }))
+    if (idx === null) return todoItems
+    return [
+      ...todoItems.slice(0, idx),
+      { type: 'placeholder' },
+      ...todoItems.slice(idx),
+    ]
+  })
 
   function setupColumn(node: HTMLElement) {
     const cleanup = combine(
@@ -68,23 +83,26 @@
     <span class="text-text-secondary">{sublabel}</span>
   </h2>
   <div class="min-h-0 flex-1 overflow-y-auto">
-    {#each getTodos(dateKey) as todo, i (todo.id)}
+    {#each displayItems as item (item.type === 'todo' ? item.todo.id : '__placeholder__')}
       <div animate:flip={{ duration: 200 }}>
-        {#if dropIndex === i}
-          <div class="mx-1 mb-1 h-0.5 rounded-full bg-accent-blue"></div>
+        {#if item.type === 'placeholder'}
+          <div
+            class="my-0.5 flex items-center gap-2 rounded border border-dashed border-accent-blue bg-accent-blue/5 px-1 py-1"
+          >
+            <div class="h-3.5 w-3.5 shrink-0 rounded-sm border border-accent-blue/40"></div>
+            <div class="h-2.5 w-3/5 rounded-full bg-accent-blue/20"></div>
+          </div>
+        {:else}
+          <TodoItem
+            todo={item.todo}
+            fromDate={dateKey}
+            index={item.index}
+            onToggle={() => toggleTodo(dateKey, item.todo.id)}
+            onDelete={() => deleteTodo(dateKey, item.todo.id)}
+          />
         {/if}
-        <TodoItem
-          {todo}
-          fromDate={dateKey}
-          index={i}
-          onToggle={() => toggleTodo(dateKey, todo.id)}
-          onDelete={() => deleteTodo(dateKey, todo.id)}
-        />
       </div>
     {/each}
-    {#if dropIndex === getTodos(dateKey).length}
-      <div class="mx-1 mb-1 h-0.5 rounded-full bg-accent-blue"></div>
-    {/if}
     <NewTodoInput onAdd={(text) => addTodo(dateKey, text)} />
   </div>
 </div>
