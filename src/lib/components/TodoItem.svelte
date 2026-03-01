@@ -136,7 +136,7 @@
     | { type: 'is-dragging-and-left-self' }
     | { type: 'is-over'; closestEdge: 'top' | 'bottom'; draggingRect: DOMRect }
 
-  let state = $state<TodoItemState>({ type: 'idle' })
+  let dragState = $state<TodoItemState>({ type: 'idle' })
 
   const idleState: TodoItemState = { type: 'idle' }
 
@@ -153,10 +153,10 @@
         }),
         onDragStart: () => {
           startDrag(todo.id, fromDate)
-          state = { type: 'is-dragging' }
+          dragState = { type: 'is-dragging' }
         },
         onDrop: () => {
-          state = idleState
+          dragState = idleState
         },
       }),
       dropTargetForElements({
@@ -174,7 +174,7 @@
           if (!edge || (edge !== 'top' && edge !== 'bottom')) return
           const rect = data.rect
           if (!rect) return
-          state = { type: 'is-over', closestEdge: edge, draggingRect: rect }
+          dragState = { type: 'is-over', closestEdge: edge, draggingRect: rect }
         },
         onDrag: ({ source, self }) => {
           const data = source.data as { todoId?: string; rect?: DOMRect }
@@ -184,21 +184,21 @@
           const rect = data.rect
           if (!rect) return
           const proposed: TodoItemState = { type: 'is-over', closestEdge: edge, draggingRect: rect }
-          if (state.type === 'is-over' && state.closestEdge === proposed.closestEdge) {
+          if (dragState.type === 'is-over' && dragState.closestEdge === proposed.closestEdge) {
             return
           }
-          state = proposed
+          dragState = proposed
         },
         onDragLeave: ({ source }) => {
           const data = source.data as { todoId?: string }
           if (data.todoId === todo.id) {
-            state = { type: 'is-dragging-and-left-self' }
+            dragState = { type: 'is-dragging-and-left-self' }
             return
           }
-          state = idleState
+          dragState = idleState
         },
         onDrop: () => {
-          state = idleState
+          dragState = idleState
         },
       })
     )
@@ -207,11 +207,11 @@
 </script>
 
 <div use:initializeDragAndDrop data-todo-id={todo.id} class="flex flex-col">
-  {#if (state.type === 'is-over' && state.closestEdge === 'top') || dropEdge === 'top'}
+  {#if (dragState.type === 'is-over' && dragState.closestEdge === 'top') || dropEdge === 'top'}
     <div
       class="my-0.5 flex items-center gap-2 rounded border border-dashed border-accent-blue bg-accent-blue/5 px-1 py-1"
-      style="min-height: {state.type === 'is-over' && state.closestEdge === 'top'
-        ? state.draggingRect.height + 'px'
+      style="min-height: {dragState.type === 'is-over' && dragState.closestEdge === 'top'
+        ? dragState.draggingRect.height + 'px'
         : '2rem'}"
     >
       <div class="h-3.5 w-3.5 shrink-0 rounded-sm border border-accent-blue/40"></div>
@@ -227,10 +227,10 @@
     aria-keyshortcuts="m"
     aria-label="Todo: {todo.text}. Press m to move, e to edit, Space to toggle, x or Delete to remove."
     onkeydown={handleKeydown}
-    class="group flex cursor-grab items-center gap-2 rounded border-b border-border px-1 py-1 transition-opacity focus-within:bg-bg-elevated hover:bg-bg-elevated focus-visible:ring-2 focus-visible:ring-accent-blue/60 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-surface focus-visible:outline-none active:cursor-grabbing {state.type ===
+    class="group flex cursor-grab items-center gap-2 rounded border-b border-border px-1 py-1 transition-opacity focus-within:bg-bg-elevated hover:bg-bg-elevated focus-visible:ring-2 focus-visible:ring-accent-blue/60 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-surface focus-visible:outline-none active:cursor-grabbing {dragState.type ===
     'is-dragging'
       ? 'opacity-40'
-      : state.type === 'is-dragging-and-left-self' || isKeyboardMoving
+      : dragState.type === 'is-dragging-and-left-self' || isKeyboardMoving
         ? 'hidden'
         : 'opacity-100'}"
   >
@@ -312,11 +312,11 @@
       &times;
     </button>
   </div>
-  {#if (state.type === 'is-over' && state.closestEdge === 'bottom') || dropEdge === 'bottom'}
+  {#if (dragState.type === 'is-over' && dragState.closestEdge === 'bottom') || dropEdge === 'bottom'}
     <div
       class="my-0.5 flex items-center gap-2 rounded border border-dashed border-accent-blue bg-accent-blue/5 px-1 py-1"
-      style="min-height: {state.type === 'is-over' && state.closestEdge === 'bottom'
-        ? state.draggingRect.height + 'px'
+      style="min-height: {dragState.type === 'is-over' && dragState.closestEdge === 'bottom'
+        ? dragState.draggingRect.height + 'px'
         : '2rem'}"
     >
       <div class="h-3.5 w-3.5 shrink-0 rounded-sm border border-accent-blue/40"></div>
