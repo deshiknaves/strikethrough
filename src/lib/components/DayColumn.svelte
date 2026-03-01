@@ -125,6 +125,8 @@
         <div class="h-2.5 w-3/5 rounded-full bg-accent-blue/20"></div>
       </div>
     {/if}
-    <NewTodoInput onAdd={(text) => addTodo(dateKey, text)} />
+    <div data-date-key={dateKey} data-todo-index="new">
+      <NewTodoInput onAdd={(text) => addTodo(dateKey, text)} />
+    </div>
   </div>
 </div>

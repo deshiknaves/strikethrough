@@ -221,11 +221,13 @@
   <div
     bind:this={todoRowRef}
     data-draggable
+    data-date-key={fromDate}
+    data-todo-index={index}
     tabindex="0"
     role="option"
     aria-selected={isKeyboardMoving}
-    aria-keyshortcuts="m"
-    aria-label="Todo: {todo.text}. Press m to move, e to edit, Space to toggle, x or Delete to remove."
+    aria-keyshortcuts="m e Space x Delete ArrowUp ArrowDown ArrowLeft ArrowRight j k h l"
+    aria-label="Todo: {todo.text}. Press m to move, e to edit, Space to toggle, x or Delete to remove. Use arrow keys or j/k/h/l to navigate."
     onkeydown={handleKeydown}
     class="group flex cursor-grab items-center gap-2 rounded border-b border-border px-1 py-1 transition-opacity focus-within:bg-bg-elevated hover:bg-bg-elevated focus-visible:ring-2 focus-visible:ring-accent-blue/60 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-surface focus-visible:outline-none active:cursor-grabbing {dragState.type ===
     'is-dragging'
