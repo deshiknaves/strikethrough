@@ -1,8 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
 
 @theme {
+  --font-sans: 'Outfit', sans-serif;
   --color-bg-base: #090a0c;
   --color-bg-surface: #13151a;
   --color-bg-elevated: #1a1d24;
