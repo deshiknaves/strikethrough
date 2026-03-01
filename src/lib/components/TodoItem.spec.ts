@@ -248,6 +248,7 @@ describe('TodoItem', () => {
         onToggle: vi.fn(),
         onDelete: vi.fn(),
         onUpdate,
+        onUpdateDetails: vi.fn(),
       },
     })
 
@@ -279,6 +280,7 @@ describe('TodoItem', () => {
         onToggle: vi.fn(),
         onDelete: vi.fn(),
         onUpdate,
+        onUpdateDetails: vi.fn(),
       },
     })
 
