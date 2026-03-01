@@ -27,7 +27,10 @@
 
   $effect(() => {
     if (browser) {
-      loadWeek(viewMonday)
+      const monday = viewMonday
+      loadWeek(monday, {
+        getIsCurrentView: () => viewMonday.toString() === monday.toString(),
+      })
     }
   })
 

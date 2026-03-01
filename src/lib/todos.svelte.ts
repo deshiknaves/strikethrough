@@ -2,6 +2,7 @@ import { reorder } from '@atlaskit/pragmatic-drag-and-drop/reorder'
 import {
   loadWeek as loadWeekFromPersistence,
   getCurrentWeekHandle,
+  unloadWeek,
   type Todo as PersistenceTodo,
 } from '$lib/todos-persistence.svelte'
 import { getWeekDateKeys } from '$lib/week-utils'
@@ -27,11 +28,18 @@ function syncFromYArray(handle: { array: { toArray: () => Todo[] }; weekDateKeys
 
 export async function loadWeek(
   monday: Temporal.PlainDate,
+  options?: { getIsCurrentView?: () => boolean },
   dbPrefix = 'strikethrough'
 ): Promise<void> {
   const mondayStr = monday.toString()
   const weekDateKeys = getWeekDateKeys(monday)
   const handle = await loadWeekFromPersistence(mondayStr, weekDateKeys, dbPrefix)
+
+  if (options?.getIsCurrentView && !options.getIsCurrentView()) {
+    unloadWeek()
+    return
+  }
+
   syncFromYArray(handle)
   handle.array.observe(() => {
     syncFromYArray(handle)
