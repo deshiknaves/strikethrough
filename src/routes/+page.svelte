@@ -1,10 +1,11 @@
 <script lang="ts">
   import { onMount } from 'svelte'
+  import { browser } from '$app/environment'
   import { Temporal } from 'temporal-polyfill'
   import DayColumn from '$lib/components/DayColumn.svelte'
   import { createBoardKeyboardHandler } from '$lib/board-keyboard-navigation'
   import { getKeyboardMoveState, updateTarget, exitMoveMode } from '$lib/keyboard-move-state.svelte'
-  import { getTodos, moveTodo } from '$lib/todos.svelte'
+  import { getTodos, moveTodo, loadWeek } from '$lib/todos.svelte'
   import {
     getMondayOfWeek,
     getWeekDays,
@@ -23,6 +24,12 @@
   const weekend = $derived(getWeekendDays(viewMonday))
   const columnOrder = $derived(getColumnOrder(viewMonday))
   const heading = $derived(formatMonthYear(viewMonday))
+
+  $effect(() => {
+    if (browser) {
+      loadWeek(viewMonday)
+    }
+  })
 
   onMount(() => {
     const handleKeydown = createBoardKeyboardHandler({

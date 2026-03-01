@@ -214,11 +214,21 @@
       <div
         class="flex items-center gap-2 rounded border-b border-border px-1 py-1 ring-2 ring-accent-blue ring-offset-2 ring-offset-bg-surface"
       >
-        <div class="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border border-accent-blue {movingTodo.completed
-          ? 'bg-accent-blue'
-          : 'border-text-muted'}">
+        <div
+          class="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border border-accent-blue {movingTodo.completed
+            ? 'bg-accent-blue'
+            : 'border-text-muted'}"
+        >
           {#if movingTodo.completed}
-            <svg class="h-2 w-2 text-white" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              class="h-2 w-2 text-white"
+              viewBox="0 0 12 12"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <path d="M2 6l3 3 5-6" />
             </svg>
           {/if}

@@ -18,6 +18,10 @@ export function getColumnOrder(monday: Temporal.PlainDate): string[] {
   return [...weekdays.map((d) => d.toString()), ...weekend.map((d) => d.toString())]
 }
 
+export function getWeekDateKeys(monday: Temporal.PlainDate): string[] {
+  return getColumnOrder(monday)
+}
+
 export function formatDate(date: Temporal.PlainDate): string {
   return date.toLocaleString('en-US', { day: 'numeric', month: 'short' })
 }

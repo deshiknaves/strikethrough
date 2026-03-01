@@ -9,6 +9,9 @@ const createTodo = (overrides = {}) => ({
   id: 'todo-1',
   text: 'Test todo',
   completed: false,
+  date: '2025-02-24',
+  createdAt: '2025-02-24T10:00:00.000Z',
+  updatedAt: '2025-02-24T10:00:00.000Z',
   ...overrides,
 })
 
