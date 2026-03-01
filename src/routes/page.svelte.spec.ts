@@ -159,6 +159,22 @@ describe('/+page.svelte', () => {
       const newMonday = Temporal.PlainDate.from(newOrder[0])
       expect(initialMonday.until(newMonday).days).toBe(-7)
     })
+
+    it('focuses first element when navigating to a week that is not the current week', async () => {
+      const user = userEvent.setup()
+      render(Page)
+      await act()
+
+      await user.click(screen.getByRole('button', { name: 'Next week' }))
+      await act()
+
+      const columnOrder = getColumnOrder()
+      const firstColumnKey = columnOrder[0]
+      const firstCell = document.querySelector<HTMLElement>(
+        `[data-date-key="${firstColumnKey}"][data-todo-index="0"], [data-date-key="${firstColumnKey}"][data-todo-index="new"] input, [data-date-key="${firstColumnKey}"][data-todo-index="new"] button`
+      )
+      expect(firstCell).toHaveFocus()
+    })
   })
 
   describe('board keyboard navigation', () => {
@@ -429,6 +445,23 @@ describe('/+page.svelte', () => {
         `[data-date-key="${columnOrder[1]}"][data-todo-index="new"] input, [data-date-key="${columnOrder[1]}"][data-todo-index="new"] button`
       )
       expect(addButtonCol1).toHaveFocus()
+    })
+
+    it('focuses initial cell when nothing on board is focused and nav key is pressed', async () => {
+      const user = userEvent.setup()
+      render(Page)
+
+      const columnOrder = getColumnOrder()
+      addTodo(columnOrder[0], 'Todo 1')
+      await act()
+
+      const heading = screen.getByRole('heading', { level: 1 })
+      heading.focus()
+
+      await user.keyboard('{ArrowDown}')
+
+      const focusedEl = document.activeElement as HTMLElement
+      expect(focusedEl.closest('[data-date-key][data-todo-index]')).toBeInTheDocument()
     })
 
     it('does not capture vim keys when add-todo input is focused', async () => {

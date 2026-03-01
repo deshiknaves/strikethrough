@@ -19,6 +19,8 @@ export type BoardKeyboardOptions = {
   exitMoveMode: () => void
   onNextWeek?: () => void
   onPreviousWeek?: () => void
+  /** When provided, returns the dateKey to focus when starting navigation (today when viewing current week, else first column). */
+  getInitialFocusDateKey?: () => string
 }
 
 const NAV_KEYS = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'j', 'k', 'h', 'l'] as const
@@ -49,6 +51,17 @@ function focusCell(dateKey: string, index: number | 'new'): void {
   }
 }
 
+function isActiveOnBoard(active: HTMLElement | null): boolean {
+  if (!active) return false
+  const inNewInput = active.closest<HTMLElement>('[data-date-key][data-todo-index="new"]')
+  if (inNewInput) return true
+  const dateKey = active.getAttribute('data-date-key')
+  const indexAttr = active.getAttribute('data-todo-index')
+  if (!dateKey || indexAttr === null || indexAttr === 'new') return false
+  const index = parseInt(indexAttr, 10)
+  return !Number.isNaN(index)
+}
+
 export function createBoardKeyboardHandler(
   options: BoardKeyboardOptions
 ): (event: KeyboardEvent) => void {
@@ -61,6 +74,7 @@ export function createBoardKeyboardHandler(
     exitMoveMode,
     onNextWeek,
     onPreviousWeek,
+    getInitialFocusDateKey,
   } = options
 
   return function handleKeydown(event: KeyboardEvent) {
@@ -161,10 +175,22 @@ export function createBoardKeyboardHandler(
 
     if (!NAV_KEYS.includes(event.key as (typeof NAV_KEYS)[number])) return
 
-    if (!active) return
-
     // Don't capture nav keys when user is typing in a text input
-    if (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable) {
+    if (active?.tagName === 'INPUT' || active?.tagName === 'TEXTAREA' || active?.isContentEditable) {
+      return
+    }
+
+    // When nothing on board is focused, focus initial cell (today or first column)
+    if (!active || !isActiveOnBoard(active)) {
+      if (!active?.closest('[role="dialog"]') && getInitialFocusDateKey) {
+        const targetDateKey = getInitialFocusDateKey()
+        if (columnOrder.includes(targetDateKey)) {
+          const todos = getTodos(targetDateKey)
+          event.preventDefault()
+          event.stopPropagation()
+          focusCell(targetDateKey, todos.length > 0 ? 0 : 'new')
+        }
+      }
       return
     }
 
@@ -260,5 +286,21 @@ export function createBoardKeyboardHandler(
           : ('new' as const)
       focusCell(nextCol, targetIndex)
     }
+  }
+}
+
+export type FocusFirstCellOptions = {
+  getColumnOrder: () => string[]
+  getTodos: (dateKey: string) => { id: string }[]
+  getInitialFocusDateKey?: () => string
+}
+
+export function focusFirstCell(options: FocusFirstCellOptions): void {
+  const { getColumnOrder, getTodos, getInitialFocusDateKey } = options
+  const columnOrder = getColumnOrder()
+  const targetDateKey = getInitialFocusDateKey?.() ?? columnOrder[0]
+  if (columnOrder.includes(targetDateKey)) {
+    const todos = getTodos(targetDateKey)
+    focusCell(targetDateKey, todos.length > 0 ? 0 : 'new')
   }
 }

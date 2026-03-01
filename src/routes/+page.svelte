@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
+  import { onMount, tick } from 'svelte'
   import { browser } from '$app/environment'
   import { Temporal } from 'temporal-polyfill'
   import DayColumn from '$lib/components/DayColumn.svelte'
-  import { createBoardKeyboardHandler } from '$lib/board-keyboard-navigation'
+  import { createBoardKeyboardHandler, focusFirstCell } from '$lib/board-keyboard-navigation'
   import { getKeyboardMoveState, updateTarget, exitMoveMode } from '$lib/keyboard-move-state.svelte'
   import { getTodos, moveTodo, loadWeek } from '$lib/todos.svelte'
   import {
@@ -34,6 +34,18 @@
     }
   })
 
+  $effect(() => {
+    if (browser && !columnOrder.includes(today.toString())) {
+      tick().then(() => {
+        focusFirstCell({
+          getColumnOrder: () => columnOrder,
+          getTodos,
+          getInitialFocusDateKey: () => columnOrder[0],
+        })
+      })
+    }
+  })
+
   onMount(() => {
     const handleKeydown = createBoardKeyboardHandler({
       getColumnOrder: () => columnOrder,
@@ -44,6 +56,8 @@
       exitMoveMode,
       onNextWeek: () => (viewMonday = addWeeks(viewMonday, 1)),
       onPreviousWeek: () => (viewMonday = addWeeks(viewMonday, -1)),
+      getInitialFocusDateKey: () =>
+        columnOrder.includes(today.toString()) ? today.toString() : columnOrder[0],
     })
 
     document.addEventListener('keydown', handleKeydown, true)
