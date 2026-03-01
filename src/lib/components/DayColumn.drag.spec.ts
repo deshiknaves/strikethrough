@@ -44,6 +44,8 @@ describe('DayColumn drag and drop', () => {
 
     // Add todo to first column
     const monColumn = screen.getByRole('group', { name: /Mon/ })
+    const addButton = within(monColumn).getByRole('button', { name: /add new todo/i })
+    await user.click(addButton)
     const firstColumnInput = within(monColumn).getByPlaceholderText('Add item...')
     await user.type(firstColumnInput, 'Drag me{Enter}')
 

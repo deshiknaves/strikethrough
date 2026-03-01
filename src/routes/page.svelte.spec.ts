@@ -3,7 +3,7 @@ import { act, render, screen } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
 import Page from './+page.svelte'
 import { addTodo, getTodos, resetTodos } from '$lib/todos.svelte'
-import { enterMoveMode, exitMoveMode, getKeyboardMoveState } from '$lib/keyboard-move-state.svelte'
+import { exitMoveMode, getKeyboardMoveState } from '$lib/keyboard-move-state.svelte'
 
 function getColumnOrder(): string[] {
   const groups = document.querySelectorAll<HTMLElement>('[role="group"][data-date-key]')
@@ -48,7 +48,7 @@ describe('/+page.svelte', () => {
       expect(todo2).toHaveFocus()
     })
 
-    it('moves focus to new input when ArrowDown on last todo in column', async () => {
+    it('moves focus to new slot when ArrowDown on last todo in column', async () => {
       const user = userEvent.setup()
       render(Page)
 
@@ -63,10 +63,44 @@ describe('/+page.svelte', () => {
 
       await user.keyboard('{ArrowDown}')
 
-      const newInput = document.querySelector<HTMLInputElement>(
-        `[data-date-key="${dateKey}"][data-todo-index="new"] input`
+      const newSlot = document.querySelector<HTMLElement>(
+        `[data-date-key="${dateKey}"][data-todo-index="new"] input, [data-date-key="${dateKey}"][data-todo-index="new"] button`
       )
-      expect(newInput).toHaveFocus()
+      expect(newSlot).toHaveFocus()
+    })
+
+    it('moves focus left/right when on new slot button (vim navigation)', async () => {
+      const user = userEvent.setup()
+      render(Page)
+
+      const columnOrder = getColumnOrder()
+      addTodo(columnOrder[0], 'Todo 1')
+      addTodo(columnOrder[1], 'Todo 2')
+      await act()
+
+      const todo2 = screen.getByRole('option', { name: /Todo: Todo 2/ })
+      todo2.focus()
+      await user.keyboard('{ArrowDown}')
+
+      const newSlot1 = document.querySelector<HTMLElement>(
+        `[data-date-key="${columnOrder[1]}"][data-todo-index="new"] input, [data-date-key="${columnOrder[1]}"][data-todo-index="new"] button`
+      )
+      expect(newSlot1).toHaveFocus()
+
+      await user.keyboard('h')
+
+      const todo1 = screen.getByRole('option', { name: /Todo: Todo 1/ })
+      expect(todo1).toHaveFocus()
+
+      await user.keyboard('{ArrowDown}')
+      const newSlot0 = document.querySelector<HTMLElement>(
+        `[data-date-key="${columnOrder[0]}"][data-todo-index="new"] input, [data-date-key="${columnOrder[0]}"][data-todo-index="new"] button`
+      )
+      expect(newSlot0).toHaveFocus()
+
+      await user.keyboard('l')
+
+      expect(todo2).toHaveFocus()
     })
 
     it('moves focus up with ArrowUp', async () => {

@@ -33,7 +33,7 @@ describe('DayColumn', () => {
       },
     })
 
-    expect(screen.getByPlaceholderText('Add item...')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /add new todo/i })).toBeInTheDocument()
   })
 
   it('adds todo when user types and presses Enter', async () => {
@@ -47,6 +47,8 @@ describe('DayColumn', () => {
       },
     })
 
+    const addButton = screen.getByRole('button', { name: /add new todo/i })
+    await user.click(addButton)
     const input = screen.getByPlaceholderText('Add item...')
     await user.type(input, 'New column todo{Enter}')
 

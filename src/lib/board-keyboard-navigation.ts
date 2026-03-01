@@ -19,16 +19,7 @@ export type BoardKeyboardOptions = {
   exitMoveMode: () => void
 }
 
-const NAV_KEYS = [
-  'ArrowUp',
-  'ArrowDown',
-  'ArrowLeft',
-  'ArrowRight',
-  'j',
-  'k',
-  'h',
-  'l',
-] as const
+const NAV_KEYS = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'j', 'k', 'h', 'l'] as const
 
 function toVimKey(key: string): string {
   return key === 'j'
@@ -42,15 +33,11 @@ function toVimKey(key: string): string {
           : key
 }
 
-export function createBoardKeyboardHandler(options: BoardKeyboardOptions): (event: KeyboardEvent) => void {
-  const {
-    getColumnOrder,
-    getTodos,
-    moveTodo,
-    getKeyboardMoveState,
-    updateTarget,
-    exitMoveMode,
-  } = options
+export function createBoardKeyboardHandler(
+  options: BoardKeyboardOptions
+): (event: KeyboardEvent) => void {
+  const { getColumnOrder, getTodos, moveTodo, getKeyboardMoveState, updateTarget, exitMoveMode } =
+    options
 
   return function handleKeydown(event: KeyboardEvent) {
     const mode = getKeyboardMoveState()
@@ -101,40 +88,70 @@ export function createBoardKeyboardHandler(options: BoardKeyboardOptions): (even
     const active = document.activeElement as HTMLElement | null
     if (!active) return
 
-    if (active.tagName === 'INPUT') {
-      const newInputWrapper = active.closest<HTMLElement>('[data-todo-index="new"]')
-      if (newInputWrapper) {
-        const dateKey = newInputWrapper.getAttribute('data-date-key')
-        if (dateKey) {
-          const colIndex = columnOrder.indexOf(dateKey)
-          const todos = getTodos(dateKey)
-          if (event.key === 'ArrowUp') {
-            if (todos.length > 0) {
-              event.preventDefault()
-              event.stopPropagation()
-              const target = document.querySelector<HTMLElement>(
-                `[data-date-key="${dateKey}"][data-todo-index="${todos.length - 1}"]`
-              )
-              target?.focus()
-            } else if (colIndex >= WEEKEND_START) {
-              const weekdayCol = getWeekdayColForWeekend(colIndex)
-              const weekdayKey = columnOrder[weekdayCol]
-              event.preventDefault()
-              event.stopPropagation()
-              const newInput = document.querySelector<HTMLInputElement>(
-                `[data-date-key="${weekdayKey}"][data-todo-index="new"] input`
-              )
-              newInput?.focus()
-            }
-          } else if (event.key === 'ArrowDown' && colIndex < WEEKEND_START) {
-            const weekendCol = getWeekendColForWeekday(colIndex)
-            const weekendKey = columnOrder[weekendCol]
-            event.preventDefault()
-            event.stopPropagation()
-            const newInput = document.querySelector<HTMLInputElement>(
-              `[data-date-key="${weekendKey}"][data-todo-index="new"] input`
+    const newInputWrapper =
+      (active.tagName === 'INPUT' || active.tagName === 'BUTTON') &&
+      active.closest<HTMLElement>('[data-todo-index="new"]')
+
+    if (newInputWrapper) {
+      const dateKey = newInputWrapper.getAttribute('data-date-key')
+      if (dateKey) {
+        const colIndex = columnOrder.indexOf(dateKey)
+        const todos = getTodos(dateKey)
+        const index = todos.length
+
+        event.preventDefault()
+        event.stopPropagation()
+
+        if (vimKey === 'ArrowUp') {
+          if (todos.length > 0) {
+            const target = document.querySelector<HTMLElement>(
+              `[data-date-key="${dateKey}"][data-todo-index="${todos.length - 1}"]`
             )
-            newInput?.focus()
+            target?.focus()
+          } else if (colIndex >= WEEKEND_START) {
+            const weekdayCol = getWeekdayColForWeekend(colIndex)
+            const weekdayKey = columnOrder[weekdayCol]
+            const target = document.querySelector<HTMLElement>(
+              `[data-date-key="${weekdayKey}"][data-todo-index="new"] input, [data-date-key="${weekdayKey}"][data-todo-index="new"] button`
+            )
+            target?.focus()
+          }
+        } else if (vimKey === 'ArrowDown' && colIndex < WEEKEND_START) {
+          const weekendCol = getWeekendColForWeekday(colIndex)
+          const weekendKey = columnOrder[weekendCol]
+          const target = document.querySelector<HTMLElement>(
+            `[data-date-key="${weekendKey}"][data-todo-index="new"] input, [data-date-key="${weekendKey}"][data-todo-index="new"] button`
+          )
+          target?.focus()
+        } else if (vimKey === 'ArrowLeft' && colIndex > 0) {
+          const prevCol = columnOrder[colIndex - 1]
+          const prevTodos = getTodos(prevCol)
+          if (prevTodos.length > 0) {
+            const targetIndex = index < prevTodos.length ? index : prevTodos.length - 1
+            const target = document.querySelector<HTMLElement>(
+              `[data-date-key="${prevCol}"][data-todo-index="${targetIndex}"]`
+            )
+            target?.focus()
+          } else {
+            const target = document.querySelector<HTMLElement>(
+              `[data-date-key="${prevCol}"][data-todo-index="new"] input, [data-date-key="${prevCol}"][data-todo-index="new"] button`
+            )
+            target?.focus()
+          }
+        } else if (vimKey === 'ArrowRight' && colIndex < columnOrder.length - 1) {
+          const nextCol = columnOrder[colIndex + 1]
+          const nextTodos = getTodos(nextCol)
+          if (nextTodos.length > 0) {
+            const targetIndex = index < nextTodos.length ? index : nextTodos.length - 1
+            const target = document.querySelector<HTMLElement>(
+              `[data-date-key="${nextCol}"][data-todo-index="${targetIndex}"]`
+            )
+            target?.focus()
+          } else {
+            const target = document.querySelector<HTMLElement>(
+              `[data-date-key="${nextCol}"][data-todo-index="new"] input, [data-date-key="${nextCol}"][data-todo-index="new"] button`
+            )
+            target?.focus()
           }
         }
       }
@@ -170,10 +187,10 @@ export function createBoardKeyboardHandler(options: BoardKeyboardOptions): (even
           )
           target?.focus()
         } else {
-          const newInput = document.querySelector<HTMLInputElement>(
-            `[data-date-key="${weekdayKey}"][data-todo-index="new"] input`
+          const target = document.querySelector<HTMLElement>(
+            `[data-date-key="${weekdayKey}"][data-todo-index="new"] input, [data-date-key="${weekdayKey}"][data-todo-index="new"] button`
           )
-          newInput?.focus()
+          target?.focus()
         }
       }
     } else if (vimKey === 'ArrowDown') {
@@ -183,10 +200,10 @@ export function createBoardKeyboardHandler(options: BoardKeyboardOptions): (even
         )
         target?.focus()
       } else {
-        const newInput = document.querySelector<HTMLInputElement>(
-          `[data-date-key="${dateKey}"][data-todo-index="new"] input`
+        const target = document.querySelector<HTMLElement>(
+          `[data-date-key="${dateKey}"][data-todo-index="new"] input, [data-date-key="${dateKey}"][data-todo-index="new"] button`
         )
-        newInput?.focus()
+        target?.focus()
       }
     } else if (vimKey === 'ArrowLeft' && colIndex > 0) {
       const prevCol = columnOrder[colIndex - 1]
