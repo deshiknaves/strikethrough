@@ -77,6 +77,8 @@
 
 <div
   use:setupColumn
+  data-testid="day-column"
+  data-date-key={dateKey}
   class="flex flex-col rounded-lg border p-3 transition-colors {isOver
     ? 'border-accent-blue bg-accent-blue/10'
     : 'border-border bg-bg-surface'} {extraClass}"

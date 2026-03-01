@@ -54,6 +54,16 @@ export default defineConfig({
           name: 'unit',
           environment: 'happy-dom',
           include: ['src/lib/**/*.spec.{js,ts}'],
+          exclude: ['src/lib/**/*.drag.spec.{js,ts}'],
+          setupFiles: ['src/test/setup.ts'],
+        },
+      },
+      {
+        extends: './vite.config.ts',
+        test: {
+          name: 'unit-drag',
+          environment: 'jsdom',
+          include: ['src/lib/**/*.drag.spec.{js,ts}'],
           setupFiles: ['src/test/setup.ts'],
         },
       },
