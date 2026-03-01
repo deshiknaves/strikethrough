@@ -11,6 +11,7 @@
   } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge'
   import { startDrag } from '$lib/drag-state.svelte'
   import { enterMoveMode, getKeyboardMoveState } from '$lib/keyboard-move-state.svelte'
+  import Modal from '$lib/components/Modal.svelte'
   import type { Todo } from '$lib/todos.svelte'
 
   let {
@@ -38,8 +39,8 @@
   const keyboardMoveMode = $derived(getKeyboardMoveState())
   const isKeyboardMoving = $derived(keyboardMoveMode?.todoId === todo.id)
 
-  let deleteDialogRef: HTMLDialogElement | null = null
-  let todoRowRef: HTMLDivElement | null = null
+  let deleteModalOpen = $state(false)
+  let todoRowRef = $state<HTMLDivElement | null>(null)
   let editInputRef = $state<HTMLInputElement | null>(null)
   let isEditing = $state(false)
   let editValue = $state('')
@@ -94,17 +95,16 @@
   }
 
   function openDeleteModal() {
-    deleteDialogRef?.showModal()
+    deleteModalOpen = true
   }
 
   function closeDeleteModal() {
-    deleteDialogRef?.close()
-    todoRowRef?.focus()
+    deleteModalOpen = false
   }
 
   function confirmDelete() {
     onDelete()
-    deleteDialogRef?.close()
+    deleteModalOpen = false
   }
 
   function handleKeydown(e: KeyboardEvent) {
@@ -360,10 +360,12 @@
       <div class="h-2.5 w-3/5 rounded-full bg-accent-blue/20"></div>
     </div>
   {/if}
-  <dialog
-    bind:this={deleteDialogRef}
-    oncancel={closeDeleteModal}
-    class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-bg-surface p-4 shadow-lg backdrop:bg-black/50"
+  <Modal
+    open={deleteModalOpen}
+    onClose={closeDeleteModal}
+    variant="small"
+    ariaTitle="Delete todo"
+    returnFocusTo={todoRowRef}
   >
     <p class="mb-4 text-sm text-text-primary">Delete this todo?</p>
     <div class="flex justify-end gap-2">
@@ -382,5 +384,5 @@
         Delete
       </button>
     </div>
-  </dialog>
+  </Modal>
 </div>
