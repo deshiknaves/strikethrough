@@ -1,42 +1,42 @@
-# sv
+# Strikethrough
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A week-based todo app built with SvelteKit. Organize tasks by day in a Monday–Sunday layout. Drag todos between days or use keyboard shortcuts to move them.
 
-## Creating a project
+## Features
 
-If you're seeing this, you've probably already done this step. Congrats!
+- **Week view** — Todos grouped by day (weekdays + weekend)
+- **Drag & drop** — Reorder within a day or move between days
+- **Keyboard navigation** — Press `m` on a todo to enter move mode, then use arrow keys + Enter/Space to place
+- **Dark theme** — Outfit font, Tailwind CSS
 
-```sh
-# create a new project
-npx sv create my-app
-```
+## Tech Stack
 
-To recreate this project with the same configuration:
+- SvelteKit 2
+- Svelte 5
+- TypeScript
+- Tailwind CSS v4
+- [pragmatic-drag-and-drop](https://atlassian.design/components/pragmatic-drag-and-drop/about)
+- Temporal API
 
-```sh
-# recreate this project
-pnpm dlx sv@0.12.4 create --template minimal --types ts --add prettier eslint vitest="usages:unit,component" tailwindcss="plugins:typography,forms" devtools-json storybook mcp="ide:claude-code+setup:remote" --install pnpm strikethrough
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## Getting Started
 
 ```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+pnpm install
+pnpm dev
 ```
 
-## Building
+Open [http://localhost:5173](http://localhost:5173).
 
-To create a production version of your app:
+## Scripts
 
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+| Command          | Description              |
+| ---------------- | ------------------------ |
+| `pnpm dev`       | Start dev server         |
+| `pnpm build`     | Production build         |
+| `pnpm preview`   | Preview production build |
+| `pnpm test`      | Run tests                |
+| `pnpm test:unit` | Run tests in watch mode  |
+| `pnpm check`     | Type check               |
+| `pnpm lint`      | Lint and format check    |
+| `pnpm format`    | Format with Prettier     |
+| `pnpm storybook` | Start Storybook          |
