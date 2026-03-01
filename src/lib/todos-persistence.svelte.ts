@@ -8,6 +8,7 @@ export type Todo = {
   date: string
   createdAt: string
   updatedAt: string
+  description?: string
 }
 
 export type WeekHandle = {

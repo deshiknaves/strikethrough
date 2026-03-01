@@ -17,6 +17,9 @@ export default defineConfig({
     expect: {
       requireAssertions: true,
     },
+    deps: {
+      inline: [/@skeletonlabs\/skeleton-svelte/],
+    },
     projects: [
       {
         extends: './vite.config.ts',

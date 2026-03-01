@@ -65,6 +65,7 @@ export function addTodo(date: string, text: string): void {
     date,
     createdAt: now(),
     updatedAt: now(),
+    description: '',
   }
   if (mutateWithHandle((h) => h.array.push([todo]))) return
   if (!todos[date]) todos[date] = []
@@ -115,6 +116,74 @@ export function updateTodo(date: string, id: string, text: string): void {
     return
   const todo = todos[date]?.find((t) => t.id === id)
   if (todo) todo.text = text
+}
+
+export type TodoDetailsUpdates = {
+  text?: string
+  description?: string
+  date?: string
+}
+
+export function updateTodoDetails(fromDate: string, id: string, updates: TodoDetailsUpdates): void {
+  const { text, description, date: newDate } = updates
+  const toDate = newDate ?? fromDate
+  const hasDateChange = newDate !== undefined && newDate !== fromDate
+
+  if (
+    mutateWithHandle((h) => {
+      const arr = h.array.toArray()
+      const idx = arr.findIndex((t) => t.id === id && t.date === fromDate)
+      if (idx === -1) return
+      const existing = arr[idx]
+      const updated = {
+        ...existing,
+        ...(text !== undefined && { text }),
+        ...(description !== undefined && { description }),
+        date: toDate,
+        updatedAt: now(),
+      }
+      arr.splice(idx, 1)
+      if (hasDateChange) {
+        const insertAt = 0
+        let count = 0
+        let insertPos = arr.length
+        for (let i = 0; i < arr.length; i++) {
+          if (arr[i].date === toDate) {
+            if (count === insertAt) {
+              insertPos = i
+              break
+            }
+            count++
+          }
+        }
+        arr.splice(insertPos, 0, updated)
+      } else {
+        arr.splice(idx, 0, updated)
+      }
+      h.array.delete(0, h.array.length)
+      h.array.insert(0, arr)
+    })
+  )
+    return
+
+  const fromList = todos[fromDate]
+  if (!fromList) return
+  const fromIndex = fromList.findIndex((t) => t.id === id)
+  if (fromIndex === -1) return
+  const todo = fromList[fromIndex]
+
+  if (hasDateChange) {
+    moveTodo(fromDate, toDate, id, 0)
+    const movedTodo = todos[toDate]?.find((t) => t.id === id)
+    if (movedTodo) {
+      if (text !== undefined) movedTodo.text = text
+      if (description !== undefined) movedTodo.description = description
+      movedTodo.updatedAt = now()
+    }
+  } else {
+    if (text !== undefined) todo.text = text
+    if (description !== undefined) todo.description = description
+  }
 }
 
 export function resetTodos(): void {

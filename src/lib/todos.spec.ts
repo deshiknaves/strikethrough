@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { getTodos, addTodo, toggleTodo, deleteTodo, updateTodo, moveTodo } from '$lib/todos.svelte'
+import {
+  getTodos,
+  addTodo,
+  toggleTodo,
+  deleteTodo,
+  updateTodo,
+  updateTodoDetails,
+  moveTodo,
+} from '$lib/todos.svelte'
 
 function uniqueDate() {
   return `test-${Date.now()}-${Math.random().toString(36).slice(2)}`
@@ -115,5 +123,33 @@ describe('todos store', () => {
     expect(toTodos).toHaveLength(2)
     expect(toTodos[0].text).toBe('New one')
     expect(toTodos[1].text).toBe('Existing')
+  })
+
+  it('updateTodoDetails updates text and description', () => {
+    const dateKey = uniqueDate()
+    addTodo(dateKey, 'Original text')
+    const [todo] = getTodos(dateKey)
+
+    updateTodoDetails(dateKey, todo.id, {
+      text: 'Updated text',
+      description: 'New description',
+    })
+
+    const updated = getTodos(dateKey)[0]
+    expect(updated.text).toBe('Updated text')
+    expect(updated.description).toBe('New description')
+  })
+
+  it('updateTodoDetails moves todo when date changes', () => {
+    const dateKey = uniqueDate()
+    const toDate = uniqueDate()
+    addTodo(dateKey, 'Move me')
+    const [todo] = getTodos(dateKey)
+
+    updateTodoDetails(dateKey, todo.id, { date: toDate })
+
+    expect(getTodos(dateKey)).toHaveLength(0)
+    expect(getTodos(toDate)).toHaveLength(1)
+    expect(getTodos(toDate)[0].text).toBe('Move me')
   })
 })

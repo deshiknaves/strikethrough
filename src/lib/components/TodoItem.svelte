@@ -12,6 +12,7 @@
   import { startDrag } from '$lib/drag-state.svelte'
   import { enterMoveMode, getKeyboardMoveState } from '$lib/keyboard-move-state.svelte'
   import Modal from '$lib/components/Modal.svelte'
+  import TodoDetailsModal from '$lib/components/TodoDetailsModal.svelte'
   import type { Todo } from '$lib/todos.svelte'
 
   let {
@@ -21,6 +22,7 @@
     onToggle,
     onDelete,
     onUpdate,
+    onUpdateDetails,
     columnOrder = [],
     dropEdge = null,
     movingTodo = null,
@@ -31,6 +33,7 @@
     onToggle: () => void
     onDelete: () => void
     onUpdate: (text: string) => void
+    onUpdateDetails: (updates: { text: string; description: string; date: string }) => void
     columnOrder?: string[]
     dropEdge?: 'top' | 'bottom' | null
     movingTodo?: Todo | null
@@ -40,6 +43,7 @@
   const isKeyboardMoving = $derived(keyboardMoveMode?.todoId === todo.id)
 
   let deleteModalOpen = $state(false)
+  let detailsModalOpen = $state(false)
   let todoRowRef = $state<HTMLDivElement | null>(null)
   let editInputRef = $state<HTMLInputElement | null>(null)
   let isEditing = $state(false)
@@ -102,6 +106,19 @@
     deleteModalOpen = false
   }
 
+  function openDetailsModal() {
+    detailsModalOpen = true
+  }
+
+  function closeDetailsModal() {
+    detailsModalOpen = false
+  }
+
+  function handleDetailsSave(updates: { text: string; description: string; date: string }) {
+    onUpdateDetails(updates)
+    detailsModalOpen = false
+  }
+
   function confirmDelete() {
     onDelete()
     deleteModalOpen = false
@@ -111,6 +128,16 @@
     if ((e.key === 'm' || e.key === 'M') && !keyboardMoveMode && columnOrder.length > 0) {
       e.preventDefault()
       enterMoveMode(todo.id, fromDate, index)
+      return
+    }
+    if ((e.key === 'd' || e.key === 'D') && !keyboardMoveMode && !isEditing) {
+      e.preventDefault()
+      openDetailsModal()
+      return
+    }
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter' && !keyboardMoveMode && !isEditing) {
+      e.preventDefault()
+      openDetailsModal()
       return
     }
     if ((e.key === 'e' || e.key === 'E') && !keyboardMoveMode) {
@@ -261,8 +288,8 @@
     tabindex="0"
     role="option"
     aria-selected={isKeyboardMoving}
-    aria-keyshortcuts="m e Space x Delete ArrowUp ArrowDown ArrowLeft ArrowRight j k h l"
-    aria-label="Todo: {todo.text}. Press m to move, e to edit, Space to toggle, x or Delete to remove. Use arrow keys or j/k/h/l to navigate."
+    aria-keyshortcuts="m d e Space x Delete ArrowUp ArrowDown ArrowLeft ArrowRight j k h l"
+    aria-label="Todo: {todo.text}. Press m to move, d for details, e to edit, Space to toggle, x or Delete to remove. Use arrow keys or j/k/h/l to navigate."
     onkeydown={handleKeydown}
     class="group flex cursor-grab items-center gap-2 rounded border-b border-border px-1 py-1 transition-opacity focus-within:bg-bg-elevated hover:bg-bg-elevated focus-visible:ring-2 focus-visible:ring-accent-blue/60 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-surface focus-visible:outline-none active:cursor-grabbing {dragState.type ===
     'is-dragging'
@@ -385,4 +412,12 @@
       </button>
     </div>
   </Modal>
+  <TodoDetailsModal
+    open={detailsModalOpen}
+    onClose={closeDetailsModal}
+    {todo}
+    {fromDate}
+    onSave={handleDetailsSave}
+    returnFocusTo={todoRowRef}
+  />
 </div>

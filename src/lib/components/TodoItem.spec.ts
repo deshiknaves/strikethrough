@@ -26,6 +26,7 @@ describe('TodoItem', () => {
         onToggle: vi.fn(),
         onDelete: vi.fn(),
         onUpdate: vi.fn(),
+        onUpdateDetails: vi.fn(),
       },
     })
 
@@ -42,6 +43,7 @@ describe('TodoItem', () => {
         onToggle: vi.fn(),
         onDelete: vi.fn(),
         onUpdate: vi.fn(),
+        onUpdateDetails: vi.fn(),
       },
     })
 
@@ -61,6 +63,7 @@ describe('TodoItem', () => {
         onToggle,
         onDelete: vi.fn(),
         onUpdate: vi.fn(),
+        onUpdateDetails: vi.fn(),
       },
     })
 
@@ -82,6 +85,7 @@ describe('TodoItem', () => {
         onToggle: vi.fn(),
         onDelete,
         onUpdate: vi.fn(),
+        onUpdateDetails: vi.fn(),
       },
     })
 
@@ -109,6 +113,7 @@ describe('TodoItem', () => {
         onToggle: vi.fn(),
         onDelete,
         onUpdate: vi.fn(),
+        onUpdateDetails: vi.fn(),
       },
     })
 
@@ -135,6 +140,7 @@ describe('TodoItem', () => {
         onToggle,
         onDelete: vi.fn(),
         onUpdate: vi.fn(),
+        onUpdateDetails: vi.fn(),
       },
     })
 
@@ -159,6 +165,7 @@ describe('TodoItem', () => {
         onToggle: vi.fn(),
         onDelete,
         onUpdate: vi.fn(),
+        onUpdateDetails: vi.fn(),
       },
     })
 
@@ -189,6 +196,7 @@ describe('TodoItem', () => {
         onToggle: vi.fn(),
         onDelete,
         onUpdate: vi.fn(),
+        onUpdateDetails: vi.fn(),
       },
     })
 
@@ -213,6 +221,7 @@ describe('TodoItem', () => {
         onToggle: vi.fn(),
         onDelete: vi.fn(),
         onUpdate: vi.fn(),
+        onUpdateDetails: vi.fn(),
       },
     })
 
@@ -299,6 +308,7 @@ describe('TodoItem', () => {
         onToggle: vi.fn(),
         onDelete: vi.fn(),
         onUpdate: vi.fn(),
+        onUpdateDetails: vi.fn(),
       },
     })
 
@@ -329,6 +339,7 @@ describe('TodoItem', () => {
         onToggle: vi.fn(),
         onDelete: vi.fn(),
         onUpdate: vi.fn(),
+        onUpdateDetails: vi.fn(),
         columnOrder,
       },
     })
@@ -360,6 +371,7 @@ describe('TodoItem', () => {
         onToggle: vi.fn(),
         onDelete: vi.fn(),
         onUpdate: vi.fn(),
+        onUpdateDetails: vi.fn(),
         columnOrder: [],
       },
     })
@@ -384,6 +396,7 @@ describe('TodoItem', () => {
         onToggle: vi.fn(),
         onDelete: vi.fn(),
         onUpdate: vi.fn(),
+        onUpdateDetails: vi.fn(),
         columnOrder,
       },
     })
@@ -412,6 +425,7 @@ describe('TodoItem', () => {
         onToggle: vi.fn(),
         onDelete: vi.fn(),
         onUpdate: vi.fn(),
+        onUpdateDetails: vi.fn(),
         dropEdge: 'top',
         movingTodo,
       },
@@ -435,6 +449,7 @@ describe('TodoItem', () => {
         onToggle: vi.fn(),
         onDelete: vi.fn(),
         onUpdate: vi.fn(),
+        onUpdateDetails: vi.fn(),
         columnOrder,
       },
     })
@@ -448,5 +463,132 @@ describe('TodoItem', () => {
     expect(todoOption).toHaveClass('hidden')
 
     exitMoveMode()
+  })
+
+  it('opens details modal when d is pressed on focused item', async () => {
+    const user = userEvent.setup()
+    const onUpdateDetails = vi.fn()
+    const todo = createTodo()
+    render(TodoItem, {
+      props: {
+        todo,
+        fromDate: '2025-02-24',
+        index: 0,
+        onToggle: vi.fn(),
+        onDelete: vi.fn(),
+        onUpdate: vi.fn(),
+        onUpdateDetails,
+      },
+    })
+
+    const todoOption = screen.getByRole('option', {
+      name: /Todo: Test todo\. Press m to move/i,
+    })
+    todoOption.focus()
+    await user.keyboard('d')
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeInTheDocument()
+    })
+    expect(screen.getByLabelText('Title')).toHaveValue('Test todo')
+  })
+
+  it('opens details modal when Cmd+Enter is pressed on focused item', async () => {
+    const user = userEvent.setup()
+    const todo = createTodo()
+    render(TodoItem, {
+      props: {
+        todo,
+        fromDate: '2025-02-24',
+        index: 0,
+        onToggle: vi.fn(),
+        onDelete: vi.fn(),
+        onUpdate: vi.fn(),
+        onUpdateDetails: vi.fn(),
+      },
+    })
+
+    const todoOption = screen.getByRole('option', {
+      name: /Todo: Test todo\. Press m to move/i,
+    })
+    todoOption.focus()
+    await user.keyboard('{Meta>}{Enter}{/Meta}')
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeInTheDocument()
+    })
+  })
+
+  it('closes details modal on Escape without saving', async () => {
+    const user = userEvent.setup()
+    const onUpdateDetails = vi.fn()
+    const todo = createTodo()
+    render(TodoItem, {
+      props: {
+        todo,
+        fromDate: '2025-02-24',
+        index: 0,
+        onToggle: vi.fn(),
+        onDelete: vi.fn(),
+        onUpdate: vi.fn(),
+        onUpdateDetails,
+      },
+    })
+
+    const todoOption = screen.getByRole('option', {
+      name: /Todo: Test todo\. Press m to move/i,
+    })
+    todoOption.focus()
+    await user.keyboard('d')
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeInTheDocument()
+    })
+
+    await user.keyboard('{Escape}')
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    })
+    expect(onUpdateDetails).not.toHaveBeenCalled()
+  })
+
+  it('calls onUpdateDetails when Cmd+Enter is pressed in details modal', async () => {
+    const user = userEvent.setup()
+    const onUpdateDetails = vi.fn()
+    const todo = createTodo({ text: 'Original', description: 'Initial desc' })
+    render(TodoItem, {
+      props: {
+        todo,
+        fromDate: '2025-02-24',
+        index: 0,
+        onToggle: vi.fn(),
+        onDelete: vi.fn(),
+        onUpdate: vi.fn(),
+        onUpdateDetails,
+      },
+    })
+
+    const todoOption = screen.getByRole('option', {
+      name: /Todo: Original\. Press m to move/i,
+    })
+    todoOption.focus()
+    await user.keyboard('d')
+
+    const titleInput = screen.getByLabelText('Title')
+    await user.clear(titleInput)
+    await user.type(titleInput, 'Updated title')
+
+    const descriptionInput = screen.getByLabelText('Description')
+    await user.clear(descriptionInput)
+    await user.type(descriptionInput, 'Updated description')
+
+    await user.keyboard('{Meta>}{Enter}{/Meta}')
+
+    expect(onUpdateDetails).toHaveBeenCalledWith({
+      text: 'Updated title',
+      description: 'Updated description',
+      date: '2025-02-24',
+    })
   })
 })

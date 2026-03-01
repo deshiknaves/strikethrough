@@ -12,6 +12,7 @@
     toggleTodo,
     deleteTodo,
     updateTodo,
+    updateTodoDetails,
     moveTodo,
   } from '$lib/todos.svelte'
   import { clearDragState } from '$lib/drag-state.svelte'
@@ -132,6 +133,12 @@
           onToggle={() => toggleTodo(dateKey, todo.id)}
           onDelete={() => deleteTodo(dateKey, todo.id)}
           onUpdate={(text) => updateTodo(dateKey, todo.id, text)}
+          onUpdateDetails={(updates) =>
+            updateTodoDetails(dateKey, todo.id, {
+              text: updates.text,
+              description: updates.description,
+              date: updates.date,
+            })}
         />
       </div>
     {/each}

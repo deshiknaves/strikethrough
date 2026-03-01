@@ -85,13 +85,19 @@ export function createBoardKeyboardHandler(
         }
       }
       if (event.ctrlKey || event.metaKey) {
-        if ((event.key === 'n' || event.key === 'N' || event.key === 'l' || event.key === 'L') && onNextWeek) {
+        if (
+          (event.key === 'n' || event.key === 'N' || event.key === 'l' || event.key === 'L') &&
+          onNextWeek
+        ) {
           event.preventDefault()
           event.stopPropagation()
           onNextWeek()
           return
         }
-        if ((event.key === 'p' || event.key === 'P' || event.key === 'h' || event.key === 'H') && onPreviousWeek) {
+        if (
+          (event.key === 'p' || event.key === 'P' || event.key === 'h' || event.key === 'H') &&
+          onPreviousWeek
+        ) {
           event.preventDefault()
           event.stopPropagation()
           onPreviousWeek()
