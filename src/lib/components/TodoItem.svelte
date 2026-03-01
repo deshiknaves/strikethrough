@@ -235,7 +235,12 @@
   }
 </script>
 
-<div use:initializeDragAndDrop data-todo-id={todo.id} class="flex flex-col">
+<div
+  use:initializeDragAndDrop
+  data-todo-id={todo.id}
+  data-keyboard-move-target={dropEdge ?? undefined}
+  class="flex flex-col"
+>
   {#if (dragState.type === 'is-over' && dragState.closestEdge === 'top') || dropEdge === 'top'}
     {#if dropEdge === 'top' && movingTodo}
       <div

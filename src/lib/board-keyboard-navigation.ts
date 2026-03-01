@@ -45,11 +45,13 @@ function focusCell(dateKey: string, index: number | 'new'): void {
       `[data-date-key="${dateKey}"][data-todo-index="new"] input, [data-date-key="${dateKey}"][data-todo-index="new"] button`
     )
     el?.focus()
+    el?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
   } else {
     const el = document.querySelector<HTMLElement>(
       `[data-date-key="${dateKey}"][data-todo-index="${index}"]`
     )
     el?.focus()
+    el?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
   }
 }
 
@@ -172,18 +174,32 @@ export function createBoardKeyboardHandler(
       const colIndex = columnOrder.indexOf(mode.targetDateKey)
       const maxIndex = getTodos(mode.targetDateKey).length
 
+      function scrollKeyboardMoveTargetIntoView() {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            document
+              .querySelector<HTMLElement>('[data-keyboard-move-target]')
+              ?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+          })
+        })
+      }
+
       if (vimKey === 'ArrowUp') {
         updateTarget(mode.targetDateKey, Math.max(0, mode.targetIndex - 1))
+        scrollKeyboardMoveTargetIntoView()
       } else if (vimKey === 'ArrowDown') {
         updateTarget(mode.targetDateKey, Math.min(maxIndex, mode.targetIndex + 1))
+        scrollKeyboardMoveTargetIntoView()
       } else if (vimKey === 'ArrowLeft' && colIndex > 0) {
         const prevCol = columnOrder[colIndex - 1]
         const prevMax = getTodos(prevCol).length
         updateTarget(prevCol, Math.min(mode.targetIndex, prevMax))
+        scrollKeyboardMoveTargetIntoView()
       } else if (vimKey === 'ArrowRight' && colIndex < columnOrder.length - 1) {
         const nextCol = columnOrder[colIndex + 1]
         const nextMax = getTodos(nextCol).length
         updateTarget(nextCol, Math.min(mode.targetIndex, nextMax))
+        scrollKeyboardMoveTargetIntoView()
       }
       return
     }
