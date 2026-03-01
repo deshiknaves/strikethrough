@@ -1,19 +1,7 @@
-interface DragState {
-  todoId: string
-  fromDate: string
-  dropIndicator: { toDate: string; index: number } | null
-}
-
-const state = $state<{ current: DragState | null }>({ current: null })
-
-export const getDragState = () => state.current
+const state = $state<{ current: { todoId: string; fromDate: string } | null }>({ current: null })
 
 export const startDrag = (todoId: string, fromDate: string) => {
-  state.current = { todoId, fromDate, dropIndicator: null }
-}
-
-export const updateDropIndicator = (toDate: string, index: number) => {
-  if (state.current) state.current.dropIndicator = { toDate, index }
+  state.current = { todoId, fromDate }
 }
 
 export const clearDragState = () => {

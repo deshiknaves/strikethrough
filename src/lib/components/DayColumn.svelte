@@ -5,8 +5,9 @@
     dropTargetForElements,
     monitorForElements,
   } from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
+  import { extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge'
   import { getTodos, addTodo, toggleTodo, deleteTodo, moveTodo } from '$lib/todos.svelte'
-  import { getDragState, updateDropIndicator, clearDragState } from '$lib/drag-state.svelte'
+  import { clearDragState } from '$lib/drag-state.svelte'
   import type { Todo } from '$lib/todos.svelte'
   import TodoItem from './TodoItem.svelte'
   import NewTodoInput from './NewTodoInput.svelte'
@@ -23,93 +24,44 @@
     class?: string
   } = $props()
 
-  type DisplayItem = { type: 'todo'; todo: Todo; index: number } | { type: 'placeholder' }
+  let isOver = $state(false)
 
-  const dropIndex = $derived(
-    getDragState()?.dropIndicator?.toDate === dateKey
-      ? getDragState()!.dropIndicator!.index
-      : null,
-  )
-  const isOver = $derived(dropIndex !== null)
-
-  const displayItems = $derived.by<DisplayItem[]>(() => {
-    const todos = getTodos(dateKey)
-    const dragState = getDragState()
-    const idx = dropIndex
-    const todoItems: DisplayItem[] = todos.map((todo, i) => ({ type: 'todo', todo, index: i }))
-    if (idx === null) return todoItems
-
-    // Don't show placeholder if drop is a no-op: same column, same index (reorder(i,i) = identity)
-    if (dragState?.fromDate === dateKey) {
-      const fromIndex = todos.findIndex((t) => t.id === dragState.todoId)
-      if (fromIndex !== -1 && idx === fromIndex) return todoItems
-    }
-
-    return [...todoItems.slice(0, idx), { type: 'placeholder' }, ...todoItems.slice(idx)]
-  })
-
-  function computeDropIndexFromPointer(
-    columnEl: HTMLElement,
-    clientY: number,
-  ): { insertIndex: number; overItemId: string | null } {
-    const todos = getTodos(dateKey)
-    const items = Array.from(columnEl.querySelectorAll<HTMLElement>('[data-todo-id]'))
-    if (items.length === 0) return { insertIndex: 0, overItemId: null }
-
-    const withRects = items
-      .map((el) => {
-        const id = el.dataset.todoId ?? null
-        const index = id ? todos.findIndex((t) => t.id === id) : -1
-        return { el, id, rect: el.getBoundingClientRect(), index }
-      })
-      .filter((x) => x.index >= 0)
-      .sort((a, b) => a.rect.top - b.rect.top)
-
-    if (withRects.length === 0) return { insertIndex: 0, overItemId: null }
-
-    for (let i = 0; i < withRects.length; i++) {
-      const { rect, index, id } = withRects[i]
-      if (clientY < rect.top) return { insertIndex: index, overItemId: null }
-      if (clientY <= rect.bottom) {
-        const insertIndex = clientY < rect.top + rect.height / 2 ? index : index + 1
-        return { insertIndex, overItemId: id }
-      }
-    }
-    return { insertIndex: todos.length, overItemId: null }
-  }
+  const todos = $derived(getTodos(dateKey))
 
   function setupColumn(node: HTMLElement) {
     const cleanup = combine(
       dropTargetForElements({
         element: node,
-        onDrag: ({ location }) => {
-          const { clientY } = location.current.input
-          const { insertIndex: raw, overItemId } = computeDropIndexFromPointer(node, clientY)
-          let insertIndex = raw
-          const dragState = getDragState()
-          if (dragState?.fromDate === dateKey) {
-            const todos = getTodos(dateKey)
-            const fromIndex = todos.findIndex((t) => t.id === dragState.todoId)
-            if (fromIndex !== -1 && insertIndex === fromIndex + 1) {
-              if (overItemId === dragState.todoId) {
-                insertIndex = fromIndex + 1
-              } else {
-                insertIndex = fromIndex + 2
-              }
-            }
-          }
-          updateDropIndicator(dateKey, insertIndex)
+        getIsSticky: () => true,
+        getData: () => ({ type: 'column' as const, columnId: dateKey }),
+        onDragEnter: () => {
+          isOver = true
         },
-        onDragEnter: ({ location, self }) => {
-          if (location.current.dropTargets[0]?.element === self.element) {
-            updateDropIndicator(dateKey, getTodos(dateKey).length)
-          }
+        onDragLeave: () => {
+          isOver = false
         },
-        onDrop: ({ source }) => {
-          const { todoId, fromDate } = source.data as { todoId: string; fromDate: string }
-          const state = getDragState()
-          const toIndex =
-            state?.dropIndicator?.toDate === dateKey ? state.dropIndicator.index : undefined
+        onDrop: ({ source, location }) => {
+          isOver = false
+          const { todoId, fromDate } = source.data as {
+            todoId: string
+            fromDate: string
+          }
+          const dropTargets = location.current.dropTargets
+          const innermost = dropTargets[0]
+          if (!innermost) return
+
+          const data = innermost.data as
+            | { type: 'todo'; todoId: string; index: number }
+            | { type: 'column'; columnId: string }
+
+          let toIndex: number
+          if (data.type === 'todo') {
+            const closestEdge = extractClosestEdge(innermost.data)
+            toIndex = closestEdge === 'top' ? data.index : data.index + 1
+          } else {
+            toIndex = getTodos(dateKey).length
+          }
+
           moveTodo(fromDate, dateKey, todoId, toIndex)
         },
       }),
@@ -130,24 +82,15 @@
     <span class="text-text-secondary">{sublabel}</span>
   </h2>
   <div class="min-h-0 flex-1 overflow-y-auto">
-    {#each displayItems as item (item.type === 'todo' ? item.todo.id : '__placeholder__')}
+    {#each todos as todo, i (todo.id)}
       <div animate:flip={{ duration: 200 }}>
-        {#if item.type === 'placeholder'}
-          <div
-            class="my-0.5 flex items-center gap-2 rounded border border-dashed border-accent-blue bg-accent-blue/5 px-1 py-1"
-          >
-            <div class="h-3.5 w-3.5 shrink-0 rounded-sm border border-accent-blue/40"></div>
-            <div class="h-2.5 w-3/5 rounded-full bg-accent-blue/20"></div>
-          </div>
-        {:else}
-          <TodoItem
-            todo={item.todo}
-            fromDate={dateKey}
-            index={item.index}
-            onToggle={() => toggleTodo(dateKey, item.todo.id)}
-            onDelete={() => deleteTodo(dateKey, item.todo.id)}
-          />
-        {/if}
+        <TodoItem
+          todo={todo}
+          fromDate={dateKey}
+          index={i}
+          onToggle={() => toggleTodo(dateKey, todo.id)}
+          onDelete={() => deleteTodo(dateKey, todo.id)}
+        />
       </div>
     {/each}
     <NewTodoInput onAdd={(text) => addTodo(dateKey, text)} />
