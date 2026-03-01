@@ -23,6 +23,22 @@ describe('DayColumn', () => {
     expect(screen.getByText('Mon')).toBeInTheDocument()
   })
 
+  it('renders Today badge when isToday', () => {
+    const dateKey = uniqueDate()
+    render(DayColumn, {
+      props: {
+        dateKey,
+        label: '1 Mar',
+        sublabel: 'Sat',
+        isToday: true,
+      },
+    })
+
+    expect(screen.getByText('Today')).toBeInTheDocument()
+    expect(screen.getByText('1 Mar')).toBeInTheDocument()
+    expect(screen.getByText('Sat')).toBeInTheDocument()
+  })
+
   it('renders NewTodoInput', () => {
     const dateKey = uniqueDate()
     render(DayColumn, {

@@ -18,17 +18,20 @@
   import { getKeyboardMoveState } from '$lib/keyboard-move-state.svelte'
   import TodoItem from './TodoItem.svelte'
   import NewTodoInput from './NewTodoInput.svelte'
+  import Badge from './Badge.svelte'
 
   let {
     dateKey,
     label,
     sublabel,
+    isToday = false,
     columnOrder = [],
     class: extraClass = '',
   }: {
     dateKey: string
     label: string
     sublabel: string
+    isToday?: boolean
     columnOrder?: string[]
     class?: string
   } = $props()
@@ -91,8 +94,15 @@
     ? 'border-accent-blue bg-accent-blue/10'
     : 'border-border bg-bg-surface'} {extraClass}"
 >
-  <h2 id="column-{dateKey}" class="mb-2 flex justify-between text-sm font-semibold">
-    <span class="text-text-primary">{label}</span>
+  <h2 id="column-{dateKey}" class="mb-2 flex items-center justify-between gap-2 text-sm font-semibold">
+    <span class="flex items-center gap-2">
+      {#if isToday}
+        <Badge label="Today" variant="blue" />
+        <span class="text-text-primary">{label}</span>
+      {:else}
+        <span class="text-text-primary">{label}</span>
+      {/if}
+    </span>
     <span class="text-text-secondary">{sublabel}</span>
   </h2>
   <div class="min-h-0 flex-1 overflow-visible">
@@ -126,7 +136,7 @@
       </div>
     {/if}
     <div data-date-key={dateKey} data-todo-index="new">
-      <NewTodoInput onAdd={(text) => addTodo(dateKey, text)} />
+      <NewTodoInput onAdd={(text) => addTodo(dateKey, text)} autoFocus={isToday} />
     </div>
   </div>
 </div>

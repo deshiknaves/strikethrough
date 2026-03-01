@@ -49,6 +49,7 @@
         dateKey={day.toString()}
         label={date(day)}
         sublabel={weekday(day)}
+        isToday={day.toString() === today.toString()}
         {columnOrder}
         class="min-h-50 flex-1 min-[501px]:min-h-0"
       />
@@ -60,6 +61,7 @@
         dateKey={day.toString()}
         label={date(day)}
         sublabel={weekday(day)}
+        isToday={day.toString() === today.toString()}
         {columnOrder}
         class="w-1/2"
       />

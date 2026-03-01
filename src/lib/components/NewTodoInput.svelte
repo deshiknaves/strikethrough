@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { tick } from 'svelte'
+  import { onMount, tick } from 'svelte'
 
-  let { onAdd }: { onAdd: (text: string) => void } = $props()
+  let { onAdd, autoFocus = false }: { onAdd: (text: string) => void; autoFocus?: boolean } = $props()
   let value = $state('')
   let isExpanded = $state(false)
   let buttonRef = $state<HTMLButtonElement | null>(null)
@@ -32,6 +32,12 @@
       focusInput()
     }
   }
+
+  onMount(() => {
+    if (autoFocus) {
+      tick().then(() => buttonRef?.focus())
+    }
+  })
 
   function handleInputKeydown(event: KeyboardEvent) {
     if (event.key === 'Escape') {
