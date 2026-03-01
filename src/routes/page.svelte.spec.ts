@@ -290,6 +290,48 @@ describe('/+page.svelte', () => {
       expect(addButtonCol1).toHaveFocus()
     })
 
+    it('does not capture vim keys when add-todo input is focused', async () => {
+      const user = userEvent.setup()
+      render(Page)
+
+      const columnOrder = getColumnOrder()
+      const dateKey = columnOrder[0]
+      await act()
+
+      const addButton = document.querySelector<HTMLElement>(
+        `[data-date-key="${dateKey}"][data-todo-index="new"] button`
+      )
+      addButton?.focus()
+      await user.keyboard('{Enter}')
+
+      const input = screen.getByPlaceholderText('Add item...')
+      input.focus()
+      await user.keyboard('hjkl')
+
+      expect(input).toHaveValue('hjkl')
+      expect(input).toHaveFocus()
+    })
+
+    it('does not capture vim keys when todo edit input is focused', async () => {
+      const user = userEvent.setup()
+      render(Page)
+
+      const columnOrder = getColumnOrder()
+      const dateKey = columnOrder[0]
+      addTodo(dateKey, 'Todo 1')
+      await act()
+
+      const todo = screen.getByRole('option', { name: /Todo: Todo 1/ })
+      todo.focus()
+      await user.keyboard('e')
+
+      const editInput = screen.getByDisplayValue('Todo 1')
+      await user.keyboard('j')
+
+      expect(editInput).toHaveValue('j')
+      expect(editInput).toHaveFocus()
+    })
+
     it('exits move mode when Escape is pressed', async () => {
       const user = userEvent.setup()
       render(Page)

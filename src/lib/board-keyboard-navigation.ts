@@ -102,6 +102,15 @@ export function createBoardKeyboardHandler(
     const active = document.activeElement as HTMLElement | null
     if (!active) return
 
+    // Don't capture nav keys when user is typing in a text input
+    if (
+      active.tagName === 'INPUT' ||
+      active.tagName === 'TEXTAREA' ||
+      active.isContentEditable
+    ) {
+      return
+    }
+
     const newInputWrapper =
       (active.tagName === 'INPUT' || active.tagName === 'BUTTON') &&
       active.closest<HTMLElement>('[data-todo-index="new"]')
