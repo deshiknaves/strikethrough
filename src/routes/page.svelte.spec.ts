@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, render, screen } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
 import { Temporal } from 'temporal-polyfill'
@@ -203,6 +203,29 @@ describe('/+page.svelte', () => {
       await user.keyboard('{ArrowDown}')
 
       expect(todo2).toHaveFocus()
+    })
+
+    it('scrolls focused item into view when navigating with ArrowDown', async () => {
+      const scrollIntoViewSpy = vi.spyOn(Element.prototype, 'scrollIntoView').mockImplementation(() => {})
+      const user = userEvent.setup()
+      render(Page)
+
+      const columnOrder = getColumnOrder()
+      const dateKey = columnOrder[0]
+      addTodo(dateKey, 'Todo 1')
+      addTodo(dateKey, 'Todo 2')
+      await act()
+
+      const todo1 = screen.getByRole('option', { name: /Todo: Todo 1/ })
+      const todo2 = screen.getByRole('option', { name: /Todo: Todo 2/ })
+      todo1.focus()
+
+      await user.keyboard('{ArrowDown}')
+
+      expect(scrollIntoViewSpy).toHaveBeenCalledWith({ block: 'nearest', behavior: 'smooth' })
+      expect(scrollIntoViewSpy.mock.instances[0]).toBe(todo2)
+
+      scrollIntoViewSpy.mockRestore()
     })
 
     it('moves focus to new slot when ArrowDown on last todo in column', async () => {
@@ -685,6 +708,39 @@ describe('/+page.svelte', () => {
       state = getKeyboardMoveState()
       expect(state?.targetIndex).toBe(1)
 
+      exitMoveMode()
+    })
+
+    it('scrolls keyboard-move target into view when ArrowDown is pressed in move mode', async () => {
+      const scrollIntoViewSpy = vi.spyOn(Element.prototype, 'scrollIntoView').mockImplementation(() => {})
+      const user = userEvent.setup()
+      render(Page)
+
+      const columnOrder = getColumnOrder()
+      const dateKey = columnOrder[0]
+      addTodo(dateKey, 'Todo 1')
+      addTodo(dateKey, 'Todo 2')
+      await act()
+
+      const todo1 = screen.getByRole('option', { name: /Todo: Todo 1/ })
+      todo1.focus()
+      await user.keyboard('m')
+
+      scrollIntoViewSpy.mockClear()
+      await user.keyboard('{ArrowDown}')
+
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => resolve())
+        })
+      })
+
+      expect(scrollIntoViewSpy).toHaveBeenCalledWith({ block: 'nearest', behavior: 'smooth' })
+      const targetEl = document.querySelector('[data-keyboard-move-target]')
+      expect(targetEl).toBeInTheDocument()
+      expect(scrollIntoViewSpy.mock.instances[0]).toBe(targetEl)
+
+      scrollIntoViewSpy.mockRestore()
       exitMoveMode()
     })
 

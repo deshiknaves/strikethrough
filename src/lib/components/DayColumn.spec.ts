@@ -107,6 +107,24 @@ describe('DayColumn', () => {
     expect(getTodos(dateKey)[0].completed).toBe(true)
   })
 
+  it('has scrollable list container with overflow-y-auto when content overflows', () => {
+    const dateKey = uniqueDate()
+    addTodo(dateKey, 'Todo 1')
+    addTodo(dateKey, 'Todo 2')
+
+    const { container } = render(DayColumn, {
+      props: {
+        dateKey,
+        label: '24 Feb',
+        sublabel: 'Mon',
+      },
+    })
+
+    const column = container.querySelector(`[data-date-key="${dateKey}"]`)
+    const scrollContainer = column?.querySelector('.overflow-y-auto')
+    expect(scrollContainer).toBeInTheDocument()
+  })
+
   it('deletes todo when delete button is clicked and confirmed', async () => {
     const user = userEvent.setup()
     const dateKey = uniqueDate()
