@@ -19,63 +19,73 @@ export type WeekHandle = {
 
 type IndexeddbPersistence = { whenSynced: Promise<unknown>; destroy: () => void }
 
-let currentWeek: {
-  monday: string
-  handle: WeekHandle
-  provider: IndexeddbPersistence
-} | null = null
+let handle: WeekHandle | null = null
+let provider: IndexeddbPersistence | null = null
+let initPromise: Promise<WeekHandle> | null = null
 
-export async function loadWeek(
-  monday: string,
+export async function load(
+  _monday: string,
   weekDateKeys: string[],
   dbPrefix = 'strikethrough'
 ): Promise<WeekHandle> {
   if (typeof window === 'undefined') {
-    throw new Error('loadWeek can only be called in browser')
+    throw new Error('load can only be called in browser')
   }
 
-  if (currentWeek?.monday === monday) {
-    return currentWeek.handle
+  if (handle) {
+    handle.weekDateKeys = new Set(weekDateKeys)
+    return handle
   }
 
-  const Y = await import('yjs')
-
-  if (currentWeek) {
-    currentWeek.provider.destroy()
-    currentWeek.handle.doc.destroy()
-    currentWeek = null
+  if (initPromise) {
+    const h = await initPromise
+    h.weekDateKeys = new Set(weekDateKeys)
+    return h
   }
 
-  const doc = new Y.Doc()
-  const array = doc.getArray<Todo>('todos')
+  initPromise = (async () => {
+    const Y = await import('yjs')
+    const doc = new Y.Doc()
+    const array = doc.getArray<Todo>('todos')
 
-  let provider: IndexeddbPersistence
-  if (typeof indexedDB !== 'undefined') {
-    const { IndexeddbPersistence } = await import('y-indexeddb')
-    const docName = `${dbPrefix}-week-${monday}`
-    provider = new IndexeddbPersistence(docName, doc) as IndexeddbPersistence
-    await provider.whenSynced
-  } else {
-    provider = { whenSynced: Promise.resolve(), destroy: () => {} }
-  }
+    if (typeof indexedDB !== 'undefined') {
+      const { IndexeddbPersistence } = await import('y-indexeddb')
+      const docName = `${dbPrefix}-todos`
+      provider = new IndexeddbPersistence(docName, doc) as IndexeddbPersistence
+      await provider.whenSynced
+    } else {
+      provider = { whenSynced: Promise.resolve(), destroy: () => {} }
+    }
 
-  const handle: WeekHandle = {
-    doc,
-    array,
-    weekDateKeys: new Set(weekDateKeys),
-  }
-  currentWeek = { monday, handle, provider }
+    handle = {
+      doc,
+      array,
+      weekDateKeys: new Set(weekDateKeys),
+    }
+    return handle
+  })()
+
+  const result = await initPromise
+  initPromise = null
+  return result
+}
+
+export function getHandle(): WeekHandle | null {
   return handle
 }
 
-export function getCurrentWeekHandle(): WeekHandle | null {
-  return currentWeek?.handle ?? null
-}
-
+/**
+ * Unload the current doc and provider. Used for tests/cleanup only.
+ * Not called on week navigation — the doc stays loaded.
+ */
 export function unloadWeek(): void {
-  if (currentWeek) {
-    currentWeek.provider.destroy()
-    currentWeek.handle.doc.destroy()
-    currentWeek = null
+  if (provider) {
+    provider.destroy()
+    provider = null
   }
+  if (handle) {
+    handle.doc.destroy()
+    handle = null
+  }
+  initPromise = null
 }

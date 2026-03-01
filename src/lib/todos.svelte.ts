@@ -1,8 +1,7 @@
 import { reorder } from '@atlaskit/pragmatic-drag-and-drop/reorder'
 import {
-  loadWeek as loadWeekFromPersistence,
-  getCurrentWeekHandle,
-  unloadWeek,
+  load as loadFromPersistence,
+  getHandle,
   type Todo as PersistenceTodo,
 } from '$lib/todos-persistence.svelte'
 import { getWeekDateKeys } from '$lib/week-utils'
@@ -26,6 +25,8 @@ function syncFromYArray(handle: { array: { toArray: () => Todo[] }; weekDateKeys
   }
 }
 
+let observerAdded = false
+
 export async function loadWeek(
   monday: Temporal.PlainDate,
   options?: { getIsCurrentView?: () => boolean },
@@ -33,17 +34,19 @@ export async function loadWeek(
 ): Promise<void> {
   const mondayStr = monday.toString()
   const weekDateKeys = getWeekDateKeys(monday)
-  const handle = await loadWeekFromPersistence(mondayStr, weekDateKeys, dbPrefix)
+  const handle = await loadFromPersistence(mondayStr, weekDateKeys, dbPrefix)
 
   if (options?.getIsCurrentView && !options.getIsCurrentView()) {
-    unloadWeek()
     return
   }
 
   syncFromYArray(handle)
-  handle.array.observe(() => {
-    syncFromYArray(handle)
-  })
+  if (!observerAdded) {
+    observerAdded = true
+    handle.array.observe(() => {
+      syncFromYArray(handle)
+    })
+  }
 }
 
 export function getTodos(date: string): Todo[] {
@@ -55,9 +58,9 @@ function now(): string {
 }
 
 function mutateWithHandle(
-  fn: (handle: NonNullable<ReturnType<typeof getCurrentWeekHandle>>) => void
+  fn: (handle: NonNullable<ReturnType<typeof getHandle>>) => void
 ): boolean {
-  const handle = getCurrentWeekHandle()
+  const handle = getHandle()
   if (handle) {
     fn(handle)
     return true
@@ -195,7 +198,7 @@ export function updateTodoDetails(fromDate: string, id: string, updates: TodoDet
 }
 
 export function resetTodos(): void {
-  const handle = getCurrentWeekHandle()
+  const handle = getHandle()
   if (handle) {
     handle.array.delete(0, handle.array.length)
   }
