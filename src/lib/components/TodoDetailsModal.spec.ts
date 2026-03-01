@@ -12,6 +12,7 @@ const createTodo = (overrides = {}) => ({
   createdAt: '2025-02-24T10:00:00.000Z',
   updatedAt: '2025-02-24T10:00:00.000Z',
   description: '',
+  workspace: 'default',
   ...overrides,
 })
 

@@ -12,7 +12,10 @@ export type Todo = PersistenceTodo
 const todos = $state<Record<string, Todo[]>>({})
 
 function syncFromYArray(handle: { array: { toArray: () => Todo[] }; weekDateKeys: Set<string> }) {
-  const all = handle.array.toArray().filter((t) => handle.weekDateKeys.has(t.date))
+  const all = handle.array
+    .toArray()
+    .filter((t) => handle.weekDateKeys.has(t.date))
+    .map((t) => ({ ...t, workspace: t.workspace ?? 'default' }))
   const byDate: Record<string, Todo[]> = {}
   for (const dateKey of handle.weekDateKeys) {
     const items = all.filter((t) => t.date === dateKey)
@@ -34,11 +37,11 @@ let observerAdded = false
 export async function loadWeek(
   monday: Temporal.PlainDate,
   options?: { getIsCurrentView?: () => boolean },
-  dbPrefix = 'strikethrough'
+  workspace = 'default'
 ): Promise<void> {
   const mondayStr = monday.toString()
   const weekDateKeys = getWeekDateKeys(monday)
-  const handle = await loadFromPersistence(mondayStr, weekDateKeys, dbPrefix)
+  const handle = await loadFromPersistence(mondayStr, weekDateKeys, workspace)
 
   if (options?.getIsCurrentView && !options.getIsCurrentView()) {
     return
@@ -109,6 +112,7 @@ export function addTodo(date: string, text: string, description?: string): void 
         createdAt: now(),
         updatedAt: now(),
         description: description ?? '',
+        workspace: 'default',
       }
       h.array.push([todo])
     })
@@ -124,6 +128,7 @@ export function addTodo(date: string, text: string, description?: string): void 
     createdAt: now(),
     updatedAt: now(),
     description: description ?? '',
+    workspace: 'default',
   }
   if (!todos[date]) todos[date] = []
   todos[date].push(todo)

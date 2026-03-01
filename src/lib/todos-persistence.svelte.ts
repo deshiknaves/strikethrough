@@ -10,6 +10,7 @@ export type Todo = {
   createdAt: string
   updatedAt: string
   description?: string
+  workspace?: string
 }
 
 export type WeekHandle = {
@@ -27,7 +28,7 @@ let initPromise: Promise<WeekHandle> | null = null
 export async function load(
   _monday: string,
   weekDateKeys: string[],
-  dbPrefix = 'strikethrough'
+  workspace = 'default'
 ): Promise<WeekHandle> {
   if (typeof window === 'undefined') {
     throw new Error('load can only be called in browser')
@@ -51,7 +52,7 @@ export async function load(
 
     if (typeof indexedDB !== 'undefined') {
       const { IndexeddbPersistence } = await import('y-indexeddb')
-      const docName = `${dbPrefix}-todos`
+      const docName = `strikethrough-${workspace}`
       provider = new IndexeddbPersistence(docName, doc) as IndexeddbPersistence
       await provider.whenSynced
     } else {
