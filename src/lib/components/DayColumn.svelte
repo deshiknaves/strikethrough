@@ -137,7 +137,7 @@
     {/each}
     {#if keyboardMoveMode?.targetDateKey === dateKey && keyboardMoveMode.targetIndex === todos.length && movingTodo}
       <div
-        class="my-0.5 flex items-center gap-2 rounded border-2 border-accent-blue px-1 py-1"
+        class="flex items-center gap-2 rounded border-b border-border px-1 py-1 ring-2 ring-accent-blue ring-offset-2 ring-offset-bg-surface"
       >
         <div class="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border border-accent-blue {movingTodo.completed
           ? 'bg-accent-blue'

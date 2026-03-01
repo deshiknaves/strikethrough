@@ -418,7 +418,7 @@ describe('TodoItem', () => {
     const movingText = screen.getByText('Moving item')
     expect(movingText).toHaveClass('line-through')
     const placeholder = movingText.closest('div')
-    expect(placeholder).toHaveClass('border-accent-blue')
+    expect(placeholder).toHaveClass('ring-accent-blue')
   })
 
   it('hides original item when in keyboard move mode', async () => {

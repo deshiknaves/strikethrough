@@ -411,6 +411,49 @@ describe('/+page.svelte', () => {
       expect(getKeyboardMoveState()).toBeNull()
     })
 
+    it('focuses original item when Escape is pressed in move mode without moving', async () => {
+      const user = userEvent.setup()
+      render(Page)
+
+      const columnOrder = getColumnOrder()
+      const dateKey = columnOrder[0]
+      addTodo(dateKey, 'Todo 1')
+      await act()
+
+      const todo = screen.getByRole('option', { name: /Todo: Todo 1/ })
+      todo.focus()
+      await user.keyboard('m')
+      await user.keyboard('{Escape}')
+      await act()
+
+      expect(getKeyboardMoveState()).toBeNull()
+      expect(todo).toHaveFocus()
+    })
+
+    it('focuses original item when Escape is pressed in move mode after moving target', async () => {
+      const user = userEvent.setup()
+      render(Page)
+
+      const columnOrder = getColumnOrder()
+      const dateKey = columnOrder[0]
+      addTodo(dateKey, 'Todo 1')
+      addTodo(dateKey, 'Todo 2')
+      await act()
+
+      const todo1 = screen.getByRole('option', { name: /Todo: Todo 1/ })
+      todo1.focus()
+      await user.keyboard('m')
+      await user.keyboard('{ArrowDown}')
+
+      expect(getKeyboardMoveState()).not.toBeNull()
+
+      await user.keyboard('{Escape}')
+      await act()
+
+      expect(getKeyboardMoveState()).toBeNull()
+      expect(todo1).toHaveFocus()
+    })
+
     it('moves todo and exits move mode when Enter is pressed', async () => {
       const user = userEvent.setup()
       render(Page)

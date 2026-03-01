@@ -65,7 +65,13 @@ export function createBoardKeyboardHandler(
       event.stopPropagation()
 
       if (event.key === 'Escape') {
+        const { fromDate, todoId } = mode
         exitMoveMode()
+        const todos = getTodos(fromDate)
+        const index = todos.findIndex((t) => t.id === todoId)
+        if (index >= 0) {
+          requestAnimationFrame(() => focusCell(fromDate, index))
+        }
         return
       }
 
