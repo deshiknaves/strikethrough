@@ -48,10 +48,49 @@
     return [...todoItems.slice(0, idx), { type: 'placeholder' }, ...todoItems.slice(idx)]
   })
 
+  function computeDropIndexFromPointer(columnEl: HTMLElement, clientY: number): number {
+    const todos = getTodos(dateKey)
+    const items = Array.from(columnEl.querySelectorAll<HTMLElement>('[data-todo-id]'))
+    if (items.length === 0) return 0
+
+    const withRects = items
+      .map((el) => {
+        const id = el.dataset.todoId
+        const index = id ? todos.findIndex((t) => t.id === id) : -1
+        return { el, rect: el.getBoundingClientRect(), index }
+      })
+      .filter((x) => x.index >= 0)
+      .sort((a, b) => a.rect.top - b.rect.top)
+
+    if (withRects.length === 0) return 0
+
+    for (let i = 0; i < withRects.length; i++) {
+      const { rect, index } = withRects[i]
+      if (clientY < rect.top) return index
+      if (clientY <= rect.bottom) {
+        return clientY < rect.top + rect.height / 2 ? index : index + 1
+      }
+    }
+    return todos.length
+  }
+
   function setupColumn(node: HTMLElement) {
     const cleanup = combine(
       dropTargetForElements({
         element: node,
+        onDrag: ({ location }) => {
+          const { clientY } = location.current.input
+          let insertIndex = computeDropIndexFromPointer(node, clientY)
+          const dragState = getDragState()
+          if (dragState?.fromDate === dateKey) {
+            const todos = getTodos(dateKey)
+            const fromIndex = todos.findIndex((t) => t.id === dragState.todoId)
+            if (fromIndex !== -1 && insertIndex === fromIndex + 1) {
+              insertIndex = fromIndex + 2
+            }
+          }
+          updateDropIndicator(dateKey, insertIndex)
+        },
         onDragEnter: ({ location, self }) => {
           if (location.current.dropTargets[0]?.element === self.element) {
             updateDropIndicator(dateKey, getTodos(dateKey).length)

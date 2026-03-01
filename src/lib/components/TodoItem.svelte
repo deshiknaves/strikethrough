@@ -45,6 +45,7 @@
 
 <div
   use:setupItem
+  data-todo-id={todo.id}
   class="group flex cursor-grab items-center gap-2 border-b border-border px-1 py-1 transition-opacity hover:bg-bg-elevated active:cursor-grabbing {isDragging
     ? 'opacity-30'
     : 'opacity-100'}"
