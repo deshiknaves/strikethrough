@@ -17,6 +17,8 @@ export type BoardKeyboardOptions = {
   getKeyboardMoveState: () => KeyboardMoveState | null
   updateTarget: (dateKey: string, index: number) => void
   exitMoveMode: () => void
+  onNextWeek?: () => void
+  onPreviousWeek?: () => void
 }
 
 const NAV_KEYS = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'j', 'k', 'h', 'l'] as const
@@ -50,10 +52,54 @@ function focusCell(dateKey: string, index: number | 'new'): void {
 export function createBoardKeyboardHandler(
   options: BoardKeyboardOptions
 ): (event: KeyboardEvent) => void {
-  const { getColumnOrder, getTodos, moveTodo, getKeyboardMoveState, updateTarget, exitMoveMode } =
-    options
+  const {
+    getColumnOrder,
+    getTodos,
+    moveTodo,
+    getKeyboardMoveState,
+    updateTarget,
+    exitMoveMode,
+    onNextWeek,
+    onPreviousWeek,
+  } = options
 
   return function handleKeydown(event: KeyboardEvent) {
+    const active = document.activeElement as HTMLElement | null
+    const isTyping =
+      active &&
+      (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable)
+
+    if (!isTyping) {
+      if (event.shiftKey) {
+        if ((event.key === 'N' || event.key === 'n') && onNextWeek) {
+          event.preventDefault()
+          event.stopPropagation()
+          onNextWeek()
+          return
+        }
+        if ((event.key === 'P' || event.key === 'p') && onPreviousWeek) {
+          event.preventDefault()
+          event.stopPropagation()
+          onPreviousWeek()
+          return
+        }
+      }
+      if (event.ctrlKey || event.metaKey) {
+        if ((event.key === 'l' || event.key === 'L') && onNextWeek) {
+          event.preventDefault()
+          event.stopPropagation()
+          onNextWeek()
+          return
+        }
+        if ((event.key === 'h' || event.key === 'H') && onPreviousWeek) {
+          event.preventDefault()
+          event.stopPropagation()
+          onPreviousWeek()
+          return
+        }
+      }
+    }
+
     const mode = getKeyboardMoveState()
     const columnOrder = getColumnOrder()
 
@@ -109,7 +155,6 @@ export function createBoardKeyboardHandler(
 
     if (!NAV_KEYS.includes(event.key as (typeof NAV_KEYS)[number])) return
 
-    const active = document.activeElement as HTMLElement | null
     if (!active) return
 
     // Don't capture nav keys when user is typing in a text input

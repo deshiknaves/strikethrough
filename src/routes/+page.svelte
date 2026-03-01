@@ -39,6 +39,8 @@
       getKeyboardMoveState,
       updateTarget,
       exitMoveMode,
+      onNextWeek: () => (viewMonday = addWeeks(viewMonday, 1)),
+      onPreviousWeek: () => (viewMonday = addWeeks(viewMonday, -1)),
     })
 
     document.addEventListener('keydown', handleKeydown, true)
@@ -54,6 +56,7 @@
       <button
         type="button"
         aria-label="Previous week"
+        aria-keyshortcuts="Shift+P Ctrl+H"
         class="flex size-8 items-center justify-center rounded-full border border-border bg-bg-surface text-text-primary transition-colors hover:bg-bg-elevated"
         onclick={() => (viewMonday = addWeeks(viewMonday, -1))}
       >
@@ -64,6 +67,7 @@
       <button
         type="button"
         aria-label="Next week"
+        aria-keyshortcuts="Shift+N Ctrl+L"
         class="flex size-8 items-center justify-center rounded-full border border-border bg-bg-surface text-text-primary transition-colors hover:bg-bg-elevated"
         onclick={() => (viewMonday = addWeeks(viewMonday, 1))}
       >

@@ -77,6 +77,88 @@ describe('/+page.svelte', () => {
       const orderAfterRoundTrip = getColumnOrder()
       expect(orderAfterRoundTrip).toEqual(initialOrder)
     })
+
+    it('navigates to next week when Shift+N is pressed', async () => {
+      const user = userEvent.setup()
+      render(Page)
+      await act()
+
+      const initialOrder = getColumnOrder()
+      const initialMonday = Temporal.PlainDate.from(initialOrder[0])
+
+      await user.click(screen.getByRole('heading', { level: 1 }))
+      await user.keyboard('{Shift>}n{/Shift}')
+      await act()
+
+      const newOrder = getColumnOrder()
+      const newMonday = Temporal.PlainDate.from(newOrder[0])
+      expect(newMonday.until(initialMonday).days).toBe(-7)
+    })
+
+    it('navigates to previous week when Shift+P is pressed', async () => {
+      const user = userEvent.setup()
+      render(Page)
+      await act()
+
+      const initialOrder = getColumnOrder()
+      const initialMonday = Temporal.PlainDate.from(initialOrder[0])
+
+      await user.click(screen.getByRole('heading', { level: 1 }))
+      await user.keyboard('{Shift>}p{/Shift}')
+      await act()
+
+      const newOrder = getColumnOrder()
+      const newMonday = Temporal.PlainDate.from(newOrder[0])
+      expect(initialMonday.until(newMonday).days).toBe(-7)
+    })
+
+    it('does not navigate when N is pressed without Shift', async () => {
+      const user = userEvent.setup()
+      render(Page)
+      await act()
+
+      const initialOrder = getColumnOrder()
+
+      await user.keyboard('n')
+      await act()
+
+      const orderAfterN = getColumnOrder()
+      expect(orderAfterN).toEqual(initialOrder)
+    })
+
+    it('navigates to next week when Ctrl+L is pressed', async () => {
+      const user = userEvent.setup()
+      render(Page)
+      await act()
+
+      const initialOrder = getColumnOrder()
+      const initialMonday = Temporal.PlainDate.from(initialOrder[0])
+
+      await user.click(screen.getByRole('heading', { level: 1 }))
+      await user.keyboard('{Control>}l{/Control}')
+      await act()
+
+      const newOrder = getColumnOrder()
+      const newMonday = Temporal.PlainDate.from(newOrder[0])
+      expect(newMonday.until(initialMonday).days).toBe(-7)
+    })
+
+    it('navigates to previous week when Ctrl+H is pressed', async () => {
+      const user = userEvent.setup()
+      render(Page)
+      await act()
+
+      const initialOrder = getColumnOrder()
+      const initialMonday = Temporal.PlainDate.from(initialOrder[0])
+
+      await user.click(screen.getByRole('heading', { level: 1 }))
+      await user.keyboard('{Control>}h{/Control}')
+      await act()
+
+      const newOrder = getColumnOrder()
+      const newMonday = Temporal.PlainDate.from(newOrder[0])
+      expect(initialMonday.until(newMonday).days).toBe(-7)
+    })
   })
 
   describe('board keyboard navigation', () => {
