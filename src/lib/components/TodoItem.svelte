@@ -136,9 +136,13 @@
           />
           <span
             class="peer-checked:border-accent-blue peer-checked:bg-accent-blue peer-checked:text-white
+              peer-checked:animate-[pulse_0.4s_ease-out_1]
               peer-checked:hover:bg-transparent peer-checked:hover:border-text-muted peer-checked:hover:text-text-muted
+              peer-checked:hover:delay-[400ms]
               hover:[&_.check-icon]:opacity-100 peer-checked:[&_.check-icon]:opacity-100 peer-checked:hover:[&_.check-icon]:opacity-0
-              peer-checked:hover:[&_.x-icon]:opacity-100
+              peer-checked:hover:[&_.check-icon]:delay-[400ms]
+              peer-checked:[&_.check-icon]:animate-[check-pop_0.3s_ease-out]
+              peer-checked:hover:[&_.x-icon]:opacity-100 peer-checked:hover:[&_.x-icon]:delay-[400ms]
               relative flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border
               opacity-0 transition-opacity duration-200 ease-out group-hover:opacity-100
               border-text-muted hover:border-accent-blue transition-colors duration-150"
