@@ -124,14 +124,52 @@
           ? 'hidden'
           : 'opacity-100'}"
     >
-      <input
-        type="checkbox"
-        checked={todo.completed}
-        onchange={onToggle}
-        class="cursor-pointer accent-accent-blue"
-      />
+      <div
+        class="flex w-0 min-w-0 shrink-0 overflow-hidden transition-[width] duration-200 ease-out group-hover:w-3.5 group-hover:min-w-3.5"
+      >
+        <label class="flex cursor-pointer">
+          <input
+            type="checkbox"
+            checked={todo.completed}
+            onchange={onToggle}
+            class="peer sr-only"
+          />
+          <span
+            class="peer-checked:border-accent-blue peer-checked:bg-accent-blue peer-checked:text-white
+              peer-checked:hover:bg-transparent peer-checked:hover:border-text-muted peer-checked:hover:text-text-muted
+              hover:[&_.check-icon]:opacity-100 peer-checked:[&_.check-icon]:opacity-100 peer-checked:hover:[&_.check-icon]:opacity-0
+              peer-checked:hover:[&_.x-icon]:opacity-100
+              relative flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border
+              opacity-0 transition-opacity duration-200 ease-out group-hover:opacity-100
+              border-text-muted hover:border-accent-blue transition-colors duration-150"
+          >
+            <svg
+              class="check-icon h-2 w-2 opacity-0 transition-opacity"
+              viewBox="0 0 12 12"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M2 6l3 3 5-6" />
+            </svg>
+            <svg
+              class="x-icon absolute inset-0 m-auto h-2 w-2 opacity-0 transition-opacity"
+              viewBox="0 0 12 12"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M3 3l6 6M9 3l-6 6" />
+            </svg>
+          </span>
+        </label>
+      </div>
       <span
-        class="flex-1 text-sm {todo.completed ? 'text-text-muted line-through' : 'text-text-primary'}"
+        class="-ml-2 flex-1 text-sm transition-[margin-left] duration-200 ease-out group-hover:ml-0 {todo.completed ? 'text-text-muted line-through' : 'text-text-primary'}"
       >
         {todo.text}
       </span>
