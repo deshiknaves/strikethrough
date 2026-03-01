@@ -48,30 +48,34 @@
     return [...todoItems.slice(0, idx), { type: 'placeholder' }, ...todoItems.slice(idx)]
   })
 
-  function computeDropIndexFromPointer(columnEl: HTMLElement, clientY: number): number {
+  function computeDropIndexFromPointer(
+    columnEl: HTMLElement,
+    clientY: number,
+  ): { insertIndex: number; overItemId: string | null } {
     const todos = getTodos(dateKey)
     const items = Array.from(columnEl.querySelectorAll<HTMLElement>('[data-todo-id]'))
-    if (items.length === 0) return 0
+    if (items.length === 0) return { insertIndex: 0, overItemId: null }
 
     const withRects = items
       .map((el) => {
-        const id = el.dataset.todoId
+        const id = el.dataset.todoId ?? null
         const index = id ? todos.findIndex((t) => t.id === id) : -1
-        return { el, rect: el.getBoundingClientRect(), index }
+        return { el, id, rect: el.getBoundingClientRect(), index }
       })
       .filter((x) => x.index >= 0)
       .sort((a, b) => a.rect.top - b.rect.top)
 
-    if (withRects.length === 0) return 0
+    if (withRects.length === 0) return { insertIndex: 0, overItemId: null }
 
     for (let i = 0; i < withRects.length; i++) {
-      const { rect, index } = withRects[i]
-      if (clientY < rect.top) return index
+      const { rect, index, id } = withRects[i]
+      if (clientY < rect.top) return { insertIndex: index, overItemId: null }
       if (clientY <= rect.bottom) {
-        return clientY < rect.top + rect.height / 2 ? index : index + 1
+        const insertIndex = clientY < rect.top + rect.height / 2 ? index : index + 1
+        return { insertIndex, overItemId: id }
       }
     }
-    return todos.length
+    return { insertIndex: todos.length, overItemId: null }
   }
 
   function setupColumn(node: HTMLElement) {
@@ -80,13 +84,18 @@
         element: node,
         onDrag: ({ location }) => {
           const { clientY } = location.current.input
-          let insertIndex = computeDropIndexFromPointer(node, clientY)
+          const { insertIndex: raw, overItemId } = computeDropIndexFromPointer(node, clientY)
+          let insertIndex = raw
           const dragState = getDragState()
           if (dragState?.fromDate === dateKey) {
             const todos = getTodos(dateKey)
             const fromIndex = todos.findIndex((t) => t.id === dragState.todoId)
             if (fromIndex !== -1 && insertIndex === fromIndex + 1) {
-              insertIndex = fromIndex + 2
+              if (overItemId === dragState.todoId) {
+                insertIndex = fromIndex + 1
+              } else {
+                insertIndex = fromIndex + 2
+              }
             }
           }
           updateDropIndicator(dateKey, insertIndex)
