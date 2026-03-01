@@ -47,7 +47,7 @@
 
   const idleState: TodoItemState = { type: 'idle' }
 
-  function setupItem(outerNode: HTMLElement) {
+  function initializeDragAndDrop(outerNode: HTMLElement) {
     const innerNode = outerNode.querySelector<HTMLElement>('[data-draggable]')
     if (!innerNode) return { destroy: () => {} }
     const cleanup = combine(
@@ -114,7 +114,7 @@
 </script>
 
 <div
-  use:setupItem
+  use:initializeDragAndDrop
   data-todo-id={todo.id}
   class="flex flex-col"
 >
@@ -158,14 +158,14 @@
             class="peer-checked:border-accent-blue peer-checked:bg-accent-blue peer-checked:text-white
               peer-checked:animate-[pulse_0.4s_ease-out_1]
               peer-checked:hover:bg-transparent peer-checked:hover:border-text-muted peer-checked:hover:text-text-muted
-              peer-checked:hover:delay-[400ms]
+              peer-checked:hover:delay-400
               hover:[&_.check-icon]:opacity-100 peer-checked:[&_.check-icon]:opacity-100 peer-checked:hover:[&_.check-icon]:opacity-0
-              peer-checked:hover:[&_.check-icon]:delay-[400ms]
+              peer-checked:hover:[&_.check-icon]:delay-400
               peer-checked:[&_.check-icon]:animate-[check-pop_0.3s_ease-out]
-              peer-checked:hover:[&_.x-icon]:opacity-100 peer-checked:hover:[&_.x-icon]:delay-[400ms]
+              peer-checked:hover:[&_.x-icon]:opacity-100 peer-checked:hover:[&_.x-icon]:delay-400
               relative flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border
               opacity-0 transition-opacity duration-200 ease-out group-hover:opacity-100 group-focus-within:opacity-100
-              border-text-muted hover:border-accent-blue transition-colors duration-150
+              border-text-muted hover:border-accent-blue
               peer-focus-visible:ring-2 peer-focus-visible:ring-accent-blue peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-bg-surface"
           >
             <svg
@@ -203,7 +203,7 @@
         aria-label="Delete todo"
         class="cursor-pointer leading-none text-text-muted opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue focus-visible:ring-offset-2 focus-visible:ring-offset-bg-surface"
       >
-        ×
+        &times;
       </button>
     </div>
     {#if (state.type === 'is-over' && state.closestEdge === 'bottom') || dropEdge === 'bottom'}

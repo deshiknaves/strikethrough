@@ -2,8 +2,8 @@
   let { onAdd }: { onAdd: (text: string) => void } = $props()
   let value = $state('')
 
-  function handleKeydown(e: KeyboardEvent) {
-    if (e.key === 'Enter' && value.trim()) {
+  function handleKeydown(event: KeyboardEvent) {
+    if (event.key === 'Enter' && value.trim()) {
       onAdd(value.trim())
       value = ''
     }

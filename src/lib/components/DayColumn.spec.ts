@@ -1,8 +1,8 @@
-import { describe, expect, it } from 'vitest'
+import { addTodo, getTodos } from '$lib/todos.svelte'
 import { render, screen } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
+import { describe, expect, it } from 'vitest'
 import DayColumn from './DayColumn.svelte'
-import { addTodo, getTodos } from '$lib/todos.svelte'
 
 function uniqueDate() {
   return `test-${Date.now()}-${Math.random().toString(36).slice(2)}`
@@ -56,7 +56,6 @@ describe('DayColumn', () => {
   })
 
   it('displays todos from the store', async () => {
-    const user = userEvent.setup()
     const dateKey = uniqueDate()
     addTodo(dateKey, 'Pre-existing todo')
 
@@ -75,7 +74,6 @@ describe('DayColumn', () => {
     const user = userEvent.setup()
     const dateKey = uniqueDate()
     addTodo(dateKey, 'Toggle me')
-    const [todo] = getTodos(dateKey)
 
     render(DayColumn, {
       props: {

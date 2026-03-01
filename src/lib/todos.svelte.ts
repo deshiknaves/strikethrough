@@ -1,6 +1,6 @@
 import { reorder } from '@atlaskit/pragmatic-drag-and-drop/reorder'
 
-export interface Todo {
+export type Todo = {
   id: string
   text: string
   completed: boolean
@@ -28,12 +28,7 @@ export function deleteTodo(date: string, id: string): void {
   }
 }
 
-export function moveTodo(
-  fromDate: string,
-  toDate: string,
-  todoId: string,
-  toIndex?: number,
-): void {
+export function moveTodo(fromDate: string, toDate: string, todoId: string, toIndex?: number): void {
   const fromList = todos[fromDate]
   if (!fromList) return
   const fromIndex = fromList.findIndex((t) => t.id === todoId)

@@ -1,6 +1,6 @@
-import { describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
+import { describe, expect, it, vi } from 'vitest'
 import NewTodoInput from './NewTodoInput.svelte'
 
 describe('NewTodoInput', () => {
@@ -8,7 +8,7 @@ describe('NewTodoInput', () => {
     const onAdd = vi.fn()
     render(NewTodoInput, { props: { onAdd } })
 
-    expect(screen.getByPlaceholderText('Add item...')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('Add item...')).toBeVisible()
   })
 
   it('calls onAdd when Enter is pressed with text', async () => {

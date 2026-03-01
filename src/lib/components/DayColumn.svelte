@@ -32,7 +32,7 @@
 
   const todos = $derived(getTodos(dateKey))
 
-  function setupColumn(node: HTMLElement) {
+  function initializeDragAndDrop(node: HTMLElement) {
     const cleanup = combine(
       dropTargetForElements({
         element: node,
@@ -71,12 +71,13 @@
       }),
       monitorForElements({ onDrop: () => clearDragState() }),
     )
+
     return { destroy: cleanup }
   }
 </script>
 
 <div
-  use:setupColumn
+  use:initializeDragAndDrop
   role="group"
   aria-labelledby="column-{dateKey}"
   data-date-key={dateKey}
@@ -89,10 +90,10 @@
     <span class="text-text-secondary">{sublabel}</span>
   </h2>
   <div class="min-h-0 flex-1 overflow-y-auto">
-    {#each todos as todo, i (todo.id)}
+    {#each todos as todo, index (todo.id)}
       {@const dropEdge =
         keyboardMoveMode?.targetDateKey === dateKey &&
-        keyboardMoveMode.targetIndex === i &&
+        keyboardMoveMode.targetIndex === index &&
         keyboardMoveMode.targetIndex < todos.length
           ? 'top'
           : null}
@@ -100,7 +101,7 @@
         <TodoItem
           todo={todo}
           fromDate={dateKey}
-          index={i}
+          index={index}
           columnOrder={columnOrder}
           dropEdge={dropEdge}
           onToggle={() => toggleTodo(dateKey, todo.id)}

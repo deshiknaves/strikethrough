@@ -29,22 +29,22 @@
   const heading = today.toLocaleString('en-US', { month: 'long', year: 'numeric' })
 
   onMount(() => {
-    function handleKeydown(e: KeyboardEvent) {
+    function handleKeydown(event: KeyboardEvent) {
       const mode = getKeyboardMoveState()
       if (!mode) return
 
       const keys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', ' ', 'Escape']
-      if (!keys.includes(e.key)) return
+      if (!keys.includes(event.key)) return
 
-      e.preventDefault()
-      e.stopPropagation()
+      event.preventDefault()
+      event.stopPropagation()
 
-      if (e.key === 'Escape') {
+      if (event.key === 'Escape') {
         exitMoveMode()
         return
       }
 
-      if (e.key === 'Enter' || e.key === ' ') {
+      if (event.key === 'Enter' || event.key === ' ') {
         moveTodo(mode.fromDate, mode.targetDateKey, mode.todoId, mode.targetIndex)
         exitMoveMode()
         return
@@ -53,15 +53,15 @@
       const colIndex = columnOrder.indexOf(mode.targetDateKey)
       const maxIndex = getTodos(mode.targetDateKey).length
 
-      if (e.key === 'ArrowUp') {
+      if (event.key === 'ArrowUp') {
         updateTarget(mode.targetDateKey, Math.max(0, mode.targetIndex - 1))
-      } else if (e.key === 'ArrowDown') {
+      } else if (event.key === 'ArrowDown') {
         updateTarget(mode.targetDateKey, Math.min(maxIndex, mode.targetIndex + 1))
-      } else if (e.key === 'ArrowLeft' && colIndex > 0) {
+      } else if (event.key === 'ArrowLeft' && colIndex > 0) {
         const prevCol = columnOrder[colIndex - 1]
         const prevMax = getTodos(prevCol).length
         updateTarget(prevCol, Math.min(mode.targetIndex, prevMax))
-      } else if (e.key === 'ArrowRight' && colIndex < columnOrder.length - 1) {
+      } else if (event.key === 'ArrowRight' && colIndex < columnOrder.length - 1) {
         const nextCol = columnOrder[colIndex + 1]
         const nextMax = getTodos(nextCol).length
         updateTarget(nextCol, Math.min(mode.targetIndex, nextMax))
@@ -69,6 +69,7 @@
     }
 
     document.addEventListener('keydown', handleKeydown, true)
+
     return () => document.removeEventListener('keydown', handleKeydown, true)
   })
 </script>
