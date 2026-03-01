@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { render, screen } from '@testing-library/svelte'
+import { render, screen, waitFor, fireEvent } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
 import { act } from '@testing-library/svelte'
 import TodoItem from './TodoItem.svelte'
@@ -22,6 +22,7 @@ describe('TodoItem', () => {
         index: 0,
         onToggle: vi.fn(),
         onDelete: vi.fn(),
+        onUpdate: vi.fn(),
       },
     })
 
@@ -37,6 +38,7 @@ describe('TodoItem', () => {
         index: 0,
         onToggle: vi.fn(),
         onDelete: vi.fn(),
+        onUpdate: vi.fn(),
       },
     })
 
@@ -55,6 +57,7 @@ describe('TodoItem', () => {
         index: 0,
         onToggle,
         onDelete: vi.fn(),
+        onUpdate: vi.fn(),
       },
     })
 
@@ -75,6 +78,7 @@ describe('TodoItem', () => {
         index: 0,
         onToggle: vi.fn(),
         onDelete,
+        onUpdate: vi.fn(),
       },
     })
 
@@ -101,6 +105,7 @@ describe('TodoItem', () => {
         index: 0,
         onToggle: vi.fn(),
         onDelete,
+        onUpdate: vi.fn(),
       },
     })
 
@@ -126,6 +131,7 @@ describe('TodoItem', () => {
         index: 0,
         onToggle,
         onDelete: vi.fn(),
+        onUpdate: vi.fn(),
       },
     })
 
@@ -149,6 +155,7 @@ describe('TodoItem', () => {
         index: 0,
         onToggle: vi.fn(),
         onDelete,
+        onUpdate: vi.fn(),
       },
     })
 
@@ -167,6 +174,117 @@ describe('TodoItem', () => {
     expect(onDelete).toHaveBeenCalledOnce()
   })
 
+  it('opens delete modal when x key is pressed on focused item', async () => {
+    const user = userEvent.setup()
+    const onDelete = vi.fn()
+    const todo = createTodo()
+    render(TodoItem, {
+      props: {
+        todo,
+        fromDate: '2025-02-24',
+        index: 0,
+        onToggle: vi.fn(),
+        onDelete,
+        onUpdate: vi.fn(),
+      },
+    })
+
+    const todoOption = screen.getByRole('option', {
+      name: /Todo: Test todo\. Press m to move/i,
+    })
+    todoOption.focus()
+    await user.keyboard('x')
+
+    expect(screen.getByText('Delete this todo?')).toBeInTheDocument()
+    expect(onDelete).not.toHaveBeenCalled()
+  })
+
+  it('opens edit mode when e is pressed on focused item', async () => {
+    const user = userEvent.setup()
+    const todo = createTodo()
+    render(TodoItem, {
+      props: {
+        todo,
+        fromDate: '2025-02-24',
+        index: 0,
+        onToggle: vi.fn(),
+        onDelete: vi.fn(),
+        onUpdate: vi.fn(),
+      },
+    })
+
+    const todoOption = screen.getByRole('option', {
+      name: /Todo: Test todo\. Press m to move/i,
+    })
+    todoOption.focus()
+    await user.keyboard('e')
+
+    const editInput = screen.getByDisplayValue('Test todo')
+    expect(editInput).toBeInTheDocument()
+    expect(editInput).toHaveFocus()
+  })
+
+  it('calls onUpdate when edit is saved with Enter', async () => {
+    const user = userEvent.setup()
+    const onUpdate = vi.fn()
+    const todo = createTodo()
+    render(TodoItem, {
+      props: {
+        todo,
+        fromDate: '2025-02-24',
+        index: 0,
+        onToggle: vi.fn(),
+        onDelete: vi.fn(),
+        onUpdate,
+      },
+    })
+
+    const todoOption = screen.getByRole('option', {
+      name: /Todo: Test todo\. Press m to move/i,
+    })
+    todoOption.focus()
+    await user.keyboard('e')
+
+    const editInput = await waitFor(() => screen.getByDisplayValue('Test todo'))
+    await waitFor(() => expect(editInput).toHaveFocus())
+
+    fireEvent.input(editInput, { target: { value: 'Updated todo' } })
+    fireEvent.keyDown(editInput, { key: 'Enter' })
+
+    expect(onUpdate).toHaveBeenCalledTimes(1)
+    expect(onUpdate).toHaveBeenCalledWith('Updated todo')
+  })
+
+  it('cancels edit when Escape is pressed', async () => {
+    const user = userEvent.setup()
+    const onUpdate = vi.fn()
+    const todo = createTodo()
+    render(TodoItem, {
+      props: {
+        todo,
+        fromDate: '2025-02-24',
+        index: 0,
+        onToggle: vi.fn(),
+        onDelete: vi.fn(),
+        onUpdate,
+      },
+    })
+
+    const todoOption = screen.getByRole('option', {
+      name: /Todo: Test todo\. Press m to move/i,
+    })
+    todoOption.focus()
+    await user.keyboard('e')
+
+    const editInput = screen.getByDisplayValue('Test todo')
+    await user.clear(editInput)
+    await user.keyboard('Changed text')
+    await user.keyboard('{Escape}')
+
+    expect(onUpdate).not.toHaveBeenCalled()
+    expect(screen.getByText('Test todo')).toBeInTheDocument()
+  })
+
   it('has only the item as focusable (checkbox and delete button not in tab order)', async () => {
     const user = userEvent.setup()
     const todo = createTodo()
@@ -177,6 +295,7 @@ describe('TodoItem', () => {
         index: 0,
         onToggle: vi.fn(),
         onDelete: vi.fn(),
+        onUpdate: vi.fn(),
       },
     })
 
@@ -206,6 +325,7 @@ describe('TodoItem', () => {
         index: 0,
         onToggle: vi.fn(),
         onDelete: vi.fn(),
+        onUpdate: vi.fn(),
         columnOrder,
       },
     })
@@ -236,6 +356,7 @@ describe('TodoItem', () => {
         index: 0,
         onToggle: vi.fn(),
         onDelete: vi.fn(),
+        onUpdate: vi.fn(),
         columnOrder: [],
       },
     })
@@ -259,6 +380,7 @@ describe('TodoItem', () => {
         index: 0,
         onToggle: vi.fn(),
         onDelete: vi.fn(),
+        onUpdate: vi.fn(),
         columnOrder,
       },
     })

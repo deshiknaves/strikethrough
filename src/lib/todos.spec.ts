@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getTodos, addTodo, toggleTodo, deleteTodo, moveTodo } from '$lib/todos.svelte'
+import { getTodos, addTodo, toggleTodo, deleteTodo, updateTodo, moveTodo } from '$lib/todos.svelte'
 
 function uniqueDate() {
   return `test-${Date.now()}-${Math.random().toString(36).slice(2)}`
@@ -45,6 +45,15 @@ describe('todos store', () => {
     expect(getTodos(dateKey)[0].completed).toBe(true)
     toggleTodo(dateKey, todo.id)
     expect(getTodos(dateKey)[0].completed).toBe(false)
+  })
+
+  it('updates a todo', () => {
+    const dateKey = uniqueDate()
+    addTodo(dateKey, 'Original text')
+    const [todo] = getTodos(dateKey)
+
+    updateTodo(dateKey, todo.id, 'Updated text')
+    expect(getTodos(dateKey)[0].text).toBe('Updated text')
   })
 
   it('deletes a todo', () => {

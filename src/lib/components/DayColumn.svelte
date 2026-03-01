@@ -6,7 +6,14 @@
     monitorForElements,
   } from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
   import { extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge'
-  import { getTodos, addTodo, toggleTodo, deleteTodo, moveTodo } from '$lib/todos.svelte'
+  import {
+    getTodos,
+    addTodo,
+    toggleTodo,
+    deleteTodo,
+    updateTodo,
+    moveTodo,
+  } from '$lib/todos.svelte'
   import { clearDragState } from '$lib/drag-state.svelte'
   import { getKeyboardMoveState } from '$lib/keyboard-move-state.svelte'
   import TodoItem from './TodoItem.svelte'
@@ -105,6 +112,7 @@
           {dropEdge}
           onToggle={() => toggleTodo(dateKey, todo.id)}
           onDelete={() => deleteTodo(dateKey, todo.id)}
+          onUpdate={(text) => updateTodo(dateKey, todo.id, text)}
         />
       </div>
     {/each}

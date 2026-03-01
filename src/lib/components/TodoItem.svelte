@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { tick } from 'svelte'
   import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine'
   import {
     draggable,
@@ -18,6 +19,7 @@
     index,
     onToggle,
     onDelete,
+    onUpdate,
     columnOrder = [],
     dropEdge = null,
   }: {
@@ -26,6 +28,7 @@
     index: number
     onToggle: () => void
     onDelete: () => void
+    onUpdate: (text: string) => void
     columnOrder?: string[]
     dropEdge?: 'top' | 'bottom' | null
   } = $props()
@@ -35,6 +38,58 @@
 
   let deleteDialogRef: HTMLDialogElement | null = null
   let todoRowRef: HTMLDivElement | null = null
+  let editInputRef = $state<HTMLInputElement | null>(null)
+  let isEditing = $state(false)
+  let editValue = $state('')
+  let isCancelingEdit = $state(false)
+  let isSavingEdit = $state(false)
+
+  async function enterEditMode() {
+    isEditing = true
+    editValue = todo.text
+    await tick()
+    editInputRef?.focus()
+    editInputRef?.select()
+  }
+
+  function saveEdit() {
+    const trimmed = editValue.trim()
+    if (trimmed) onUpdate(trimmed)
+    isSavingEdit = true
+    isEditing = false
+    todoRowRef?.focus()
+    queueMicrotask(() => {
+      isSavingEdit = false
+    })
+  }
+
+  function cancelEdit() {
+    isCancelingEdit = true
+    isEditing = false
+    todoRowRef?.focus()
+    queueMicrotask(() => {
+      isCancelingEdit = false
+    })
+  }
+
+  function handleEditInputKeydown(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      saveEdit()
+    } else if (event.key === 'Escape') {
+      event.preventDefault()
+      cancelEdit()
+    }
+  }
+
+  function handleEditInputBlur() {
+    if (isCancelingEdit || isSavingEdit) return
+    if (editValue.trim()) {
+      saveEdit()
+    } else {
+      cancelEdit()
+    }
+  }
 
   function openDeleteModal() {
     deleteDialogRef?.showModal()
@@ -56,12 +111,20 @@
       enterMoveMode(todo.id, fromDate, index)
       return
     }
+    if ((e.key === 'e' || e.key === 'E') && !keyboardMoveMode) {
+      e.preventDefault()
+      enterEditMode()
+      return
+    }
     if (e.key === ' ' && !keyboardMoveMode) {
       e.preventDefault()
       onToggle()
       return
     }
-    if ((e.key === 'Delete' || e.key === 'Backspace') && !keyboardMoveMode) {
+    if (
+      (e.key === 'x' || e.key === 'X' || e.key === 'Delete' || e.key === 'Backspace') &&
+      !keyboardMoveMode
+    ) {
       e.preventDefault()
       openDeleteModal()
     }
@@ -162,9 +225,9 @@
     role="option"
     aria-selected={isKeyboardMoving}
     aria-keyshortcuts="m"
-    aria-label="Todo: {todo.text}. Press m to move, Space to toggle, Delete to remove."
+    aria-label="Todo: {todo.text}. Press m to move, e to edit, Space to toggle, x or Delete to remove."
     onkeydown={handleKeydown}
-    class="group flex cursor-grab items-center gap-2 rounded border-b border-border px-1 py-1 transition-opacity focus-within:bg-bg-elevated hover:bg-bg-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/60 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-surface active:cursor-grabbing {state.type ===
+    class="group flex cursor-grab items-center gap-2 rounded border-b border-border px-1 py-1 transition-opacity focus-within:bg-bg-elevated hover:bg-bg-elevated focus-visible:ring-2 focus-visible:ring-accent-blue/60 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-surface focus-visible:outline-none active:cursor-grabbing {state.type ===
     'is-dragging'
       ? 'opacity-40'
       : state.type === 'is-dragging-and-left-self' || isKeyboardMoving
@@ -221,13 +284,24 @@
         </span>
       </label>
     </div>
-    <span
-      class="-ml-2 flex-1 text-sm transition-[margin-left] duration-200 ease-out group-focus-within:ml-0 group-hover:ml-0 {todo.completed
-        ? 'text-text-muted line-through'
-        : 'text-text-primary'}"
-    >
-      {todo.text}
-    </span>
+    {#if isEditing}
+      <input
+        bind:this={editInputRef}
+        bind:value={editValue}
+        onkeydown={handleEditInputKeydown}
+        onblur={handleEditInputBlur}
+        type="text"
+        class="-ml-2 min-w-0 flex-1 border-0 border-b border-border bg-transparent px-1 py-1 text-sm text-text-primary focus:border-accent-blue focus:ring-0 focus:outline-none"
+      />
+    {:else}
+      <span
+        class="-ml-2 flex-1 text-sm transition-[margin-left] duration-200 ease-out group-focus-within:ml-0 group-hover:ml-0 {todo.completed
+          ? 'text-text-muted line-through'
+          : 'text-text-primary'}"
+      >
+        {todo.text}
+      </span>
+    {/if}
     <button
       type="button"
       tabindex="-1"
@@ -252,7 +326,7 @@
   <dialog
     bind:this={deleteDialogRef}
     oncancel={closeDeleteModal}
-    class="rounded-lg border border-border bg-bg-surface p-4 shadow-lg backdrop:bg-black/50"
+    class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-bg-surface p-4 shadow-lg backdrop:bg-black/50"
   >
     <p class="mb-4 text-sm text-text-primary">Delete this todo?</p>
     <div class="flex justify-end gap-2">

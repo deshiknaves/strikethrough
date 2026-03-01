@@ -28,6 +28,11 @@ export function deleteTodo(date: string, id: string): void {
   }
 }
 
+export function updateTodo(date: string, id: string, text: string): void {
+  const todo = todos[date]?.find((t) => t.id === id)
+  if (todo) todo.text = text
+}
+
 export function moveTodo(fromDate: string, toDate: string, todoId: string, toIndex?: number): void {
   const fromList = todos[fromDate]
   if (!fromList) return
