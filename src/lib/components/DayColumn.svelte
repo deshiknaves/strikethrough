@@ -34,14 +34,18 @@
 
   const displayItems = $derived.by<DisplayItem[]>(() => {
     const todos = getTodos(dateKey)
+    const dragState = getDragState()
     const idx = dropIndex
     const todoItems: DisplayItem[] = todos.map((todo, i) => ({ type: 'todo', todo, index: i }))
     if (idx === null) return todoItems
-    return [
-      ...todoItems.slice(0, idx),
-      { type: 'placeholder' },
-      ...todoItems.slice(idx),
-    ]
+
+    // Don't show placeholder if drop would be a no-op (same column, adjacent to self)
+    if (dragState?.fromDate === dateKey) {
+      const fromIndex = todos.findIndex((t) => t.id === dragState.todoId)
+      if (fromIndex !== -1 && (idx === fromIndex || idx === fromIndex + 1)) return todoItems
+    }
+
+    return [...todoItems.slice(0, idx), { type: 'placeholder' }, ...todoItems.slice(idx)]
   })
 
   function setupColumn(node: HTMLElement) {
@@ -49,11 +53,6 @@
       dropTargetForElements({
         element: node,
         onDragEnter: ({ location, self }) => {
-          if (location.current.dropTargets[0]?.element === self.element) {
-            updateDropIndicator(dateKey, getTodos(dateKey).length)
-          }
-        },
-        onDrag: ({ location, self }) => {
           if (location.current.dropTargets[0]?.element === self.element) {
             updateDropIndicator(dateKey, getTodos(dateKey).length)
           }

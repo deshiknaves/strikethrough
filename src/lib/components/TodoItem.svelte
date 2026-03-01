@@ -37,7 +37,6 @@
       dropTargetForElements({
         element: node,
         onDragEnter: ({ location }) => computeAndSet(node, location),
-        onDrag: ({ location }) => computeAndSet(node, location),
       }),
     )
     return { destroy: cleanup }
