@@ -291,7 +291,9 @@
     aria-keyshortcuts="m d e Space x Delete ArrowUp ArrowDown ArrowLeft ArrowRight j k h l"
     aria-label="Todo: {todo.text}. Press m to move, d for details, e to edit, Space to toggle, x or Delete to remove. Use arrow keys or j/k/h/l to navigate."
     onkeydown={handleKeydown}
-    class="group flex cursor-grab items-center gap-2 rounded border-b border-border px-1 py-1 transition-opacity focus-within:bg-bg-elevated hover:bg-bg-elevated focus-visible:ring-2 focus-visible:ring-accent-blue/60 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-surface focus-visible:outline-none active:cursor-grabbing {dragState.type ===
+    onclick={() => todoRowRef?.focus()}
+    ondblclick={openDetailsModal}
+    class="group flex cursor-grab items-center gap-2 rounded border-b border-border px-1 py-1 transition-opacity focus-within:bg-bg-elevated hover:bg-bg-elevated focus-within:ring-2 focus-within:ring-accent-blue/60 focus-within:ring-offset-2 focus-within:ring-offset-bg-surface focus-within:outline-none active:cursor-grabbing {dragState.type ===
     'is-dragging'
       ? 'opacity-40'
       : dragState.type === 'is-dragging-and-left-self' || isKeyboardMoving

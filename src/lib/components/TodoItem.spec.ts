@@ -467,6 +467,55 @@ describe('TodoItem', () => {
     exitMoveMode()
   })
 
+  it('focuses row when clicked so focus state is visible', async () => {
+    const user = userEvent.setup()
+    const todo = createTodo()
+    render(TodoItem, {
+      props: {
+        todo,
+        fromDate: '2025-02-24',
+        index: 0,
+        onToggle: vi.fn(),
+        onDelete: vi.fn(),
+        onUpdate: vi.fn(),
+        onUpdateDetails: vi.fn(),
+      },
+    })
+
+    const todoOption = screen.getByRole('option', {
+      name: /Todo: Test todo\. Press m to move/i,
+    })
+    await user.click(todoOption)
+
+    expect(todoOption).toHaveFocus()
+  })
+
+  it('opens details modal when row is double-clicked', async () => {
+    const user = userEvent.setup()
+    const todo = createTodo()
+    render(TodoItem, {
+      props: {
+        todo,
+        fromDate: '2025-02-24',
+        index: 0,
+        onToggle: vi.fn(),
+        onDelete: vi.fn(),
+        onUpdate: vi.fn(),
+        onUpdateDetails: vi.fn(),
+      },
+    })
+
+    const todoOption = screen.getByRole('option', {
+      name: /Todo: Test todo\. Press m to move/i,
+    })
+    await user.dblClick(todoOption)
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeInTheDocument()
+    })
+    expect(screen.getByLabelText('Title')).toHaveValue('Test todo')
+  })
+
   it('opens details modal when d is pressed on focused item', async () => {
     const user = userEvent.setup()
     const onUpdateDetails = vi.fn()
