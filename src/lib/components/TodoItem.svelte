@@ -138,9 +138,9 @@
     aria-label="Todo: {todo.text}. Press m to move."
     onkeydown={handleKeydown}
     class="group flex cursor-grab items-center gap-2 border-b border-border px-1 py-1 transition-opacity hover:bg-bg-elevated focus-within:bg-bg-elevated active:cursor-grabbing {state.type ===
-      'is-dragging' || isKeyboardMoving
+      'is-dragging'
         ? 'opacity-40'
-        : state.type === 'is-dragging-and-left-self'
+        : state.type === 'is-dragging-and-left-self' || isKeyboardMoving
           ? 'hidden'
           : 'opacity-100'}"
     >
