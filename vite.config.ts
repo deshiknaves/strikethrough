@@ -33,7 +33,7 @@ export default defineConfig({
             ],
           },
           include: ['src/**/*.svelte.{test,spec}.{js,ts}'],
-          exclude: ['src/lib/server/**'],
+          exclude: ['src/lib/server/**', 'src/routes/page.svelte.spec.ts'],
         },
       },
       {
@@ -53,7 +53,7 @@ export default defineConfig({
         test: {
           name: 'unit',
           environment: 'happy-dom',
-          include: ['src/lib/**/*.spec.{js,ts}'],
+          include: ['src/lib/**/*.spec.{js,ts}', 'src/routes/page.svelte.spec.ts'],
           exclude: ['src/lib/**/*.drag.spec.{js,ts}'],
           setupFiles: ['src/test/setup.ts'],
         },

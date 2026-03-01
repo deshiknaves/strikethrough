@@ -116,7 +116,6 @@
 <div
   use:setupItem
   data-todo-id={todo.id}
-  data-testid="todo-item"
   class="flex flex-col"
 >
   {#if (state.type === 'is-over' && state.closestEdge === 'top') || dropEdge === 'top'}
@@ -132,7 +131,6 @@
   {/if}
   <div
     data-draggable
-    data-testid="todo-draggable"
     tabindex="0"
     role="option"
     aria-selected={isKeyboardMoving}

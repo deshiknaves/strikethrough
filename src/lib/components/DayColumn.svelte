@@ -77,13 +77,14 @@
 
 <div
   use:setupColumn
-  data-testid="day-column"
+  role="group"
+  aria-labelledby="column-{dateKey}"
   data-date-key={dateKey}
   class="flex flex-col rounded-lg border p-3 transition-colors {isOver
     ? 'border-accent-blue bg-accent-blue/10'
     : 'border-border bg-bg-surface'} {extraClass}"
 >
-  <h2 class="mb-2 flex justify-between text-sm font-semibold">
+  <h2 id="column-{dateKey}" class="mb-2 flex justify-between text-sm font-semibold">
     <span class="text-text-primary">{label}</span>
     <span class="text-text-secondary">{sublabel}</span>
   </h2>

@@ -1,5 +1,5 @@
 import { describe, expect, it, afterEach } from 'vitest'
-import { render, screen, fireEvent, act } from '@testing-library/svelte'
+import { render, screen, fireEvent, act, within } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
 import TwoColumnsTestWrapper from './TwoColumnsTestWrapper.svelte'
 import { addTodo, getTodos } from '$lib/todos.svelte'
@@ -43,16 +43,17 @@ describe('DayColumn drag and drop', () => {
     })
 
     // Add todo to first column
-    const columns = screen.getAllByTestId('day-column')
-    const firstColumnInput = columns[0].querySelector('input[placeholder="Add item..."]')
-    if (!firstColumnInput) throw new Error('Input not found')
+    const monColumn = screen.getByRole('group', { name: /Mon/ })
+    const firstColumnInput = within(monColumn).getByPlaceholderText('Add item...')
     await user.type(firstColumnInput, 'Drag me{Enter}')
 
     expect(getTodos(colA)).toHaveLength(1)
 
     // Get draggable element and drop target
-    const draggable = screen.getByTestId('todo-draggable')
-    const targetColumn = columns[1]
+    const draggable = screen.getByRole('option', {
+      name: /Todo: Drag me\. Press m to move\./i,
+    })
+    const targetColumn = screen.getByRole('group', { name: /Tue/ })
 
     // Start drag (use native DragEvent with dataTransfer for pragmatic-drag-and-drop)
     dispatchDragEvent(draggable, 'dragstart')
@@ -93,19 +94,21 @@ describe('DayColumn drag and drop', () => {
       },
     })
 
-    const draggables = screen.getAllByTestId('todo-draggable')
-    const todoItems = screen.getAllByTestId('todo-item')
+    const options = screen.getAllByRole('option')
+    const firstDraggable = options[0]
+    const secondTodoDropTarget = options[1].parentElement
+    if (!secondTodoDropTarget) throw new Error('Second todo drop target not found')
 
     // Drag first todo and drop below second (between Second and Third)
-    dispatchDragEvent(draggables[0], 'dragstart')
+    dispatchDragEvent(firstDraggable, 'dragstart')
     await act()
     await new Promise((resolve) => requestAnimationFrame(resolve))
 
     // Drop on second todo item (bottom edge)
-    dispatchDragEvent(todoItems[1], 'dragenter')
-    dispatchDragEvent(todoItems[1], 'dragover', { clientX: 50, clientY: 60 })
+    dispatchDragEvent(secondTodoDropTarget, 'dragenter')
+    dispatchDragEvent(secondTodoDropTarget, 'dragover', { clientX: 50, clientY: 60 })
     await act()
-    dispatchDragEvent(todoItems[1], 'drop')
+    dispatchDragEvent(secondTodoDropTarget, 'drop')
     await act()
 
     const reordered = getTodos(colA)
