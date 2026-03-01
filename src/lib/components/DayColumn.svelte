@@ -39,10 +39,10 @@
     const todoItems: DisplayItem[] = todos.map((todo, i) => ({ type: 'todo', todo, index: i }))
     if (idx === null) return todoItems
 
-    // Don't show placeholder if drop would be a no-op (same column, adjacent to self)
+    // Don't show placeholder if drop is a no-op: same column, same index (reorder(i,i) = identity)
     if (dragState?.fromDate === dateKey) {
       const fromIndex = todos.findIndex((t) => t.id === dragState.todoId)
-      if (fromIndex !== -1 && (idx === fromIndex || idx === fromIndex + 1)) return todoItems
+      if (fromIndex !== -1 && idx === fromIndex) return todoItems
     }
 
     return [...todoItems.slice(0, idx), { type: 'placeholder' }, ...todoItems.slice(idx)]
