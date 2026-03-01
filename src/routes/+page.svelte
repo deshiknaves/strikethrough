@@ -5,25 +5,24 @@
   import { createBoardKeyboardHandler } from '$lib/board-keyboard-navigation'
   import { getKeyboardMoveState, updateTarget, exitMoveMode } from '$lib/keyboard-move-state.svelte'
   import { getTodos, moveTodo } from '$lib/todos.svelte'
+  import {
+    getMondayOfWeek,
+    getWeekDays,
+    getWeekendDays,
+    getColumnOrder,
+    formatDate,
+    formatWeekday,
+    formatMonthYear,
+    addWeeks,
+  } from '$lib/week-utils'
 
   const today = Temporal.Now.plainDateISO()
-  const monday = today.subtract({ days: today.dayOfWeek - 1 })
-  const weekdays = Array.from({ length: 5 }, (_, i) => monday.add({ days: i }))
-  const weekend = Array.from({ length: 2 }, (_, i) => monday.add({ days: 5 + i }))
-  const columnOrder = $derived([
-    ...weekdays.map((d) => d.toString()),
-    ...weekend.map((d) => d.toString()),
-  ])
+  let viewMonday = $state(getMondayOfWeek(today))
 
-  function date(d: Temporal.PlainDate) {
-    return d.toLocaleString('en-US', { day: 'numeric', month: 'short' })
-  }
-
-  function weekday(d: Temporal.PlainDate) {
-    return d.toLocaleString('en-US', { weekday: 'short' })
-  }
-
-  const heading = today.toLocaleString('en-US', { month: 'long', year: 'numeric' })
+  const weekdays = $derived(getWeekDays(viewMonday))
+  const weekend = $derived(getWeekendDays(viewMonday))
+  const columnOrder = $derived(getColumnOrder(viewMonday))
+  const heading = $derived(formatMonthYear(viewMonday))
 
   onMount(() => {
     const handleKeydown = createBoardKeyboardHandler({
@@ -42,13 +41,33 @@
 </script>
 
 <div class="flex flex-col overflow-y-auto p-4 min-[501px]:h-dvh min-[501px]:overflow-hidden">
-  <h1 class="mb-3 text-2xl font-bold text-text-primary">{heading}</h1>
+  <header class="mb-3 flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-text-primary">{heading}</h1>
+    <nav class="flex gap-1" aria-label="Week navigation">
+      <button
+        type="button"
+        aria-label="Previous week"
+        class="rounded border border-border bg-bg-surface px-2 py-1 text-text-primary transition-colors hover:bg-bg-elevated"
+        onclick={() => (viewMonday = addWeeks(viewMonday, -1))}
+      >
+        ←
+      </button>
+      <button
+        type="button"
+        aria-label="Next week"
+        class="rounded border border-border bg-bg-surface px-2 py-1 text-text-primary transition-colors hover:bg-bg-elevated"
+        onclick={() => (viewMonday = addWeeks(viewMonday, 1))}
+      >
+        →
+      </button>
+    </nav>
+  </header>
   <div class="flex min-h-0 flex-1 gap-3">
     {#each weekdays as day (day.toString())}
       <DayColumn
         dateKey={day.toString()}
-        label={date(day)}
-        sublabel={weekday(day)}
+        label={formatDate(day)}
+        sublabel={formatWeekday(day)}
         isToday={day.toString() === today.toString()}
         {columnOrder}
         class="min-h-50 flex-1 min-[501px]:min-h-0"
@@ -59,8 +78,8 @@
     {#each weekend as day (day.toString())}
       <DayColumn
         dateKey={day.toString()}
-        label={date(day)}
-        sublabel={weekday(day)}
+        label={formatDate(day)}
+        sublabel={formatWeekday(day)}
         isToday={day.toString() === today.toString()}
         {columnOrder}
         class="w-1/2"

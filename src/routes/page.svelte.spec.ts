@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { act, render, screen } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
+import { Temporal } from 'temporal-polyfill'
 import Page from './+page.svelte'
 import { addTodo, getTodos, resetTodos } from '$lib/todos.svelte'
 import { exitMoveMode, getKeyboardMoveState } from '$lib/keyboard-move-state.svelte'
@@ -18,6 +19,64 @@ describe('/+page.svelte', () => {
 
     const heading = screen.getByRole('heading', { level: 1 })
     expect(heading).toBeInTheDocument()
+  })
+
+  describe('week navigation', () => {
+    it('renders previous and next week buttons', () => {
+      render(Page)
+
+      expect(screen.getByRole('button', { name: 'Previous week' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Next week' })).toBeInTheDocument()
+    })
+
+    it('navigates to next week when Next week button is clicked', async () => {
+      const user = userEvent.setup()
+      render(Page)
+      await act()
+
+      const initialOrder = getColumnOrder()
+      const initialMonday = Temporal.PlainDate.from(initialOrder[0])
+
+      await user.click(screen.getByRole('button', { name: 'Next week' }))
+      await act()
+
+      const newOrder = getColumnOrder()
+      const newMonday = Temporal.PlainDate.from(newOrder[0])
+      expect(newMonday.until(initialMonday).days).toBe(-7)
+    })
+
+    it('navigates to previous week when Previous week button is clicked', async () => {
+      const user = userEvent.setup()
+      render(Page)
+      await act()
+
+      const initialOrder = getColumnOrder()
+      const initialMonday = Temporal.PlainDate.from(initialOrder[0])
+
+      await user.click(screen.getByRole('button', { name: 'Previous week' }))
+      await act()
+
+      const newOrder = getColumnOrder()
+      const newMonday = Temporal.PlainDate.from(newOrder[0])
+      expect(initialMonday.until(newMonday).days).toBe(-7)
+    })
+
+    it('returns to initial week when navigating next then previous', async () => {
+      const user = userEvent.setup()
+      render(Page)
+      await act()
+
+      const initialOrder = getColumnOrder()
+
+      await user.click(screen.getByRole('button', { name: 'Next week' }))
+      await act()
+
+      await user.click(screen.getByRole('button', { name: 'Previous week' }))
+      await act()
+
+      const orderAfterRoundTrip = getColumnOrder()
+      expect(orderAfterRoundTrip).toEqual(initialOrder)
+    })
   })
 
   describe('board keyboard navigation', () => {

@@ -94,7 +94,10 @@
     ? 'border-accent-blue bg-accent-blue/10'
     : 'border-border bg-bg-surface'} {extraClass}"
 >
-  <h2 id="column-{dateKey}" class="mb-2 flex items-center justify-between gap-2 text-sm font-semibold">
+  <h2
+    id="column-{dateKey}"
+    class="mb-2 flex items-center justify-between gap-2 text-sm font-semibold"
+  >
     <span class="flex items-center gap-2">
       {#if isToday}
         <Badge label="Today" variant="blue" />

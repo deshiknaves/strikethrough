@@ -33,7 +33,11 @@ describe('Badge', () => {
     })
 
     const badge = container.querySelector('span')
-    expect(badge).toHaveClass('border-accent-orange/60', 'bg-accent-orange/10', 'text-accent-orange')
+    expect(badge).toHaveClass(
+      'border-accent-orange/60',
+      'bg-accent-orange/10',
+      'text-accent-orange'
+    )
   })
 
   it('applies blue variant', () => {
@@ -45,7 +49,11 @@ describe('Badge', () => {
     })
 
     const badge = container.querySelector('span')
-    expect(badge).toHaveClass('border-accent-blue-light/60', 'bg-accent-blue-light/10', 'text-accent-blue-light')
+    expect(badge).toHaveClass(
+      'border-accent-blue-light/60',
+      'bg-accent-blue-light/10',
+      'text-accent-blue-light'
+    )
   })
 
   it('applies extra class', () => {

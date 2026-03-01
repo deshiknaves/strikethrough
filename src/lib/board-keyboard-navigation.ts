@@ -103,11 +103,7 @@ export function createBoardKeyboardHandler(
     if (!active) return
 
     // Don't capture nav keys when user is typing in a text input
-    if (
-      active.tagName === 'INPUT' ||
-      active.tagName === 'TEXTAREA' ||
-      active.isContentEditable
-    ) {
+    if (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable) {
       return
     }
 
@@ -141,21 +137,13 @@ export function createBoardKeyboardHandler(
           const prevCol = columnOrder[colIndex - 1]
           const prevTodos = getTodos(prevCol)
           const targetIndex =
-            prevTodos.length > 0
-              ? index < prevTodos.length
-                ? index
-                : prevTodos.length - 1
-              : 'new'
+            prevTodos.length > 0 ? (index < prevTodos.length ? index : prevTodos.length - 1) : 'new'
           focusCell(prevCol, targetIndex)
         } else if (vimKey === 'ArrowRight' && colIndex < columnOrder.length - 1) {
           const nextCol = columnOrder[colIndex + 1]
           const nextTodos = getTodos(nextCol)
           const targetIndex =
-            nextTodos.length > 0
-              ? index < nextTodos.length
-                ? index
-                : nextTodos.length - 1
-              : 'new'
+            nextTodos.length > 0 ? (index < nextTodos.length ? index : nextTodos.length - 1) : 'new'
           focusCell(nextCol, targetIndex)
         }
       }
@@ -195,7 +183,9 @@ export function createBoardKeyboardHandler(
       const prevTodos = getTodos(prevCol)
       const targetIndex =
         prevTodos.length > 0
-          ? (index < prevTodos.length ? index : prevTodos.length - 1)
+          ? index < prevTodos.length
+            ? index
+            : prevTodos.length - 1
           : ('new' as const)
       focusCell(prevCol, targetIndex)
     } else if (vimKey === 'ArrowRight' && colIndex < columnOrder.length - 1) {
@@ -203,7 +193,9 @@ export function createBoardKeyboardHandler(
       const nextTodos = getTodos(nextCol)
       const targetIndex =
         nextTodos.length > 0
-          ? (index < nextTodos.length ? index : nextTodos.length - 1)
+          ? index < nextTodos.length
+            ? index
+            : nextTodos.length - 1
           : ('new' as const)
       focusCell(nextCol, targetIndex)
     }

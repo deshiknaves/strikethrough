@@ -1,7 +1,8 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte'
 
-  let { onAdd, autoFocus = false }: { onAdd: (text: string) => void; autoFocus?: boolean } = $props()
+  let { onAdd, autoFocus = false }: { onAdd: (text: string) => void; autoFocus?: boolean } =
+    $props()
   let value = $state('')
   let isExpanded = $state(false)
   let buttonRef = $state<HTMLButtonElement | null>(null)
