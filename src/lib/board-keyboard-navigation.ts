@@ -33,6 +33,20 @@ function toVimKey(key: string): string {
           : key
 }
 
+function focusCell(dateKey: string, index: number | 'new'): void {
+  if (index === 'new') {
+    const el = document.querySelector<HTMLElement>(
+      `[data-date-key="${dateKey}"][data-todo-index="new"] input, [data-date-key="${dateKey}"][data-todo-index="new"] button`
+    )
+    el?.focus()
+  } else {
+    const el = document.querySelector<HTMLElement>(
+      `[data-date-key="${dateKey}"][data-todo-index="${index}"]`
+    )
+    el?.focus()
+  }
+}
+
 export function createBoardKeyboardHandler(
   options: BoardKeyboardOptions
 ): (event: KeyboardEvent) => void {
@@ -104,55 +118,36 @@ export function createBoardKeyboardHandler(
 
         if (vimKey === 'ArrowUp') {
           if (todos.length > 0) {
-            const target = document.querySelector<HTMLElement>(
-              `[data-date-key="${dateKey}"][data-todo-index="${todos.length - 1}"]`
-            )
-            target?.focus()
+            focusCell(dateKey, todos.length - 1)
           } else if (colIndex >= WEEKEND_START) {
             const weekdayCol = getWeekdayColForWeekend(colIndex)
             const weekdayKey = columnOrder[weekdayCol]
-            const target = document.querySelector<HTMLElement>(
-              `[data-date-key="${weekdayKey}"][data-todo-index="new"] input, [data-date-key="${weekdayKey}"][data-todo-index="new"] button`
-            )
-            target?.focus()
+            focusCell(weekdayKey, 'new')
           }
         } else if (vimKey === 'ArrowDown' && colIndex < WEEKEND_START) {
           const weekendCol = getWeekendColForWeekday(colIndex)
           const weekendKey = columnOrder[weekendCol]
-          const target = document.querySelector<HTMLElement>(
-            `[data-date-key="${weekendKey}"][data-todo-index="new"] input, [data-date-key="${weekendKey}"][data-todo-index="new"] button`
-          )
-          target?.focus()
+          focusCell(weekendKey, 'new')
         } else if (vimKey === 'ArrowLeft' && colIndex > 0) {
           const prevCol = columnOrder[colIndex - 1]
           const prevTodos = getTodos(prevCol)
-          if (prevTodos.length > 0) {
-            const targetIndex = index < prevTodos.length ? index : prevTodos.length - 1
-            const target = document.querySelector<HTMLElement>(
-              `[data-date-key="${prevCol}"][data-todo-index="${targetIndex}"]`
-            )
-            target?.focus()
-          } else {
-            const target = document.querySelector<HTMLElement>(
-              `[data-date-key="${prevCol}"][data-todo-index="new"] input, [data-date-key="${prevCol}"][data-todo-index="new"] button`
-            )
-            target?.focus()
-          }
+          const targetIndex =
+            prevTodos.length > 0
+              ? index < prevTodos.length
+                ? index
+                : prevTodos.length - 1
+              : 'new'
+          focusCell(prevCol, targetIndex)
         } else if (vimKey === 'ArrowRight' && colIndex < columnOrder.length - 1) {
           const nextCol = columnOrder[colIndex + 1]
           const nextTodos = getTodos(nextCol)
-          if (nextTodos.length > 0) {
-            const targetIndex = index < nextTodos.length ? index : nextTodos.length - 1
-            const target = document.querySelector<HTMLElement>(
-              `[data-date-key="${nextCol}"][data-todo-index="${targetIndex}"]`
-            )
-            target?.focus()
-          } else {
-            const target = document.querySelector<HTMLElement>(
-              `[data-date-key="${nextCol}"][data-todo-index="new"] input, [data-date-key="${nextCol}"][data-todo-index="new"] button`
-            )
-            target?.focus()
-          }
+          const targetIndex =
+            nextTodos.length > 0
+              ? index < nextTodos.length
+                ? index
+                : nextTodos.length - 1
+              : 'new'
+          focusCell(nextCol, targetIndex)
         }
       }
       return
@@ -173,58 +168,35 @@ export function createBoardKeyboardHandler(
 
     if (vimKey === 'ArrowUp') {
       if (index > 0) {
-        const target = document.querySelector<HTMLElement>(
-          `[data-date-key="${dateKey}"][data-todo-index="${index - 1}"]`
-        )
-        target?.focus()
+        focusCell(dateKey, index - 1)
       } else if (colIndex >= WEEKEND_START) {
         const weekdayCol = getWeekdayColForWeekend(colIndex)
         const weekdayKey = columnOrder[weekdayCol]
         const weekdayTodos = getTodos(weekdayKey)
-        if (weekdayTodos.length > 0) {
-          const target = document.querySelector<HTMLElement>(
-            `[data-date-key="${weekdayKey}"][data-todo-index="${weekdayTodos.length - 1}"]`
-          )
-          target?.focus()
-        } else {
-          const target = document.querySelector<HTMLElement>(
-            `[data-date-key="${weekdayKey}"][data-todo-index="new"] input, [data-date-key="${weekdayKey}"][data-todo-index="new"] button`
-          )
-          target?.focus()
-        }
+        focusCell(weekdayKey, weekdayTodos.length > 0 ? weekdayTodos.length - 1 : 'new')
       }
     } else if (vimKey === 'ArrowDown') {
       if (index + 1 < todos.length) {
-        const target = document.querySelector<HTMLElement>(
-          `[data-date-key="${dateKey}"][data-todo-index="${index + 1}"]`
-        )
-        target?.focus()
+        focusCell(dateKey, index + 1)
       } else {
-        const target = document.querySelector<HTMLElement>(
-          `[data-date-key="${dateKey}"][data-todo-index="new"] input, [data-date-key="${dateKey}"][data-todo-index="new"] button`
-        )
-        target?.focus()
+        focusCell(dateKey, 'new')
       }
     } else if (vimKey === 'ArrowLeft' && colIndex > 0) {
       const prevCol = columnOrder[colIndex - 1]
       const prevTodos = getTodos(prevCol)
-      if (prevTodos.length > 0) {
-        const targetIndex = index < prevTodos.length ? index : prevTodos.length - 1
-        const target = document.querySelector<HTMLElement>(
-          `[data-date-key="${prevCol}"][data-todo-index="${targetIndex}"]`
-        )
-        target?.focus()
-      }
+      const targetIndex =
+        prevTodos.length > 0
+          ? (index < prevTodos.length ? index : prevTodos.length - 1)
+          : ('new' as const)
+      focusCell(prevCol, targetIndex)
     } else if (vimKey === 'ArrowRight' && colIndex < columnOrder.length - 1) {
       const nextCol = columnOrder[colIndex + 1]
       const nextTodos = getTodos(nextCol)
-      if (nextTodos.length > 0) {
-        const targetIndex = index < nextTodos.length ? index : nextTodos.length - 1
-        const target = document.querySelector<HTMLElement>(
-          `[data-date-key="${nextCol}"][data-todo-index="${targetIndex}"]`
-        )
-        target?.focus()
-      }
+      const targetIndex =
+        nextTodos.length > 0
+          ? (index < nextTodos.length ? index : nextTodos.length - 1)
+          : ('new' as const)
+      focusCell(nextCol, targetIndex)
     }
   }
 }

@@ -232,6 +232,64 @@ describe('/+page.svelte', () => {
       expect(todo2).toHaveFocus()
     })
 
+    it('moves focus right to empty column with l (vim binding)', async () => {
+      const user = userEvent.setup()
+      render(Page)
+
+      const columnOrder = getColumnOrder()
+      addTodo(columnOrder[0], 'Todo 1')
+      await act()
+
+      const todo1 = screen.getByRole('option', { name: /Todo: Todo 1/ })
+      todo1.focus()
+
+      await user.keyboard('l')
+
+      const addButtonCol1 = document.querySelector<HTMLElement>(
+        `[data-date-key="${columnOrder[1]}"][data-todo-index="new"] input, [data-date-key="${columnOrder[1]}"][data-todo-index="new"] button`
+      )
+      expect(addButtonCol1).toHaveFocus()
+    })
+
+    it('moves focus left to empty column with h (vim binding)', async () => {
+      const user = userEvent.setup()
+      render(Page)
+
+      const columnOrder = getColumnOrder()
+      addTodo(columnOrder[1], 'Todo 1')
+      await act()
+
+      const todo1 = screen.getByRole('option', { name: /Todo: Todo 1/ })
+      todo1.focus()
+
+      await user.keyboard('h')
+
+      const addButtonCol0 = document.querySelector<HTMLElement>(
+        `[data-date-key="${columnOrder[0]}"][data-todo-index="new"] input, [data-date-key="${columnOrder[0]}"][data-todo-index="new"] button`
+      )
+      expect(addButtonCol0).toHaveFocus()
+    })
+
+    it('moves focus between empty columns when on add button', async () => {
+      const user = userEvent.setup()
+      render(Page)
+
+      const columnOrder = getColumnOrder()
+      await act()
+
+      const addButtonCol0 = document.querySelector<HTMLElement>(
+        `[data-date-key="${columnOrder[0]}"][data-todo-index="new"] button`
+      )
+      addButtonCol0?.focus()
+
+      await user.keyboard('l')
+
+      const addButtonCol1 = document.querySelector<HTMLElement>(
+        `[data-date-key="${columnOrder[1]}"][data-todo-index="new"] input, [data-date-key="${columnOrder[1]}"][data-todo-index="new"] button`
+      )
+      expect(addButtonCol1).toHaveFocus()
+    })
+
     it('exits move mode when Escape is pressed', async () => {
       const user = userEvent.setup()
       render(Page)
