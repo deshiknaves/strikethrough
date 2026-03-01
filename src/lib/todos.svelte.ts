@@ -15,7 +15,11 @@ function syncFromYArray(handle: { array: { toArray: () => Todo[] }; weekDateKeys
   const all = handle.array.toArray().filter((t) => handle.weekDateKeys.has(t.date))
   const byDate: Record<string, Todo[]> = {}
   for (const dateKey of handle.weekDateKeys) {
-    byDate[dateKey] = all.filter((t) => t.date === dateKey)
+    const items = all.filter((t) => t.date === dateKey)
+    const withOrder = items.map((t, i) =>
+      'order' in t && typeof t.order === 'number' ? t : { ...t, order: i }
+    )
+    byDate[dateKey] = withOrder.sort((a, b) => a.order - b.order)
   }
   for (const key of Object.keys(todos)) {
     delete todos[key]
@@ -68,17 +72,59 @@ function mutateWithHandle(
   return false
 }
 
+/** Reassign order to 0, 1, 2, ... per date based on array position */
+function compactOrders(all: Todo[]): Todo[] {
+  const dateIndices = new Map<string, number>()
+  return all.map((t) => {
+    const idx = dateIndices.get(t.date) ?? 0
+    dateIndices.set(t.date, idx + 1)
+    return { ...t, order: idx }
+  })
+}
+
+/** Reassign order to 0, 1, 2, ... for a single column's list */
+function compactOrdersForList(list: Todo[]): Todo[] {
+  return list.map((t, i) => ({ ...t, order: i }))
+}
+
+function getNextOrderForDate(handle: { array: { toArray: () => Todo[] } }, date: string): number {
+  const existing = handle.array.toArray().filter((t) => t.date === date)
+  if (existing.length === 0) return 0
+  const maxOrder = Math.max(
+    ...existing.map((t) => ('order' in t && typeof t.order === 'number' ? t.order : -1))
+  )
+  return maxOrder + 1
+}
+
 export function addTodo(date: string, text: string, description?: string): void {
+  if (
+    mutateWithHandle((h) => {
+      const nextOrder = getNextOrderForDate(h, date)
+      const todo: Todo = {
+        id: crypto.randomUUID(),
+        text,
+        completed: false,
+        date,
+        order: nextOrder,
+        createdAt: now(),
+        updatedAt: now(),
+        description: description ?? '',
+      }
+      h.array.push([todo])
+    })
+  )
+    return
+  const nextOrder = todos[date]?.length ?? 0
   const todo: Todo = {
     id: crypto.randomUUID(),
     text,
     completed: false,
     date,
+    order: nextOrder,
     createdAt: now(),
     updatedAt: now(),
     description: description ?? '',
   }
-  if (mutateWithHandle((h) => h.array.push([todo]))) return
   if (!todos[date]) todos[date] = []
   todos[date].push(todo)
 }
@@ -171,8 +217,9 @@ export function updateTodoDetails(fromDate: string, id: string, updates: TodoDet
       } else {
         arr.splice(idx, 0, updated)
       }
+      const compacted = compactOrders(arr)
       h.array.delete(0, h.array.length)
-      h.array.insert(0, arr)
+      h.array.insert(0, compacted)
     })
   )
     return
@@ -238,15 +285,17 @@ export function moveTodo(fromDate: string, toDate: string, todoId: string, toInd
         }
         all.splice(insertPos, 0, updated)
       }
+      const compacted = compactOrders(all)
       h.array.delete(0, h.array.length)
-      h.array.insert(0, all)
+      h.array.insert(0, compacted)
     })
   )
     return
 
   if (fromDate === toDate) {
     if (toIndex === undefined) return
-    todos[fromDate] = reorder({ list: fromList, startIndex: fromIndex, finishIndex: toIndex })
+    const reordered = reorder({ list: fromList, startIndex: fromIndex, finishIndex: toIndex })
+    todos[fromDate] = compactOrdersForList(reordered)
   } else {
     const [todo] = fromList.splice(fromIndex, 1)
     const updated = { ...todo, date: toDate, updatedAt: now() }
@@ -256,5 +305,7 @@ export function moveTodo(fromDate: string, toDate: string, todoId: string, toInd
     } else {
       todos[toDate].push(updated)
     }
+    todos[fromDate] = compactOrdersForList(todos[fromDate])
+    todos[toDate] = compactOrdersForList(todos[toDate])
   }
 }

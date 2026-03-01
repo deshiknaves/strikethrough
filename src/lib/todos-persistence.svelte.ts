@@ -6,6 +6,7 @@ export type Todo = {
   text: string
   completed: boolean
   date: string
+  order: number
   createdAt: string
   updatedAt: string
   description?: string
