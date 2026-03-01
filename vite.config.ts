@@ -3,6 +3,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vitest/config'
 import { playwright } from '@vitest/browser-playwright'
 import { sveltekit } from '@sveltejs/kit/vite'
+import { svelteTesting } from '@testing-library/svelte/vite'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin'
@@ -11,7 +12,7 @@ const dirname =
 
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
-  plugins: [tailwindcss(), sveltekit(), devtoolsJson()],
+  plugins: [tailwindcss(), sveltekit(), devtoolsJson(), svelteTesting()],
   test: {
     expect: {
       requireAssertions: true,
@@ -41,7 +42,19 @@ export default defineConfig({
           name: 'server',
           environment: 'node',
           include: ['src/**/*.{test,spec}.{js,ts}'],
-          exclude: ['src/**/*.svelte.{test,spec}.{js,ts}'],
+          exclude: [
+            'src/**/*.svelte.{test,spec}.{js,ts}',
+            'src/lib/**/*.spec.{js,ts}',
+          ],
+        },
+      },
+      {
+        extends: './vite.config.ts',
+        test: {
+          name: 'unit',
+          environment: 'happy-dom',
+          include: ['src/lib/**/*.spec.{js,ts}'],
+          setupFiles: ['src/test/setup.ts'],
         },
       },
       {
