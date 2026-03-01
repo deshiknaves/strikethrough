@@ -33,6 +33,12 @@ export function updateTodo(date: string, id: string, text: string): void {
   if (todo) todo.text = text
 }
 
+export function resetTodos(): void {
+  for (const key of Object.keys(todos)) {
+    delete todos[key]
+  }
+}
+
 export function moveTodo(fromDate: string, toDate: string, todoId: string, toIndex?: number): void {
   const fromList = todos[fromDate]
   if (!fromList) return
