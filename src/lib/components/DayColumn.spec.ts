@@ -89,7 +89,7 @@ describe('DayColumn', () => {
     expect(getTodos(dateKey)[0].completed).toBe(true)
   })
 
-  it('deletes todo when delete button is clicked', async () => {
+  it('deletes todo when delete button is clicked and confirmed', async () => {
     const user = userEvent.setup()
     const dateKey = uniqueDate()
     addTodo(dateKey, 'Delete me')
@@ -104,6 +104,11 @@ describe('DayColumn', () => {
 
     const deleteButton = screen.getByRole('button', { name: 'Delete todo' })
     await user.click(deleteButton)
+
+    expect(screen.getByText('Delete this todo?')).toBeInTheDocument()
+
+    const confirmButton = screen.getByRole('button', { name: 'Delete' })
+    await user.click(confirmButton)
 
     expect(getTodos(dateKey)).toHaveLength(0)
   })

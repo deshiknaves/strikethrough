@@ -11,11 +11,7 @@ export function getKeyboardMoveState(): KeyboardMoveState | null {
   return state
 }
 
-export function enterMoveMode(
-  todoId: string,
-  fromDate: string,
-  initialIndex: number,
-): void {
+export function enterMoveMode(todoId: string, fromDate: string, initialIndex: number): void {
   state = {
     todoId,
     fromDate,

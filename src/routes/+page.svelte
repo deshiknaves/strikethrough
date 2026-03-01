@@ -2,11 +2,7 @@
   import { onMount } from 'svelte'
   import { Temporal } from 'temporal-polyfill'
   import DayColumn from '$lib/components/DayColumn.svelte'
-  import {
-    getKeyboardMoveState,
-    updateTarget,
-    exitMoveMode,
-  } from '$lib/keyboard-move-state.svelte'
+  import { getKeyboardMoveState, updateTarget, exitMoveMode } from '$lib/keyboard-move-state.svelte'
   import { getTodos, moveTodo } from '$lib/todos.svelte'
 
   const today = Temporal.Now.plainDateISO()
@@ -82,7 +78,7 @@
         dateKey={day.toString()}
         label={date(day)}
         sublabel={weekday(day)}
-        columnOrder={columnOrder}
+        {columnOrder}
         class="min-h-50 flex-1 min-[501px]:min-h-0"
       />
     {/each}
@@ -93,7 +89,7 @@
         dateKey={day.toString()}
         label={date(day)}
         sublabel={weekday(day)}
-        columnOrder={columnOrder}
+        {columnOrder}
         class="w-1/2"
       />
     {/each}

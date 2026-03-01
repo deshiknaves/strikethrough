@@ -9,7 +9,6 @@
   import { getTodos, addTodo, toggleTodo, deleteTodo, moveTodo } from '$lib/todos.svelte'
   import { clearDragState } from '$lib/drag-state.svelte'
   import { getKeyboardMoveState } from '$lib/keyboard-move-state.svelte'
-  import type { Todo } from '$lib/todos.svelte'
   import TodoItem from './TodoItem.svelte'
   import NewTodoInput from './NewTodoInput.svelte'
 
@@ -69,7 +68,7 @@
           moveTodo(fromDate, dateKey, todoId, toIndex)
         },
       }),
-      monitorForElements({ onDrop: () => clearDragState() }),
+      monitorForElements({ onDrop: () => clearDragState() })
     )
 
     return { destroy: cleanup }
@@ -99,11 +98,11 @@
           : null}
       <div animate:flip={{ duration: 200 }}>
         <TodoItem
-          todo={todo}
+          {todo}
           fromDate={dateKey}
-          index={index}
-          columnOrder={columnOrder}
-          dropEdge={dropEdge}
+          {index}
+          {columnOrder}
+          {dropEdge}
           onToggle={() => toggleTodo(dateKey, todo.id)}
           onDelete={() => deleteTodo(dateKey, todo.id)}
         />

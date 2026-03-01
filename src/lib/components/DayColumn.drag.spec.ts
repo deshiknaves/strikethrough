@@ -12,7 +12,7 @@ function uniqueDate() {
 function dispatchDragEvent(
   element: Element,
   type: 'dragstart' | 'dragenter' | 'dragover' | 'drop' | 'dragend',
-  options: { clientX?: number; clientY?: number } = {},
+  options: { clientX?: number; clientY?: number } = {}
 ) {
   const dataTransfer = type === 'dragstart' ? new DataTransfer() : undefined
   const event = new DragEvent(type, {
@@ -51,7 +51,7 @@ describe('DayColumn drag and drop', () => {
 
     // Get draggable element and drop target
     const draggable = screen.getByRole('option', {
-      name: /Todo: Drag me\. Press m to move\./i,
+      name: /Todo: Drag me\. Press m to move/i,
     })
     const targetColumn = screen.getByRole('group', { name: /Tue/ })
 

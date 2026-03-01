@@ -1,11 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  getTodos,
-  addTodo,
-  toggleTodo,
-  deleteTodo,
-  moveTodo,
-} from '$lib/todos.svelte'
+import { getTodos, addTodo, toggleTodo, deleteTodo, moveTodo } from '$lib/todos.svelte'
 
 function uniqueDate() {
   return `test-${Date.now()}-${Math.random().toString(36).slice(2)}`

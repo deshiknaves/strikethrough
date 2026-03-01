@@ -3,11 +3,7 @@ import { render, screen } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
 import { act } from '@testing-library/svelte'
 import TodoItem from './TodoItem.svelte'
-import {
-  enterMoveMode,
-  exitMoveMode,
-  getKeyboardMoveState,
-} from '$lib/keyboard-move-state.svelte'
+import { enterMoveMode, exitMoveMode, getKeyboardMoveState } from '$lib/keyboard-move-state.svelte'
 
 const createTodo = (overrides = {}) => ({
   id: 'todo-1',
@@ -68,7 +64,7 @@ describe('TodoItem', () => {
     expect(onToggle).toHaveBeenCalledOnce()
   })
 
-  it('calls onDelete when delete button is clicked', async () => {
+  it('opens delete modal when delete button is clicked and calls onDelete when confirmed', async () => {
     const user = userEvent.setup()
     const onDelete = vi.fn()
     const todo = createTodo()
@@ -85,7 +81,118 @@ describe('TodoItem', () => {
     const deleteButton = screen.getByRole('button', { name: 'Delete todo' })
     await user.click(deleteButton)
 
+    expect(screen.getByText('Delete this todo?')).toBeInTheDocument()
+    expect(onDelete).not.toHaveBeenCalled()
+
+    const confirmButton = screen.getByRole('button', { name: 'Delete' })
+    await user.click(confirmButton)
+
     expect(onDelete).toHaveBeenCalledOnce()
+  })
+
+  it('does not call onDelete when delete modal is cancelled', async () => {
+    const user = userEvent.setup()
+    const onDelete = vi.fn()
+    const todo = createTodo()
+    render(TodoItem, {
+      props: {
+        todo,
+        fromDate: '2025-02-24',
+        index: 0,
+        onToggle: vi.fn(),
+        onDelete,
+      },
+    })
+
+    const deleteButton = screen.getByRole('button', { name: 'Delete todo' })
+    await user.click(deleteButton)
+
+    expect(screen.getByText('Delete this todo?')).toBeInTheDocument()
+
+    const cancelButton = screen.getByRole('button', { name: 'Cancel' })
+    await user.click(cancelButton)
+
+    expect(onDelete).not.toHaveBeenCalled()
+  })
+
+  it('calls onToggle when Space is pressed on focused item', async () => {
+    const user = userEvent.setup()
+    const onToggle = vi.fn()
+    const todo = createTodo()
+    render(TodoItem, {
+      props: {
+        todo,
+        fromDate: '2025-02-24',
+        index: 0,
+        onToggle,
+        onDelete: vi.fn(),
+      },
+    })
+
+    const todoOption = screen.getByRole('option', {
+      name: /Todo: Test todo\. Press m to move/i,
+    })
+    todoOption.focus()
+    await user.keyboard(' ')
+
+    expect(onToggle).toHaveBeenCalledOnce()
+  })
+
+  it('opens delete modal when Delete key is pressed on focused item', async () => {
+    const user = userEvent.setup()
+    const onDelete = vi.fn()
+    const todo = createTodo()
+    render(TodoItem, {
+      props: {
+        todo,
+        fromDate: '2025-02-24',
+        index: 0,
+        onToggle: vi.fn(),
+        onDelete,
+      },
+    })
+
+    const todoOption = screen.getByRole('option', {
+      name: /Todo: Test todo\. Press m to move/i,
+    })
+    todoOption.focus()
+    await user.keyboard('{Delete}')
+
+    expect(screen.getByText('Delete this todo?')).toBeInTheDocument()
+    expect(onDelete).not.toHaveBeenCalled()
+
+    const confirmButton = screen.getByRole('button', { name: 'Delete' })
+    await user.click(confirmButton)
+
+    expect(onDelete).toHaveBeenCalledOnce()
+  })
+
+  it('has only the item as focusable (checkbox and delete button not in tab order)', async () => {
+    const user = userEvent.setup()
+    const todo = createTodo()
+    render(TodoItem, {
+      props: {
+        todo,
+        fromDate: '2025-02-24',
+        index: 0,
+        onToggle: vi.fn(),
+        onDelete: vi.fn(),
+      },
+    })
+
+    const todoOption = screen.getByRole('option', {
+      name: /Todo: Test todo\. Press m to move/i,
+    })
+    todoOption.focus()
+
+    await user.tab()
+
+    const activeElement = document.activeElement
+    const checkbox = screen.getByRole('checkbox')
+    const deleteButton = screen.getByRole('button', { name: 'Delete todo' })
+
+    expect(activeElement).not.toBe(checkbox)
+    expect(activeElement).not.toBe(deleteButton)
   })
 
   it('enters keyboard move mode when m is pressed with columnOrder', async () => {
@@ -104,7 +211,7 @@ describe('TodoItem', () => {
     })
 
     const todoOption = screen.getByRole('option', {
-      name: /Todo: Test todo\. Press m to move\./i,
+      name: /Todo: Test todo\. Press m to move/i,
     })
     todoOption.focus()
     await user.keyboard('m')
@@ -134,7 +241,7 @@ describe('TodoItem', () => {
     })
 
     const todoOption = screen.getByRole('option', {
-      name: /Todo: Test todo\. Press m to move\./i,
+      name: /Todo: Test todo\. Press m to move/i,
     })
     todoOption.focus()
     await user.keyboard('m')
@@ -157,7 +264,7 @@ describe('TodoItem', () => {
     })
 
     const todoOption = screen.getByRole('option', {
-      name: /Todo: Test todo\. Press m to move\./i,
+      name: /Todo: Test todo\. Press m to move/i,
     })
     expect(todoOption).toHaveAttribute('aria-selected', 'false')
 
