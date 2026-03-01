@@ -88,12 +88,10 @@
   <div class="min-h-0 flex-1 overflow-y-auto">
     {#each todos as todo, i (todo.id)}
       {@const dropEdge =
-        keyboardMoveMode?.targetDateKey === dateKey
-          ? keyboardMoveMode.targetIndex === i
-            ? 'top'
-            : keyboardMoveMode.targetIndex === i + 1
-              ? 'bottom'
-              : null
+        keyboardMoveMode?.targetDateKey === dateKey &&
+        keyboardMoveMode.targetIndex === i &&
+        keyboardMoveMode.targetIndex < todos.length
+          ? 'top'
           : null}
       <div animate:flip={{ duration: 200 }}>
         <TodoItem
