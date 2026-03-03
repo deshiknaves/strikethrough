@@ -116,7 +116,7 @@
   role="group"
   aria-labelledby="column-{dateKey}"
   data-date-key={dateKey}
-  class="flex flex-col rounded-lg border px-2 py-3 transition-colors {isOver
+  class="flex min-w-0 flex-col rounded-lg border px-2 py-3 transition-colors {isOver
     ? 'border-accent-blue bg-accent-blue/10'
     : 'border-border bg-bg-surface'} {extraClass}"
 >
@@ -134,7 +134,7 @@
     </span>
     <span class="text-text-secondary">{sublabel}</span>
   </h2>
-  <div class="min-h-0 flex-1 overflow-y-auto px-2 py-2 scroll-pb-2 scroll-pt-2">
+  <div class="min-h-0 min-w-0 flex-1 overflow-y-auto px-2 py-2 scroll-pb-2 scroll-pt-2">
     {#each todos as todo, index (todo.id)}
       {@const dropEdge =
         keyboardMoveMode?.targetDateKey === dateKey &&
@@ -142,7 +142,7 @@
         keyboardMoveMode.targetIndex < todos.length
           ? 'top'
           : null}
-      <div animate:flip={{ duration: 200 }}>
+      <div class="min-w-0" animate:flip={{ duration: 200 }}>
         <TodoItem
           {todo}
           fromDate={dateKey}
@@ -168,7 +168,7 @@
     {#if keyboardMoveMode?.targetDateKey === dateKey && keyboardMoveMode.targetIndex === todos.length && movingTodo}
       <div
         data-keyboard-move-target
-        class="flex items-center gap-2 rounded border-b border-border px-1 py-1 ring-2 ring-accent-blue ring-offset-2 ring-offset-bg-surface"
+        class="flex min-w-0 items-center gap-2 rounded border-b border-border px-1 py-1 ring-2 ring-accent-blue ring-offset-2 ring-offset-bg-surface"
       >
         <div
           class="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border border-accent-blue {movingTodo.completed
@@ -190,7 +190,7 @@
           {/if}
         </div>
         <span
-          class="flex-1 text-sm {movingTodo.completed
+          class="min-w-0 max-w-full flex-1 hyphens-auto wrap-break-word text-sm {movingTodo.completed
             ? 'text-text-muted line-through'
             : 'text-text-primary'}"
         >

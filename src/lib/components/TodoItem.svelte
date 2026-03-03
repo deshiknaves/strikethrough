@@ -255,12 +255,12 @@
   use:initializeDragAndDrop
   data-todo-id={todo.id}
   data-keyboard-move-target={dropEdge ?? undefined}
-  class="flex flex-col"
+  class="flex min-w-0 flex-col"
 >
   {#if (dragState.type === 'is-over' && dragState.closestEdge === 'top') || dropEdge === 'top'}
     {#if dropEdge === 'top' && movingTodo}
       <div
-        class="flex items-center gap-2 rounded border-b border-border px-1 py-1 ring-2 ring-accent-blue ring-offset-2 ring-offset-bg-surface"
+        class="flex min-w-0 items-center gap-2 rounded border-b border-border px-1 py-1 ring-2 ring-accent-blue ring-offset-2 ring-offset-bg-surface"
       >
         <div
           class="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border border-accent-blue {movingTodo.completed
@@ -282,7 +282,7 @@
           {/if}
         </div>
         <span
-          class="flex-1 text-sm {movingTodo.completed
+          class="min-w-0 max-w-full flex-1 hyphens-auto wrap-break-word text-sm {movingTodo.completed
             ? 'text-text-muted line-through'
             : 'text-text-primary'}"
         >
@@ -314,7 +314,7 @@
     onkeydown={handleKeydown}
     onclick={() => todoRowRef?.focus()}
     ondblclick={openDetailsModal}
-    class="group flex cursor-grab items-center gap-2 rounded border-b border-border px-1 py-1 transition-opacity focus-within:bg-bg-elevated hover:bg-bg-elevated focus-within:ring-2 focus-within:ring-accent-blue/60 focus-within:ring-offset-2 focus-within:ring-offset-bg-surface focus-within:outline-none active:cursor-grabbing {dragState.type ===
+    class="group flex min-w-0 cursor-grab items-center gap-2 rounded border-b border-border px-1 py-1 transition-opacity focus-within:bg-bg-elevated hover:bg-bg-elevated focus-within:ring-2 focus-within:ring-accent-blue/60 focus-within:ring-offset-2 focus-within:ring-offset-bg-surface focus-within:outline-none active:cursor-grabbing {dragState.type ===
     'is-dragging'
       ? 'opacity-40'
       : dragState.type === 'is-dragging-and-left-self' || isKeyboardMoving
@@ -378,11 +378,11 @@
         onkeydown={handleEditInputKeydown}
         onblur={handleEditInputBlur}
         type="text"
-        class="-ml-2 min-w-0 flex-1 border-0 border-b border-border bg-transparent px-1 py-1 text-sm text-text-primary focus:border-accent-blue focus:ring-0 focus:outline-none"
+        class="-ml-2 min-w-0 max-w-full flex-1 border-0 border-b border-border bg-transparent px-1 py-1 text-sm text-text-primary focus:border-accent-blue focus:ring-0 focus:outline-none"
       />
     {:else}
       <span
-        class="-ml-2 flex-1 text-sm transition-[margin-left] duration-200 ease-out group-focus-within:ml-0 group-hover:ml-0 {todo.completed
+        class="-ml-2 min-w-0 max-w-full flex-1 hyphens-auto wrap-break-word text-sm transition-[margin-left] duration-200 ease-out group-focus-within:ml-0 group-hover:ml-0 {todo.completed
           ? 'text-text-muted line-through'
           : 'text-text-primary'}"
       >
