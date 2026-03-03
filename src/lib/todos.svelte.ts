@@ -22,7 +22,10 @@ function syncFromYArray(handle: { array: { toArray: () => Todo[] }; weekDateKeys
     const withOrder = items.map((t, i) =>
       'order' in t && typeof t.order === 'number' ? t : { ...t, order: i }
     )
-    byDate[dateKey] = withOrder.sort((a, b) => a.order - b.order)
+    byDate[dateKey] = withOrder.sort(
+      (a, b) =>
+        (a.completed ? 1 : 0) - (b.completed ? 1 : 0) || a.order - b.order
+    )
   }
   for (const key of Object.keys(todos)) {
     delete todos[key]
@@ -134,6 +137,17 @@ export function addTodo(date: string, text: string, description?: string): void 
   todos[date].push(todo)
 }
 
+function getMaxOrderForSection(
+  items: Todo[],
+  completed: boolean
+): number {
+  const filtered = items.filter((t) => t.completed === completed)
+  if (filtered.length === 0) return -1
+  return Math.max(
+    ...filtered.map((t) => ('order' in t && typeof t.order === 'number' ? t.order : -1))
+  )
+}
+
 export function toggleTodo(date: string, id: string): void {
   if (
     mutateWithHandle((h) => {
@@ -141,13 +155,50 @@ export function toggleTodo(date: string, id: string): void {
       const idx = arr.findIndex((t) => t.id === id && t.date === date)
       if (idx === -1) return
       const todo = { ...arr[idx], completed: !arr[idx].completed, updatedAt: now() }
-      h.array.delete(idx, 1)
-      h.array.insert(idx, [todo])
+      arr.splice(idx, 1)
+      const dateItems = arr.filter((t) => t.date === date)
+      const maxOrderIncomplete = getMaxOrderForSection(dateItems, false)
+      const maxOrderCompleted = getMaxOrderForSection(dateItems, true)
+      const newOrder = todo.completed
+        ? maxOrderCompleted + 1
+        : maxOrderIncomplete + 1
+      const todoWithOrder = { ...todo, order: newOrder }
+      let insertIdx = arr.length
+      for (let i = arr.length - 1; i >= 0; i--) {
+        if (arr[i].date === date && arr[i].completed === todo.completed) {
+          insertIdx = i + 1
+          break
+        }
+      }
+      arr.splice(insertIdx, 0, todoWithOrder)
+      const compacted = compactOrders(arr)
+      h.array.delete(0, h.array.length)
+      h.array.insert(0, compacted)
     })
   )
     return
   const todo = todos[date]?.find((t) => t.id === id)
-  if (todo) todo.completed = !todo.completed
+  if (todo) {
+    todo.completed = !todo.completed
+    const list = todos[date] ?? []
+    const othersInSection = list.filter(
+      (t) => t.id !== id && t.completed === todo.completed
+    )
+    const maxOrder =
+      othersInSection.length === 0
+        ? -1
+        : Math.max(
+            ...othersInSection.map((t) =>
+              'order' in t && typeof t.order === 'number' ? t.order : -1
+            )
+          )
+    todo.order = maxOrder + 1
+    const sorted = list.sort(
+      (a, b) =>
+        (a.completed ? 1 : 0) - (b.completed ? 1 : 0) || a.order - b.order
+    )
+    todos[date] = compactOrdersForList(sorted)
+  }
 }
 
 export function deleteTodo(date: string, id: string): void {

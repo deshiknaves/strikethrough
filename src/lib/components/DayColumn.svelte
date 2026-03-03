@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { tick } from 'svelte'
   import { flip } from 'svelte/animate'
   import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine'
   import {
@@ -20,6 +21,21 @@
   import TodoItem from './TodoItem.svelte'
   import NewTodoInput from './NewTodoInput.svelte'
   import Badge from './Badge.svelte'
+
+  async function focusNextAfterComplete(dateKey: string, completedId: string) {
+    await tick()
+    const list = getTodos(dateKey)
+    const completedTodo = list.find((t) => t.id === completedId)
+    if (!completedTodo?.completed || list.length <= 1) return
+    const nextIncomplete = list.find((t) => !t.completed)
+    const nextCompleted = list.find((t) => t.completed)
+    const nextId = nextIncomplete?.id ?? nextCompleted?.id
+    if (!nextId || nextId === completedId) return
+    const el = document.querySelector<HTMLElement>(
+      `[data-todo-id="${nextId}"] [tabindex="0"]`
+    )
+    el?.focus()
+  }
 
   let {
     dateKey,
@@ -61,9 +77,13 @@
         },
         onDrop: ({ source, location }) => {
           isOver = false
-          const { todoId, fromDate } = source.data as {
+          const { todoId, fromDate, completed } = source.data as {
             todoId: string
             fromDate: string
+            completed?: boolean
+          }
+          if (fromDate === dateKey && completed) {
+            return
           }
           const dropTargets = location.current.dropTargets
           const innermost = dropTargets[0]
@@ -130,7 +150,10 @@
           {columnOrder}
           {dropEdge}
           movingTodo={dropEdge ? movingTodo : null}
-          onToggle={() => toggleTodo(dateKey, todo.id)}
+          onToggle={async () => {
+            toggleTodo(dateKey, todo.id)
+            await focusNextAfterComplete(dateKey, todo.id)
+          }}
           onDelete={() => deleteTodo(dateKey, todo.id)}
           onUpdate={(text) => updateTodo(dateKey, todo.id, text)}
           onUpdateDetails={(updates) =>

@@ -124,37 +124,42 @@
     deleteModalOpen = false
   }
 
-  function handleKeydown(e: KeyboardEvent) {
-    if ((e.key === 'm' || e.key === 'M') && !keyboardMoveMode && columnOrder.length > 0) {
-      e.preventDefault()
+  function handleKeydown(event: KeyboardEvent) {
+    if (
+      (event.key === 'm' || event.key === 'M') &&
+      !keyboardMoveMode &&
+      columnOrder.length > 0 &&
+      !todo.completed
+    ) {
+      event.preventDefault()
       enterMoveMode(todo.id, fromDate, index)
       return
     }
-    if ((e.key === 'd' || e.key === 'D') && !keyboardMoveMode && !isEditing) {
-      e.preventDefault()
+    if ((event.key === 'd' || event.key === 'D') && !keyboardMoveMode && !isEditing) {
+      event.preventDefault()
       openDetailsModal()
       return
     }
-    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter' && !keyboardMoveMode && !isEditing) {
-      e.preventDefault()
+    if ((event.metaKey || event.ctrlKey) && event.key === 'Enter' && !keyboardMoveMode && !isEditing) {
+      event.preventDefault()
       openDetailsModal()
       return
     }
-    if ((e.key === 'e' || e.key === 'E') && !keyboardMoveMode) {
-      e.preventDefault()
+    if ((event.key === 'e' || event.key === 'E') && !keyboardMoveMode) {
+      event.preventDefault()
       enterEditMode()
       return
     }
-    if (e.key === ' ' && !keyboardMoveMode) {
-      e.preventDefault()
+    if (event.key === ' ' && !keyboardMoveMode) {
+      event.preventDefault()
       onToggle()
       return
     }
     if (
-      (e.key === 'x' || e.key === 'X' || e.key === 'Delete' || e.key === 'Backspace') &&
+      (event.key === 'x' || event.key === 'X' || event.key === 'Delete' || event.key === 'Backspace') &&
       !keyboardMoveMode
     ) {
-      e.preventDefault()
+      event.preventDefault()
       openDeleteModal()
     }
   }
@@ -178,6 +183,7 @@
         getInitialData: () => ({
           todoId: todo.id,
           fromDate,
+          completed: todo.completed,
           rect: innerNode.getBoundingClientRect(),
         }),
         onDragStart: () => {
@@ -191,6 +197,16 @@
       dropTargetForElements({
         element: outerNode,
         getIsSticky: () => true,
+        canDrop: ({ source }) => {
+          const data = source.data as { completed?: boolean; fromDate?: string }
+          if (
+            data.completed &&
+            todo.completed &&
+            data.fromDate === fromDate
+          )
+            return false
+          return true
+        },
         getData: ({ element, input }) =>
           attachClosestEdge(
             { type: 'todo' as const, todoId: todo.id, fromDate, index },
