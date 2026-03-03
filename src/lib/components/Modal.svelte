@@ -63,17 +63,19 @@
   )
 </script>
 
-<dialog
-  bind:this={dialogRef}
-  aria-labelledby="modal-title"
-  aria-modal="true"
-  class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-bg-surface p-4 shadow-lg backdrop:bg-black/50 {sizeClasses}"
-  onkeydown={handleKeydown}
-  oncancel={handleCancel}
-  onclick={handleBackdropClick}
->
-  <h2 id="modal-title" class="sr-only">{ariaTitle}</h2>
-  {#if children}
-    {@render children()}
-  {/if}
-</dialog>
+{#if open}
+  <dialog
+    bind:this={dialogRef}
+    aria-labelledby="modal-title"
+    aria-modal="true"
+    class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-bg-surface p-4 shadow-lg backdrop:bg-black/50 {sizeClasses}"
+    onkeydown={handleKeydown}
+    oncancel={handleCancel}
+    onclick={handleBackdropClick}
+  >
+    <h2 id="modal-title" class="sr-only">{ariaTitle}</h2>
+    {#if children}
+      {@render children()}
+    {/if}
+  </dialog>
+{/if}
