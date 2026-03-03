@@ -56,7 +56,7 @@
     editValue = todo.text
     await tick()
     editInputRef?.focus()
-    editInputRef?.select()
+    editInputRef?.setSelectionRange(editValue.length, editValue.length)
   }
 
   function saveEdit() {
@@ -133,6 +133,7 @@
   }
 
   function handleKeydown(event: KeyboardEvent) {
+    if (isEditing) return
     if (
       (event.key === 'm' || event.key === 'M') &&
       !keyboardMoveMode &&
@@ -330,6 +331,7 @@
         ? 'hidden'
         : 'opacity-100'}"
   >
+    {#if !isEditing}
     <div
       class="flex w-0 min-w-0 shrink-0 overflow-hidden transition-[width] duration-200 ease-out group-focus-within:w-3.5 group-focus-within:min-w-3.5 group-hover:w-3.5 group-hover:min-w-3.5"
     >
@@ -380,6 +382,7 @@
         </span>
       </label>
     </div>
+    {/if}
     {#if isEditing}
       <input
         bind:this={editInputRef}
@@ -387,7 +390,7 @@
         onkeydown={handleEditInputKeydown}
         onblur={handleEditInputBlur}
         type="text"
-        class="-ml-2 min-w-0 max-w-full flex-1 border-0 border-b border-border bg-transparent px-1 py-1 text-sm text-text-primary focus:border-accent-blue focus:ring-0 focus:outline-none"
+        class="min-w-0 max-w-full flex-1 border-0 border-b border-border bg-transparent px-1 py-1 text-sm text-text-primary focus:border-accent-blue focus:ring-0 focus:outline-none"
       />
     {:else}
       <span
@@ -398,6 +401,7 @@
         {todo.text}
       </span>
     {/if}
+    {#if !isEditing}
     <button
       type="button"
       tabindex="-1"
@@ -407,6 +411,7 @@
     >
       &times;
     </button>
+    {/if}
   </div>
   {#if (dragState.type === 'is-over' && dragState.closestEdge === 'bottom') || dropEdge === 'bottom'}
     <div

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { act, render, screen } from '@testing-library/svelte'
+import { act, render, screen, waitFor } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
 import { Temporal } from 'temporal-polyfill'
 import Page from './+page.svelte'
@@ -522,10 +522,11 @@ describe('/+page.svelte', () => {
       todo.focus()
       await user.keyboard('e')
 
-      const editInput = screen.getByDisplayValue('Todo 1')
+      const editInput = await waitFor(() => screen.getByDisplayValue('Todo 1'))
+      await waitFor(() => expect(editInput).toHaveFocus())
       await user.keyboard('j')
 
-      expect(editInput).toHaveValue('j')
+      expect(editInput).toHaveValue('Todo 1j')
       expect(editInput).toHaveFocus()
     })
 

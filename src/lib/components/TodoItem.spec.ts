@@ -325,8 +325,8 @@ describe('TodoItem', () => {
     await user.keyboard('e')
 
     const editInput = await waitFor(() => screen.getByDisplayValue('Test todo'))
-    await waitFor(() => expect(editInput).toHaveFocus())
-    await user.type(editInput, ' ')
+    expect(editInput).toHaveFocus()
+    await user.keyboard(' ')
 
     expect(onToggle).not.toHaveBeenCalled()
     expect(editInput).toHaveValue('Test todo ')
