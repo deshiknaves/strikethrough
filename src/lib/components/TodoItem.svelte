@@ -324,7 +324,7 @@
     onkeydown={handleKeydown}
     onclick={() => todoRowRef?.focus()}
     ondblclick={openDetailsModal}
-    class="group flex min-w-0 cursor-grab items-center gap-2 rounded border-b border-border px-1 py-1 transition-opacity focus-within:bg-bg-elevated hover:bg-bg-elevated focus-within:ring-2 focus-within:ring-accent-blue/60 focus-within:ring-offset-2 focus-within:ring-offset-bg-surface focus-within:outline-none active:cursor-grabbing {dragState.type ===
+    class="group flex min-w-0 cursor-grab items-center gap-2 rounded border-b border-border px-1 py-1 transition-opacity focus-within:bg-bg-elevated hover:bg-bg-elevated focus-within:z-1 focus-within:ring-2 focus-within:ring-accent-blue/60 focus-within:ring-offset-2 focus-within:ring-offset-bg-surface focus-within:outline-none active:cursor-grabbing {dragState.type ===
     'is-dragging'
       ? 'opacity-40'
       : dragState.type === 'is-dragging-and-left-self' || isKeyboardMoving
