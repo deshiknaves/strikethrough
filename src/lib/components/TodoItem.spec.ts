@@ -301,6 +301,68 @@ describe('TodoItem', () => {
     expect(screen.getByText('Test todo')).toBeInTheDocument()
   })
 
+  it('does not toggle todo when Space is pressed in edit mode', async () => {
+    const user = userEvent.setup()
+    const onToggle = vi.fn()
+    const onUpdate = vi.fn()
+    const todo = createTodo()
+    render(TodoItem, {
+      props: {
+        todo,
+        fromDate: '2025-02-24',
+        index: 0,
+        onToggle,
+        onDelete: vi.fn(),
+        onUpdate,
+        onUpdateDetails: vi.fn(),
+      },
+    })
+
+    const todoOption = screen.getByRole('option', {
+      name: /Todo: Test todo\. Press m to move/i,
+    })
+    todoOption.focus()
+    await user.keyboard('e')
+
+    const editInput = await waitFor(() => screen.getByDisplayValue('Test todo'))
+    await waitFor(() => expect(editInput).toHaveFocus())
+    await user.type(editInput, ' ')
+
+    expect(onToggle).not.toHaveBeenCalled()
+    expect(editInput).toHaveValue('Test todo ')
+  })
+
+  it('does not open delete modal when Delete or Backspace is pressed in edit mode', async () => {
+    const user = userEvent.setup()
+    const todo = createTodo()
+    render(TodoItem, {
+      props: {
+        todo,
+        fromDate: '2025-02-24',
+        index: 0,
+        onToggle: vi.fn(),
+        onDelete: vi.fn(),
+        onUpdate: vi.fn(),
+        onUpdateDetails: vi.fn(),
+      },
+    })
+
+    const todoOption = screen.getByRole('option', {
+      name: /Todo: Test todo\. Press m to move/i,
+    })
+    todoOption.focus()
+    await user.keyboard('e')
+
+    const editInput = await waitFor(() => screen.getByDisplayValue('Test todo'))
+    await waitFor(() => expect(editInput).toHaveFocus())
+
+    fireEvent.keyDown(editInput, { key: 'Delete', bubbles: true })
+    expect(screen.queryByText('Delete this todo?')).not.toBeInTheDocument()
+
+    fireEvent.keyDown(editInput, { key: 'Backspace', bubbles: true })
+    expect(screen.queryByText('Delete this todo?')).not.toBeInTheDocument()
+  })
+
   it('has only the item as focusable (checkbox and delete button not in tab order)', async () => {
     const user = userEvent.setup()
     const todo = createTodo()

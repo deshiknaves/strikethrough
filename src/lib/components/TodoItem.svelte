@@ -86,6 +86,14 @@
     } else if (event.key === 'Escape') {
       event.preventDefault()
       cancelEdit()
+    } else if (
+      event.key === ' ' ||
+      event.key === 'Delete' ||
+      event.key === 'Backspace' ||
+      event.key === 'x' ||
+      event.key === 'X'
+    ) {
+      event.stopPropagation()
     }
   }
 
@@ -150,14 +158,15 @@
       enterEditMode()
       return
     }
-    if (event.key === ' ' && !keyboardMoveMode) {
+    if (event.key === ' ' && !keyboardMoveMode && !isEditing) {
       event.preventDefault()
       onToggle()
       return
     }
     if (
       (event.key === 'x' || event.key === 'X' || event.key === 'Delete' || event.key === 'Backspace') &&
-      !keyboardMoveMode
+      !keyboardMoveMode &&
+      !isEditing
     ) {
       event.preventDefault()
       openDeleteModal()
