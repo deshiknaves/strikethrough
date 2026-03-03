@@ -17,6 +17,7 @@
     formatMonthYear,
     addWeeks,
   } from '$lib/week-utils'
+  import Logo from '$lib/components/logo.svelte'
 
   const today = Temporal.Now.plainDateISO()
   let viewMonday = $state(getMondayOfWeek(today))
@@ -83,7 +84,9 @@
 
 <div class="flex flex-col overflow-y-auto p-4 min-[501px]:h-dvh min-[501px]:overflow-hidden">
   <header class="mb-3 flex items-center justify-between">
-    <h1 class="text-2xl font-bold text-text-primary">{heading}</h1>
+    <h1 class="flex items-center gap-2 text-2xl font-bold text-text-primary">
+      <Logo class="size-5" />{heading}
+    </h1>
     <nav class="flex gap-1" aria-label="Week navigation">
       <button
         type="button"

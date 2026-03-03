@@ -1,6 +1,6 @@
 <script lang="ts">
   import './layout.css'
-  import favicon from '$lib/assets/favicon.svg'
+  import favicon from '$lib/assets/strikethrough.svg'
   import HelpButton from '$lib/components/HelpButton.svelte'
 
   let { children } = $props()
