@@ -1,3 +1,4 @@
+import { SvelteSet } from 'svelte/reactivity'
 import type * as Y from 'yjs'
 
 /** Shared Todo schema - also exported from todos.svelte.ts for components */
@@ -16,7 +17,7 @@ export type Todo = {
 export type WeekHandle = {
   doc: Y.Doc
   array: Y.Array<Todo>
-  weekDateKeys: Set<string>
+  weekDateKeys: SvelteSet<string>
 }
 
 type IndexeddbPersistence = { whenSynced: Promise<unknown>; destroy: () => void }
@@ -35,13 +36,13 @@ export async function load(
   }
 
   if (handle) {
-    handle.weekDateKeys = new Set(weekDateKeys)
+    handle.weekDateKeys = new SvelteSet(weekDateKeys)
     return handle
   }
 
   if (initPromise) {
     const h = await initPromise
-    h.weekDateKeys = new Set(weekDateKeys)
+    h.weekDateKeys = new SvelteSet(weekDateKeys)
     return h
   }
 
@@ -62,7 +63,7 @@ export async function load(
     handle = {
       doc,
       array,
-      weekDateKeys: new Set(weekDateKeys),
+      weekDateKeys: new SvelteSet(weekDateKeys),
     }
     return handle
   })()

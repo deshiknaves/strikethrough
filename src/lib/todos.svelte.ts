@@ -1,4 +1,5 @@
 import { reorder } from '@atlaskit/pragmatic-drag-and-drop/reorder'
+import { SvelteMap, type SvelteSet } from 'svelte/reactivity'
 import {
   load as loadFromPersistence,
   getHandle,
@@ -11,7 +12,7 @@ export type Todo = PersistenceTodo
 
 const todos = $state<Record<string, Todo[]>>({})
 
-function syncFromYArray(handle: { array: { toArray: () => Todo[] }; weekDateKeys: Set<string> }) {
+function syncFromYArray(handle: { array: { toArray: () => Todo[] }; weekDateKeys: SvelteSet<string> }) {
   const all = handle.array
     .toArray()
     .filter((t) => handle.weekDateKeys.has(t.date))
@@ -80,7 +81,7 @@ function mutateWithHandle(
 
 /** Reassign order to 0, 1, 2, ... per date based on array position */
 function compactOrders(all: Todo[]): Todo[] {
-  const dateIndices = new Map<string, number>()
+  const dateIndices = new SvelteMap<string, number>()
   return all.map((t) => {
     const idx = dateIndices.get(t.date) ?? 0
     dateIndices.set(t.date, idx + 1)

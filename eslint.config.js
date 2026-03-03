@@ -3,6 +3,7 @@ import path from 'node:path'
 import { includeIgnoreFile } from '@eslint/compat'
 import js from '@eslint/js'
 import svelte from 'eslint-plugin-svelte'
+import tailwind from 'eslint-plugin-tailwindcss'
 import { defineConfig } from 'eslint/config'
 import globals from 'globals'
 import ts from 'typescript-eslint'
@@ -17,6 +18,15 @@ export default defineConfig(
   ...svelte.configs.recommended,
   prettier,
   ...svelte.configs.prettier,
+  ...tailwind.configs['flat/recommended'],
+  {
+    settings: {
+      tailwindcss: {
+        config: path.resolve(import.meta.dirname, 'src/routes/layout.css'),
+        cssFiles: ['src/**/*.css'],
+      },
+    },
+  },
   {
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
     rules: {
