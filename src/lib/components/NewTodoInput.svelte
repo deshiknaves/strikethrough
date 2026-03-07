@@ -43,6 +43,7 @@
   function handleInputKeydown(event: KeyboardEvent) {
     if (event.key === 'Escape') {
       event.preventDefault()
+      value = ''
       collapse()
       focusButton()
       return

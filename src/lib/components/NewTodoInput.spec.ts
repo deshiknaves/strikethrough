@@ -151,6 +151,22 @@ describe('NewTodoInput', () => {
     expect(screen.getByRole('button', { name: /add new todo/i })).toHaveFocus()
   })
 
+  it('clears input value when Esc is pressed', async () => {
+    const user = userEvent.setup()
+    const onAdd = vi.fn()
+    render(NewTodoInput, { props: { onAdd } })
+
+    const button = screen.getByRole('button', { name: /add new todo/i })
+    button.focus()
+    await user.keyboard('{Enter}')
+    const input = screen.getByPlaceholderText('Add item...')
+    await user.type(input, 'some text')
+    await user.keyboard('{Escape}')
+
+    await user.click(screen.getByRole('button', { name: /add new todo/i }))
+    expect(screen.getByPlaceholderText('Add item...')).toHaveValue('')
+  })
+
   it('expands when button is clicked', async () => {
     const user = userEvent.setup()
     const onAdd = vi.fn()
