@@ -1,5 +1,7 @@
 # Strikethrough
 
+![Strikethrough](./src/lib/assets/strikethrough.svg)
+
 A week-based todo app built with SvelteKit. Organize tasks by day in a Monday–Sunday layout. Drag todos between days or use keyboard shortcuts to move them.
 
 ## Features
