@@ -119,7 +119,7 @@
     'flex min-w-0 flex-col rounded-lg border px-2 py-3 transition-colors',
     {
       'border-accent-blue bg-accent-blue/10': isOver,
-      'border-border bg-bg-surface': !isOver,
+      'border-border bg-bg-elevated': !isOver,
     },
     extraClass
   )}
@@ -175,9 +175,13 @@
         class="flex min-w-0 items-center gap-2 rounded border-b border-border px-1 py-1 ring-2 ring-accent-blue ring-offset-2 ring-offset-bg-surface"
       >
         <div
-          class="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border border-accent-blue {movingTodo.completed
-            ? 'bg-accent-blue'
-            : 'border-text-muted'}"
+          class={cn(
+            'flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border border-accent-blue',
+            {
+              'bg-accent-blue': movingTodo.completed,
+              'border-text-muted': !movingTodo.completed,
+            }
+          )}
         >
           {#if movingTodo.completed}
             <svg
@@ -194,9 +198,10 @@
           {/if}
         </div>
         <span
-          class="max-w-full min-w-0 flex-1 text-sm wrap-break-word hyphens-auto {movingTodo.completed
-            ? 'text-text-muted line-through'
-            : 'text-text-primary'}"
+          class={cn('max-w-full min-w-0 flex-1 text-sm wrap-break-word hyphens-auto', {
+            'text-text-muted line-through': movingTodo.completed,
+            'text-text-primary': !movingTodo.completed,
+          })}
         >
           {movingTodo.text}
         </span>
