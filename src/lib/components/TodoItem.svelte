@@ -334,7 +334,7 @@
     onclick={() => todoRowRef?.focus()}
     ondblclick={openDetailsModal}
     class={cn(
-      'group flex min-w-0 cursor-grab items-center gap-2 rounded border-b border-border px-1 py-1 transition-opacity focus-within:z-1 focus-within:bg-bg-elevated focus-within:ring-2 focus-within:ring-accent-blue/60 focus-within:ring-offset-2 focus-within:ring-offset-bg-surface focus-within:outline-none hover:bg-bg-elevated active:cursor-grabbing',
+      'group flex min-w-0 cursor-grab items-center gap-2 rounded border-b border-border px-1 py-1 transition-opacity focus-within:z-1 focus-within:bg-bg-elevated focus-within:ring-2 focus-within:ring-accent-blue focus-within:ring-offset-2 focus-within:ring-offset-bg-surface focus-within:outline-none hover:bg-bg-elevated active:cursor-grabbing',
       {
         'opacity-40': dragState.type === 'is-dragging',
         hidden: dragState.type === 'is-dragging-and-left-self' || isKeyboardMoving,

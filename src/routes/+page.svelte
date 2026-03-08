@@ -92,7 +92,7 @@
         type="button"
         aria-label="Previous week"
         aria-keyshortcuts="Shift+P Ctrl+P"
-        class="flex size-8 items-center justify-center rounded-full border border-border bg-bg-surface text-text-primary transition-colors hover:bg-bg-elevated"
+        class="flex size-8 items-center justify-center rounded-full border border-border bg-bg-surface text-text-primary transition-colors hover:bg-bg-elevated focus-visible:ring-2 focus-visible:ring-accent-blue focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base focus-visible:outline-none"
         onclick={() => (viewMonday = addWeeks(viewMonday, -1))}
       >
         <svg class="size-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -103,7 +103,7 @@
         type="button"
         aria-label="Next week"
         aria-keyshortcuts="Shift+N Ctrl+N"
-        class="flex size-8 items-center justify-center rounded-full border border-border bg-bg-surface text-text-primary transition-colors hover:bg-bg-elevated"
+        class="flex size-8 items-center justify-center rounded-full border border-border bg-bg-surface text-text-primary transition-colors hover:bg-bg-elevated focus-visible:ring-2 focus-visible:ring-accent-blue focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base focus-visible:outline-none"
         onclick={() => (viewMonday = addWeeks(viewMonday, 1))}
       >
         <svg class="size-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
