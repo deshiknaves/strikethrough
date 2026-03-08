@@ -87,6 +87,9 @@ importers:
       '@vitest/coverage-v8':
         specifier: ^4.0.18
         version: 4.0.18(@vitest/browser@4.0.18(vite@7.3.1(@types/node@25.3.5)(jiti@2.6.1)(lightningcss@1.31.1))(vitest@4.0.18))(vitest@4.0.18)
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
       eslint:
         specifier: ^10.0.3
         version: 10.0.3(jiti@2.6.1)
@@ -132,6 +135,9 @@ importers:
       svelte-check:
         specifier: ^4.4.5
         version: 4.4.5(picomatch@4.0.3)(svelte@5.53.7)(typescript@5.9.3)
+      tailwind-merge:
+        specifier: ^3.5.0
+        version: 3.5.0
       tailwindcss:
         specifier: ^4.1.18
         version: 4.2.1
@@ -2178,6 +2184,9 @@ packages:
     resolution: {integrity: sha512-KpzUHkH1ug1sq4394SLJX38ZtpeTiqQ1RVyFTTSY2XuHsNSTWUkRo108KmyyrMWdDbQrLYkSHaNKj/a3bmA4sQ==}
     peerDependencies:
       tailwindcss: ^3.3.0 || ^4.0.0 || ^4.0.0-beta
+
+  tailwind-merge@3.5.0:
+    resolution: {integrity: sha512-I8K9wewnVDkL1NTGoqWmVEIlUcB9gFriAEkXkfCjX5ib8ezGxtR3xD7iZIxrfArjEsH7F1CHD4RFUtxefdqV/A==}
 
   tailwindcss@4.2.1:
     resolution: {integrity: sha512-/tBrSQ36vCleJkAOsy9kbNTgaxvGbyOamC30PRePTQe/o1MFwEKHQk4Cn7BNGaPtjp+PuUrByJehM1hgxfq4sw==}
@@ -4364,6 +4373,8 @@ snapshots:
       jiti: 2.6.1
       local-pkg: 1.1.2
       tailwindcss: 4.2.1
+
+  tailwind-merge@3.5.0: {}
 
   tailwindcss@4.2.1: {}
 

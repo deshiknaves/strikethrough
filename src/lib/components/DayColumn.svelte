@@ -21,6 +21,7 @@
   import TodoItem from './TodoItem.svelte'
   import NewTodoInput from './NewTodoInput.svelte'
   import Badge from './Badge.svelte'
+  import { cn } from '$lib/cn'
 
   async function focusNextAfterComplete(dateKey: string, completedId: string) {
     await tick()
@@ -114,9 +115,14 @@
   role="group"
   aria-labelledby="column-{dateKey}"
   data-date-key={dateKey}
-  class="flex min-w-0 flex-col rounded-lg border px-2 py-3 transition-colors {isOver
-    ? 'border-accent-blue bg-accent-blue/10'
-    : 'border-border bg-bg-surface'} {extraClass}"
+  class={cn(
+    'flex min-w-0 flex-col rounded-lg border px-2 py-3 transition-colors',
+    {
+      'border-accent-blue bg-accent-blue/10': isOver,
+      'border-border bg-bg-surface': !isOver,
+    },
+    extraClass
+  )}
 >
   <h2
     id="column-{dateKey}"

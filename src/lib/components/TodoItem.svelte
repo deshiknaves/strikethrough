@@ -14,6 +14,7 @@
   import Modal from '$lib/components/Modal.svelte'
   import TodoDetailsModal from '$lib/components/TodoDetailsModal.svelte'
   import type { Todo } from '$lib/todos.svelte'
+  import { cn } from '$lib/cn'
 
   let {
     todo,
@@ -149,7 +150,12 @@
       openDetailsModal()
       return
     }
-    if ((event.metaKey || event.ctrlKey) && event.key === 'Enter' && !keyboardMoveMode && !isEditing) {
+    if (
+      (event.metaKey || event.ctrlKey) &&
+      event.key === 'Enter' &&
+      !keyboardMoveMode &&
+      !isEditing
+    ) {
       event.preventDefault()
       openDetailsModal()
       return
@@ -165,7 +171,10 @@
       return
     }
     if (
-      (event.key === 'x' || event.key === 'X' || event.key === 'Delete' || event.key === 'Backspace') &&
+      (event.key === 'x' ||
+        event.key === 'X' ||
+        event.key === 'Delete' ||
+        event.key === 'Backspace') &&
       !keyboardMoveMode &&
       !isEditing
     ) {
@@ -209,12 +218,7 @@
         getIsSticky: () => true,
         canDrop: ({ source }) => {
           const data = source.data as { completed?: boolean; fromDate?: string }
-          if (
-            data.completed &&
-            todo.completed &&
-            data.fromDate === fromDate
-          )
-            return false
+          if (data.completed && todo.completed && data.fromDate === fromDate) return false
           return true
         },
         getData: ({ element, input }) =>
@@ -273,9 +277,13 @@
         class="flex min-w-0 items-center gap-2 rounded border-b border-border px-1 py-1 ring-2 ring-accent-blue ring-offset-2 ring-offset-bg-surface"
       >
         <div
-          class="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border border-accent-blue {movingTodo.completed
-            ? 'bg-accent-blue'
-            : 'border-text-muted'}"
+          class={cn(
+            'flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border border-accent-blue',
+            {
+              'bg-accent-blue': movingTodo.completed,
+              'border-text-muted': !movingTodo.completed,
+            }
+          )}
         >
           {#if movingTodo.completed}
             <svg
@@ -292,9 +300,10 @@
           {/if}
         </div>
         <span
-          class="min-w-0 max-w-full flex-1 hyphens-auto wrap-break-word text-sm {movingTodo.completed
-            ? 'text-text-muted line-through'
-            : 'text-text-primary'}"
+          class={cn('max-w-full min-w-0 flex-1 text-sm wrap-break-word hyphens-auto', {
+            'text-text-muted line-through': movingTodo.completed,
+            'text-text-primary': !movingTodo.completed,
+          })}
         >
           {movingTodo.text}
         </span>
@@ -324,27 +333,32 @@
     onkeydown={handleKeydown}
     onclick={() => todoRowRef?.focus()}
     ondblclick={openDetailsModal}
-    class="group flex min-w-0 cursor-grab items-center gap-2 rounded border-b border-border px-1 py-1 transition-opacity focus-within:bg-bg-elevated hover:bg-bg-elevated focus-within:z-1 focus-within:ring-2 focus-within:ring-accent-blue/60 focus-within:ring-offset-2 focus-within:ring-offset-bg-surface focus-within:outline-none active:cursor-grabbing {dragState.type ===
-    'is-dragging'
-      ? 'opacity-40'
-      : dragState.type === 'is-dragging-and-left-self' || isKeyboardMoving
-        ? 'hidden'
-        : 'opacity-100'}"
+    class={cn(
+      'group flex min-w-0 cursor-grab items-center gap-2 rounded border-b border-border px-1 py-1 transition-opacity focus-within:z-1 focus-within:bg-bg-elevated focus-within:ring-2 focus-within:ring-accent-blue/60 focus-within:ring-offset-2 focus-within:ring-offset-bg-surface focus-within:outline-none hover:bg-bg-elevated active:cursor-grabbing',
+      {
+        'opacity-40': dragState.type === 'is-dragging',
+        hidden: dragState.type === 'is-dragging-and-left-self' || isKeyboardMoving,
+        'opacity-100':
+          dragState.type !== 'is-dragging' &&
+          dragState.type !== 'is-dragging-and-left-self' &&
+          !isKeyboardMoving,
+      }
+    )}
   >
     {#if !isEditing}
-    <div
-      class="flex w-0 min-w-0 shrink-0 overflow-hidden transition-[width] duration-200 ease-out group-focus-within:w-3.5 group-focus-within:min-w-3.5 group-hover:w-3.5 group-hover:min-w-3.5"
-    >
-      <label class="flex cursor-pointer">
-        <input
-          type="checkbox"
-          tabindex="-1"
-          checked={todo.completed}
-          onchange={onToggle}
-          class="peer sr-only"
-        />
-        <span
-          class="relative flex h-3.5
+      <div
+        class="flex w-0 min-w-0 shrink-0 overflow-hidden transition-[width] duration-200 ease-out group-focus-within:w-3.5 group-focus-within:min-w-3.5 group-hover:w-3.5 group-hover:min-w-3.5"
+      >
+        <label class="flex cursor-pointer">
+          <input
+            type="checkbox"
+            tabindex="-1"
+            checked={todo.completed}
+            onchange={onToggle}
+            class="peer sr-only"
+          />
+          <span
+            class="relative flex h-3.5
               w-3.5
               shrink-0 items-center justify-center
               rounded-full
@@ -356,32 +370,32 @@
               hover:border-accent-blue peer-checked:hover:border-text-muted peer-checked:hover:bg-transparent peer-checked:hover:text-text-muted peer-checked:hover:delay-400 peer-checked:[&_.check-icon]:animate-[check-pop_0.3s_ease-out]
               peer-checked:[&_.check-icon]:opacity-100 hover:[&_.check-icon]:opacity-100
               peer-checked:hover:[&_.check-icon]:opacity-0 peer-checked:hover:[&_.check-icon]:delay-400 peer-checked:hover:[&_.x-icon]:opacity-100 peer-checked:hover:[&_.x-icon]:delay-400"
-        >
-          <svg
-            class="check-icon h-2 w-2 opacity-0 transition-opacity"
-            viewBox="0 0 12 12"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
           >
-            <path d="M2 6l3 3 5-6" />
-          </svg>
-          <svg
-            class="x-icon absolute inset-0 m-auto h-2 w-2 opacity-0 transition-opacity"
-            viewBox="0 0 12 12"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M3 3l6 6M9 3l-6 6" />
-          </svg>
-        </span>
-      </label>
-    </div>
+            <svg
+              class="check-icon h-2 w-2 opacity-0 transition-opacity"
+              viewBox="0 0 12 12"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M2 6l3 3 5-6" />
+            </svg>
+            <svg
+              class="x-icon absolute inset-0 m-auto h-2 w-2 opacity-0 transition-opacity"
+              viewBox="0 0 12 12"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M3 3l6 6M9 3l-6 6" />
+            </svg>
+          </span>
+        </label>
+      </div>
     {/if}
     {#if isEditing}
       <input
@@ -390,11 +404,11 @@
         onkeydown={handleEditInputKeydown}
         onblur={handleEditInputBlur}
         type="text"
-        class="min-w-0 max-w-full flex-1 border-0 border-b border-border bg-transparent px-1 py-1 text-sm text-text-primary focus:border-accent-blue focus:ring-0 focus:outline-none"
+        class="max-w-full min-w-0 flex-1 border-0 border-b border-border bg-transparent px-1 py-1 text-sm text-text-primary focus:border-accent-blue focus:ring-0 focus:outline-none"
       />
     {:else}
       <span
-        class="-ml-2 min-w-0 max-w-full flex-1 hyphens-auto wrap-break-word text-sm transition-[margin-left] duration-200 ease-out group-focus-within:ml-0 group-hover:ml-0 {todo.completed
+        class="-ml-2 max-w-full min-w-0 flex-1 text-sm wrap-break-word hyphens-auto transition-[margin-left] duration-200 ease-out group-focus-within:ml-0 group-hover:ml-0 {todo.completed
           ? 'text-text-muted line-through'
           : 'text-text-primary'}"
       >
@@ -402,15 +416,15 @@
       </span>
     {/if}
     {#if !isEditing}
-    <button
-      type="button"
-      tabindex="-1"
-      onclick={openDeleteModal}
-      aria-label="Delete todo"
-      class="cursor-pointer leading-none text-text-muted opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent-blue focus-visible:ring-offset-2 focus-visible:ring-offset-bg-surface focus-visible:outline-none"
-    >
-      &times;
-    </button>
+      <button
+        type="button"
+        tabindex="-1"
+        onclick={openDeleteModal}
+        aria-label="Delete todo"
+        class="cursor-pointer leading-none text-text-muted opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent-blue focus-visible:ring-offset-2 focus-visible:ring-offset-bg-surface focus-visible:outline-none"
+      >
+        &times;
+      </button>
     {/if}
   </div>
   {#if (dragState.type === 'is-over' && dragState.closestEdge === 'bottom') || dropEdge === 'bottom'}
