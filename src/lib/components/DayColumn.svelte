@@ -31,9 +31,7 @@
     const nextCompleted = list.find((t) => t.completed)
     const nextId = nextIncomplete?.id ?? nextCompleted?.id
     if (!nextId || nextId === completedId) return
-    const el = document.querySelector<HTMLElement>(
-      `[data-todo-id="${nextId}"] [tabindex="0"]`
-    )
+    const el = document.querySelector<HTMLElement>(`[data-todo-id="${nextId}"] [tabindex="0"]`)
     el?.focus()
   }
 
@@ -127,14 +125,14 @@
     <span class="flex items-center gap-2">
       {#if isToday}
         <Badge label="Today" variant="blue" />
-        <span class="text-text-primary">{label}</span>
+        <span>{label}</span>
       {:else}
-        <span class="text-text-primary">{label}</span>
+        <span>{label}</span>
       {/if}
     </span>
     <span class="text-text-secondary">{sublabel}</span>
   </h2>
-  <div class="min-h-0 min-w-0 flex-1 overflow-y-auto px-2 py-2 scroll-pb-2 scroll-pt-2">
+  <div class="min-h-0 min-w-0 flex-1 scroll-pt-2 scroll-pb-2 overflow-y-auto px-2 py-2">
     {#each todos as todo, index (todo.id)}
       {@const dropEdge =
         keyboardMoveMode?.targetDateKey === dateKey &&
@@ -190,7 +188,7 @@
           {/if}
         </div>
         <span
-          class="min-w-0 max-w-full flex-1 hyphens-auto wrap-break-word text-sm {movingTodo.completed
+          class="max-w-full min-w-0 flex-1 text-sm wrap-break-word hyphens-auto {movingTodo.completed
             ? 'text-text-muted line-through'
             : 'text-text-primary'}"
         >
