@@ -30,15 +30,25 @@
   --color-border: var(--color-gray-700);
   --color-border-subtle: var(--color-gray-600);
 
-  --color-text-primary: var(--color-gray-100);
-  --color-text-secondary: var(--color-gray-200);
-  --color-text-muted: var(--color-gray-300);
+  --color-text-heading: var(--color-gray-100);
+  --color-text-primary: var(--color-gray-200);
+  --color-text-secondary: var(--color-gray-300);
+  --color-text-muted: var(--color-gray-400);
 }
 
 :root {
   background-color: var(--color-bg-base);
   color: var(--color-text-primary);
   color-scheme: dark;
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--color-text-heading);
+  }
 }
 
 @keyframes check-pop {
