@@ -1,7 +1,12 @@
+import '../src/routes/layout.css'
 import type { Preview } from '@storybook/sveltekit'
+import { themes } from 'storybook/theming'
 
 const preview: Preview = {
   parameters: {
+    docs: {
+      theme: themes.dark,
+    },
     controls: {
       matchers: {
         color: /(background|color)$/i,

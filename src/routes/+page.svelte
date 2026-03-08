@@ -18,6 +18,7 @@
     addWeeks,
   } from '$lib/week-utils'
   import Logo from '$lib/components/logo.svelte'
+  import IconButton from '$lib/components/IconButton.svelte'
 
   const today = Temporal.Now.plainDateISO()
   let viewMonday = $state(getMondayOfWeek(today))
@@ -88,28 +89,24 @@
       <Logo class="size-5" />{heading}
     </h1>
     <nav class="flex gap-1" aria-label="Week navigation">
-      <button
-        type="button"
+      <IconButton
         aria-label="Previous week"
         aria-keyshortcuts="Shift+P Ctrl+P"
-        class="flex size-8 items-center justify-center rounded-full border border-border bg-bg-surface text-text-primary transition-colors hover:bg-bg-elevated focus-visible:ring-2 focus-visible:ring-accent-blue focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base focus-visible:outline-none"
         onclick={() => (viewMonday = addWeeks(viewMonday, -1))}
       >
         <svg class="size-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <polygon points="15,4 15,20 5,12" />
         </svg>
-      </button>
-      <button
-        type="button"
+      </IconButton>
+      <IconButton
         aria-label="Next week"
         aria-keyshortcuts="Shift+N Ctrl+N"
-        class="flex size-8 items-center justify-center rounded-full border border-border bg-bg-surface text-text-primary transition-colors hover:bg-bg-elevated focus-visible:ring-2 focus-visible:ring-accent-blue focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base focus-visible:outline-none"
         onclick={() => (viewMonday = addWeeks(viewMonday, 1))}
       >
         <svg class="size-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <polygon points="9,4 9,20 19,12" />
         </svg>
-      </button>
+      </IconButton>
     </nav>
   </header>
   <div class="flex min-h-0 flex-1 gap-3">
