@@ -241,18 +241,23 @@ export function createBoardKeyboardHandler(
         event.preventDefault()
         event.stopPropagation()
 
+        const activeCount = todos.filter((t) => !t.completed).length
         if (vimKey === 'ArrowUp') {
-          if (todos.length > 0) {
-            focusCell(dateKey, todos.length - 1)
+          if (activeCount > 0) {
+            focusCell(dateKey, activeCount - 1)
           } else if (colIndex >= WEEKEND_START) {
             const weekdayCol = getWeekdayColForWeekend(colIndex)
             const weekdayKey = columnOrder[weekdayCol]
             focusCell(weekdayKey, 'new')
           }
-        } else if (vimKey === 'ArrowDown' && colIndex < WEEKEND_START) {
-          const weekendCol = getWeekendColForWeekday(colIndex)
-          const weekendKey = columnOrder[weekendCol]
-          focusCell(weekendKey, 'new')
+        } else if (vimKey === 'ArrowDown') {
+          if (todos.length > activeCount) {
+            focusCell(dateKey, activeCount)
+          } else if (colIndex < WEEKEND_START) {
+            const weekendCol = getWeekendColForWeekday(colIndex)
+            const weekendKey = columnOrder[weekendCol]
+            focusCell(weekendKey, 'new')
+          }
         } else if (vimKey === 'ArrowLeft' && colIndex > 0) {
           const prevCol = columnOrder[colIndex - 1]
           const prevTodos = getTodos(prevCol)
@@ -283,17 +288,23 @@ export function createBoardKeyboardHandler(
     const colIndex = columnOrder.indexOf(dateKey)
     const todos = getTodos(dateKey)
 
+    const activeCount = todos.filter((t) => !t.completed).length
     if (vimKey === 'ArrowUp') {
-      if (index > 0) {
+      if (index === activeCount && activeCount < todos.length) {
+        focusCell(dateKey, 'new')
+      } else if (index > 0) {
         focusCell(dateKey, index - 1)
       } else if (colIndex >= WEEKEND_START) {
         const weekdayCol = getWeekdayColForWeekend(colIndex)
         const weekdayKey = columnOrder[weekdayCol]
         const weekdayTodos = getTodos(weekdayKey)
-        focusCell(weekdayKey, weekdayTodos.length > 0 ? weekdayTodos.length - 1 : 'new')
+        const weekdayActiveCount = weekdayTodos.filter((t) => !t.completed).length
+        focusCell(weekdayKey, weekdayActiveCount > 0 ? weekdayActiveCount - 1 : 'new')
       }
     } else if (vimKey === 'ArrowDown') {
-      if (index + 1 < todos.length) {
+      if (index === activeCount - 1) {
+        focusCell(dateKey, 'new')
+      } else if (index + 1 < todos.length) {
         focusCell(dateKey, index + 1)
       } else {
         focusCell(dateKey, 'new')

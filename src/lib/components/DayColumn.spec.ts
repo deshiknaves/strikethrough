@@ -1,4 +1,4 @@
-import { addTodo, getTodos } from '$lib/todos.svelte'
+import { addTodo, getTodos, toggleTodo } from '$lib/todos.svelte'
 import { render, screen } from '@testing-library/svelte'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
@@ -123,6 +123,53 @@ describe('DayColumn', () => {
     const column = container.querySelector(`[data-date-key="${dateKey}"]`)
     const scrollContainer = column?.querySelector('.overflow-y-auto')
     expect(scrollContainer).toBeInTheDocument()
+  })
+
+  it('renders active todos before the add button', () => {
+    const dateKey = uniqueDate()
+    addTodo(dateKey, 'Active todo')
+
+    render(DayColumn, {
+      props: { dateKey, label: '24 Feb', sublabel: 'Mon' },
+    })
+
+    const todoEl = screen.getByText('Active todo')
+    const addButton = screen.getByRole('button', { name: /add new todo/i })
+    expect(todoEl.compareDocumentPosition(addButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it('renders completed todos after the add button', () => {
+    const dateKey = uniqueDate()
+    addTodo(dateKey, 'Completed todo')
+    const [todo] = getTodos(dateKey)
+    toggleTodo(dateKey, todo.id)
+
+    render(DayColumn, {
+      props: { dateKey, label: '24 Feb', sublabel: 'Mon' },
+    })
+
+    const todoEl = screen.getByText('Completed todo')
+    const addButton = screen.getByRole('button', { name: /add new todo/i })
+    expect(addButton.compareDocumentPosition(todoEl) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it('moves todo below add button when completed', async () => {
+    const user = userEvent.setup()
+    const dateKey = uniqueDate()
+    addTodo(dateKey, 'Move me down')
+
+    render(DayColumn, {
+      props: { dateKey, label: '24 Feb', sublabel: 'Mon' },
+    })
+
+    const addButton = screen.getByRole('button', { name: /add new todo/i })
+    const todoEl = screen.getByText('Move me down')
+    expect(todoEl.compareDocumentPosition(addButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+
+    await user.click(screen.getByRole('checkbox'))
+
+    const updatedTodoEl = screen.getByText('Move me down')
+    expect(addButton.compareDocumentPosition(updatedTodoEl) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 
   it('deletes todo when delete button is clicked and confirmed', async () => {

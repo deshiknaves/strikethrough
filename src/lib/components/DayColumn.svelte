@@ -61,6 +61,8 @@
   )
 
   const todos = $derived(getTodos(dateKey))
+  const activeTodos = $derived(todos.filter((t) => !t.completed))
+  const completedTodos = $derived(todos.filter((t) => t.completed))
 
   function initializeDragAndDrop(node: HTMLElement) {
     const cleanup = combine(
@@ -139,11 +141,11 @@
     <span class="text-text-secondary">{sublabel}</span>
   </h2>
   <div class="min-h-0 min-w-0 flex-1 scroll-pt-2 scroll-pb-2 overflow-y-auto px-2 py-2">
-    {#each todos as todo, index (todo.id)}
+    {#each activeTodos as todo, index (todo.id)}
       {@const dropEdge =
         keyboardMoveMode?.targetDateKey === dateKey &&
         keyboardMoveMode.targetIndex === index &&
-        keyboardMoveMode.targetIndex < todos.length
+        keyboardMoveMode.targetIndex < activeTodos.length
           ? 'top'
           : null}
       <div class="min-w-0" animate:flip={{ duration: 200 }}>
@@ -169,7 +171,7 @@
         />
       </div>
     {/each}
-    {#if keyboardMoveMode?.targetDateKey === dateKey && keyboardMoveMode.targetIndex === todos.length && movingTodo}
+    {#if keyboardMoveMode?.targetDateKey === dateKey && keyboardMoveMode.targetIndex === activeTodos.length && movingTodo}
       <div
         data-keyboard-move-target
         class="flex min-w-0 items-center gap-2 rounded border-b border-border px-1 py-1 ring-2 ring-accent-blue ring-offset-2 ring-offset-bg-surface"
@@ -210,5 +212,29 @@
     <div data-date-key={dateKey} data-todo-index="new">
       <NewTodoInput onAdd={(text) => addTodo(dateKey, text)} autoFocus={isToday} />
     </div>
+    {#each completedTodos as todo, index (todo.id)}
+      <div class="min-w-0" animate:flip={{ duration: 200 }}>
+        <TodoItem
+          {todo}
+          fromDate={dateKey}
+          index={activeTodos.length + index}
+          {columnOrder}
+          dropEdge={null}
+          movingTodo={null}
+          onToggle={async () => {
+            toggleTodo(dateKey, todo.id)
+            await focusNextAfterComplete(dateKey, todo.id)
+          }}
+          onDelete={() => deleteTodo(dateKey, todo.id)}
+          onUpdate={(text) => updateTodo(dateKey, todo.id, text)}
+          onUpdateDetails={(updates) =>
+            updateTodoDetails(dateKey, todo.id, {
+              text: updates.text,
+              description: updates.description,
+              date: updates.date,
+            })}
+        />
+      </div>
+    {/each}
   </div>
 </div>
