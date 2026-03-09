@@ -5,7 +5,7 @@ import {
   getHandle,
   type Todo as PersistenceTodo,
 } from '$lib/todos-persistence.svelte'
-import { getWeekDateKeys } from '$lib/week-utils'
+import { getDateRange } from '$lib/week-utils'
 import type { Temporal } from 'temporal-polyfill'
 
 export type Todo = PersistenceTodo
@@ -38,26 +38,30 @@ function syncFromYArray(handle: { array: { toArray: () => Todo[] }; weekDateKeys
 
 let observerAdded = false
 
+export async function loadRange(
+  from: Temporal.PlainDate,
+  to: Temporal.PlainDate,
+  options?: { getIsCurrentView?: () => boolean },
+  workspace = 'default'
+): Promise<void> {
+  const dateKeys = getDateRange(from, to)
+  const handle = await loadFromPersistence(dateKeys, workspace)
+
+  if (options?.getIsCurrentView && !options.getIsCurrentView()) return
+
+  syncFromYArray(handle)
+  if (!observerAdded) {
+    observerAdded = true
+    handle.array.observe(() => syncFromYArray(handle))
+  }
+}
+
 export async function loadWeek(
   monday: Temporal.PlainDate,
   options?: { getIsCurrentView?: () => boolean },
   workspace = 'default'
 ): Promise<void> {
-  const mondayStr = monday.toString()
-  const weekDateKeys = getWeekDateKeys(monday)
-  const handle = await loadFromPersistence(mondayStr, weekDateKeys, workspace)
-
-  if (options?.getIsCurrentView && !options.getIsCurrentView()) {
-    return
-  }
-
-  syncFromYArray(handle)
-  if (!observerAdded) {
-    observerAdded = true
-    handle.array.observe(() => {
-      syncFromYArray(handle)
-    })
-  }
+  return loadRange(monday, monday.add({ days: 6 }), options, workspace)
 }
 
 export function getTodos(date: string): Todo[] {

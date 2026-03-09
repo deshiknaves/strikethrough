@@ -1,4 +1,4 @@
-import type { Temporal } from 'temporal-polyfill'
+import { Temporal } from 'temporal-polyfill'
 
 export function getMondayOfWeek(date: Temporal.PlainDate): Temporal.PlainDate {
   return date.subtract({ days: date.dayOfWeek - 1 })
@@ -20,6 +20,16 @@ export function getColumnOrder(monday: Temporal.PlainDate): string[] {
 
 export function getWeekDateKeys(monday: Temporal.PlainDate): string[] {
   return getColumnOrder(monday)
+}
+
+export function getDateRange(from: Temporal.PlainDate, to: Temporal.PlainDate): string[] {
+  const days: string[] = []
+  let current = from
+  while (Temporal.PlainDate.compare(current, to) <= 0) {
+    days.push(current.toString())
+    current = current.add({ days: 1 })
+  }
+  return days
 }
 
 export function formatDate(date: Temporal.PlainDate): string {

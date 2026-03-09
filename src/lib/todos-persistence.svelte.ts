@@ -27,8 +27,7 @@ let provider: IndexeddbPersistence | null = null
 let initPromise: Promise<WeekHandle> | null = null
 
 export async function load(
-  _monday: string,
-  weekDateKeys: string[],
+  dateKeys: string[],
   workspace = 'default'
 ): Promise<WeekHandle> {
   if (typeof window === 'undefined') {
@@ -36,13 +35,13 @@ export async function load(
   }
 
   if (handle) {
-    handle.weekDateKeys = new SvelteSet(weekDateKeys)
+    handle.weekDateKeys = new SvelteSet(dateKeys)
     return handle
   }
 
   if (initPromise) {
     const h = await initPromise
-    h.weekDateKeys = new SvelteSet(weekDateKeys)
+    h.weekDateKeys = new SvelteSet(dateKeys)
     return h
   }
 
@@ -63,7 +62,7 @@ export async function load(
     handle = {
       doc,
       array,
-      weekDateKeys: new SvelteSet(weekDateKeys),
+      weekDateKeys: new SvelteSet(dateKeys),
     }
     return handle
   })()

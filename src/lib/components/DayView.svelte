@@ -2,8 +2,8 @@
   import { browser } from '$app/environment'
   import type { Temporal } from 'temporal-polyfill'
   import DayColumn from '$lib/components/DayColumn.svelte'
-  import { loadWeek } from '$lib/todos.svelte'
-  import { getMondayOfWeek, formatDate, formatWeekday } from '$lib/week-utils'
+  import { loadRange } from '$lib/todos.svelte'
+  import { formatDate, formatWeekday } from '$lib/week-utils'
 
   interface Props {
     viewDate: Temporal.PlainDate
@@ -22,20 +22,13 @@
 
   $effect(() => {
     if (browser) {
-      const monday = getMondayOfWeek(viewDate)
-      const currentDate = viewDate
-      loadWeek(monday, {
-        getIsCurrentView: () => viewDate.toString() === currentDate.toString(),
+      const from = viewDate
+      const to = isWide ? viewDate.add({ days: 1 }) : viewDate
+      const capturedIsWide = isWide
+      loadRange(from, to, {
+        getIsCurrentView: () =>
+          viewDate.toString() === from.toString() && isWide === capturedIsWide,
       })
-      if (isWide) {
-        const nextDay = viewDate.add({ days: 1 })
-        const nextMonday = getMondayOfWeek(nextDay)
-        if (nextMonday.toString() !== monday.toString()) {
-          loadWeek(nextMonday, {
-            getIsCurrentView: () => viewDate.toString() === currentDate.toString(),
-          })
-        }
-      }
     }
   })
 </script>
