@@ -89,6 +89,11 @@
             : columnOrder[0]
           : viewDate.toString(),
       onNewTodo: () => (newTodoModalOpen = true),
+      onWeekView: () => (viewMode = 'week'),
+      onDayView: () => {
+        viewMode = 'day'
+        viewDate = today
+      },
     })
 
     document.addEventListener('keydown', handleKeydown, true)

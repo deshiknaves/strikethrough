@@ -29,6 +29,13 @@ export const SHORTCUT_SECTIONS: ShortcutSection[] = [
     ],
   },
   {
+    section: 'View',
+    items: [
+      { id: 'view-week', keys: [['Shift', 'W']], description: 'Switch to week view' },
+      { id: 'view-day', keys: [['Shift', 'D']], description: 'Switch to day view' },
+    ],
+  },
+  {
     section: 'Todo item',
     items: [
       { id: 'todo-move', keys: [['m']], description: 'Move todo' },
