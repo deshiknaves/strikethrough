@@ -5,6 +5,7 @@ import {
   getWeekDays,
   getWeekendDays,
   getColumnOrder,
+  getDateRange,
   formatDate,
   formatWeekday,
   formatMonthYear,
@@ -87,6 +88,39 @@ describe('week-utils', () => {
     it('returns long month and year', () => {
       const date = Temporal.PlainDate.from('2025-03-03')
       expect(formatMonthYear(date)).toBe('March 2025')
+    })
+  })
+
+  describe('getDateRange', () => {
+    it('returns single date when from === to', () => {
+      const date = Temporal.PlainDate.from('2025-03-05')
+      expect(getDateRange(date, date)).toEqual(['2025-03-05'])
+    })
+
+    it('returns consecutive dates within a week', () => {
+      const from = Temporal.PlainDate.from('2025-03-03')
+      const to = Temporal.PlainDate.from('2025-03-04')
+      expect(getDateRange(from, to)).toEqual(['2025-03-03', '2025-03-04'])
+    })
+
+    it('spans a week boundary (Sunday to Monday)', () => {
+      const from = Temporal.PlainDate.from('2025-03-09') // Sunday
+      const to = Temporal.PlainDate.from('2025-03-10') // Monday
+      expect(getDateRange(from, to)).toEqual(['2025-03-09', '2025-03-10'])
+    })
+
+    it('returns full 7-day range matching getWeekDateKeys', () => {
+      const monday = Temporal.PlainDate.from('2025-03-03')
+      const sunday = Temporal.PlainDate.from('2025-03-09')
+      expect(getDateRange(monday, sunday)).toEqual([
+        '2025-03-03',
+        '2025-03-04',
+        '2025-03-05',
+        '2025-03-06',
+        '2025-03-07',
+        '2025-03-08',
+        '2025-03-09',
+      ])
     })
   })
 
