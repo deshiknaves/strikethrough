@@ -1,19 +1,18 @@
 <script lang="ts">
-  import { onMount, tick } from 'svelte'
+  import { onMount } from 'svelte'
   import { browser } from '$app/environment'
   import { Temporal } from 'temporal-polyfill'
-  import DayColumn from '$lib/components/DayColumn.svelte'
   import TodoDetailsModal from '$lib/components/TodoDetailsModal.svelte'
-  import { createBoardKeyboardHandler, focusFirstCell } from '$lib/board-keyboard-navigation'
+  import SegmentedControl from '$lib/components/SegmentedControl.svelte'
+  import WeekView from '$lib/components/WeekView.svelte'
+  import DayView from '$lib/components/DayView.svelte'
+  import { createBoardKeyboardHandler } from '$lib/board-keyboard-navigation'
   import { getKeyboardMoveState, updateTarget, exitMoveMode } from '$lib/keyboard-move-state.svelte'
   import { getTodos, moveTodo, loadWeek, addTodo } from '$lib/todos.svelte'
   import {
     getMondayOfWeek,
-    getWeekDays,
-    getWeekendDays,
     getColumnOrder,
     formatDate,
-    formatWeekday,
     formatMonthYear,
     formatWeekOf,
     addWeeks,
@@ -21,36 +20,30 @@
   import Logo from '$lib/components/logo.svelte'
   import IconButton from '$lib/components/IconButton.svelte'
 
+  type ViewMode = 'week' | 'day'
+
   const today = Temporal.Now.plainDateISO()
   let viewMonday = $state(getMondayOfWeek(today))
+  let viewDate = $state(today)
+  let viewMode = $state<ViewMode>('week')
+  let isWide = $state(browser ? window.innerWidth > 500 : true)
   let newTodoModalOpen = $state(false)
+  let dayColumnOrder = $state<string[]>([])
 
-  const weekdays = $derived(getWeekDays(viewMonday))
-  const weekend = $derived(getWeekendDays(viewMonday))
   const columnOrder = $derived(getColumnOrder(viewMonday))
-  const heading = $derived(formatMonthYear(viewMonday))
-  const pageTitle = $derived(`Strikethrough · ${formatWeekOf(viewMonday)}`)
 
-  $effect(() => {
-    if (browser) {
-      const monday = viewMonday
-      loadWeek(monday, {
-        getIsCurrentView: () => viewMonday.toString() === monday.toString(),
-      })
-    }
-  })
-
-  $effect(() => {
-    if (browser && !columnOrder.includes(today.toString())) {
-      tick().then(() => {
-        focusFirstCell({
-          getColumnOrder: () => columnOrder,
-          getTodos,
-          getInitialFocusDateKey: () => columnOrder[0],
-        })
-      })
-    }
-  })
+  const heading = $derived(
+    viewMode === 'week'
+      ? formatMonthYear(viewMonday)
+      : isWide
+        ? `${formatDate(viewDate)} – ${formatDate(viewDate.add({ days: 1 }))}`
+        : formatDate(viewDate),
+  )
+  const pageTitle = $derived(
+    viewMode === 'week'
+      ? `Strikethrough · ${formatWeekOf(viewMonday)}`
+      : `Strikethrough · ${heading}`,
+  )
 
   function handleNewTodo(updates: { text: string; description: string; date: string }) {
     addTodo(updates.date, updates.text, updates.description)
@@ -65,23 +58,40 @@
   }
 
   onMount(() => {
+    const mq = window.matchMedia('(min-width: 501px)')
+    isWide = mq.matches
+    mq.addEventListener('change', (e) => (isWide = e.matches))
+
     const handleKeydown = createBoardKeyboardHandler({
-      getColumnOrder: () => columnOrder,
+      getColumnOrder: () => (viewMode === 'week' ? columnOrder : dayColumnOrder),
       getTodos,
       moveTodo,
       getKeyboardMoveState,
       updateTarget,
       exitMoveMode,
-      onNextWeek: () => (viewMonday = addWeeks(viewMonday, 1)),
-      onPreviousWeek: () => (viewMonday = addWeeks(viewMonday, -1)),
+      onNextWeek: () => {
+        if (viewMode === 'week') viewMonday = addWeeks(viewMonday, 1)
+        else viewDate = viewDate.add({ days: 1 })
+      },
+      onPreviousWeek: () => {
+        if (viewMode === 'week') viewMonday = addWeeks(viewMonday, -1)
+        else viewDate = viewDate.subtract({ days: 1 })
+      },
       getInitialFocusDateKey: () =>
-        columnOrder.includes(today.toString()) ? today.toString() : columnOrder[0],
+        viewMode === 'week'
+          ? columnOrder.includes(today.toString())
+            ? today.toString()
+            : columnOrder[0]
+          : viewDate.toString(),
       onNewTodo: () => (newTodoModalOpen = true),
     })
 
     document.addEventListener('keydown', handleKeydown, true)
 
-    return () => document.removeEventListener('keydown', handleKeydown, true)
+    return () => {
+      document.removeEventListener('keydown', handleKeydown, true)
+      mq.removeEventListener('change', (e) => (isWide = e.matches))
+    }
   })
 </script>
 
@@ -89,25 +99,46 @@
   <title>{pageTitle}</title>
 </svelte:head>
 
-<div class="flex flex-col p-4 h-dvh overflow-hidden max-[500px]:min-w-[1024px] min-h-[100dvh] [@media(max-height:500px)]:min-h-[1024px]">
+<div
+  class="flex flex-col p-4 h-dvh overflow-hidden max-[500px]:min-w-[1024px] min-h-[100dvh] [@media(max-height:500px)]:min-h-[1024px]"
+>
   <header class="mb-3 flex items-center justify-between">
-    <h1 class="flex items-center gap-2 text-2xl font-bold text-text-primary">
-      <Logo class="size-5" />{heading}
-    </h1>
+    <div class="flex items-center gap-3">
+      <h1 class="flex items-center gap-2 text-2xl font-bold text-text-primary">
+        <Logo class="size-5" />{heading}
+      </h1>
+      <SegmentedControl
+        segments={[
+          { value: 'week', label: 'Week' },
+          { value: 'day', label: 'Day' },
+        ]}
+        value={viewMode}
+        onchange={(v) => {
+          viewMode = v
+          if (v === 'day') viewDate = today
+        }}
+      />
+    </div>
     <nav class="flex gap-1" aria-label="Week navigation">
       <IconButton
-        aria-label="Previous week"
+        aria-label={viewMode === 'week' ? 'Previous week' : 'Previous day'}
         aria-keyshortcuts="Shift+P Ctrl+P"
-        onclick={() => (viewMonday = addWeeks(viewMonday, -1))}
+        onclick={() => {
+          if (viewMode === 'week') viewMonday = addWeeks(viewMonday, -1)
+          else viewDate = viewDate.subtract({ days: 1 })
+        }}
       >
         <svg class="size-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <polygon points="15,4 15,20 5,12" />
         </svg>
       </IconButton>
       <IconButton
-        aria-label="Next week"
+        aria-label={viewMode === 'week' ? 'Next week' : 'Next day'}
         aria-keyshortcuts="Shift+N Ctrl+N"
-        onclick={() => (viewMonday = addWeeks(viewMonday, 1))}
+        onclick={() => {
+          if (viewMode === 'week') viewMonday = addWeeks(viewMonday, 1)
+          else viewDate = viewDate.add({ days: 1 })
+        }}
       >
         <svg class="size-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <polygon points="9,4 9,20 19,12" />
@@ -115,30 +146,13 @@
       </IconButton>
     </nav>
   </header>
-  <div class="flex min-h-0 flex-1 gap-3">
-    {#each weekdays as day (day.toString())}
-      <DayColumn
-        dateKey={day.toString()}
-        label={formatDate(day)}
-        sublabel={formatWeekday(day)}
-        isToday={day.toString() === today.toString()}
-        {columnOrder}
-        class="flex-1"
-      />
-    {/each}
-  </div>
-  <div class="mt-3 flex h-[35%] gap-3">
-    {#each weekend as day (day.toString())}
-      <DayColumn
-        dateKey={day.toString()}
-        label={formatDate(day)}
-        sublabel={formatWeekday(day)}
-        isToday={day.toString() === today.toString()}
-        {columnOrder}
-        class="w-1/2"
-      />
-    {/each}
-  </div>
+
+  {#if viewMode === 'week'}
+    <WeekView {viewMonday} {today} {columnOrder} />
+  {:else}
+    <DayView {viewDate} {today} {isWide} bind:columnOrder={dayColumnOrder} />
+  {/if}
+
   <TodoDetailsModal
     open={newTodoModalOpen}
     onClose={() => (newTodoModalOpen = false)}
