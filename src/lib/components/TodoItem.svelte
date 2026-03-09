@@ -277,7 +277,7 @@
   {#if (dragState.type === 'is-over' && dragState.closestEdge === 'top') || dropEdge === 'top'}
     {#if dropEdge === 'top' && movingTodo}
       <div
-        class="flex min-w-0 items-center gap-2 rounded border-b border-border px-1 py-1 ring-2 ring-accent-blue ring-offset-2 ring-offset-bg-surface"
+        class="flex min-w-0 items-center gap-2 rounded bg-accent-blue/10 px-1 py-1 ring-2 ring-accent-blue ring-offset-2 ring-offset-bg-surface"
       >
         <div
           class={cn(
