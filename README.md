@@ -2,14 +2,31 @@
 
 ![Strikethrough](./src/lib/assets/strikethrough.svg)
 
-A week-based todo app built with SvelteKit. Organize tasks by day in a Monday–Sunday layout. Drag todos between days or use keyboard shortcuts to move them.
+A todo app built with SvelteKit. Organize tasks by day in week or day view. Drag todos between days or use keyboard shortcuts to navigate and move them.
 
 ## Features
 
-- **Week view** — Todos grouped by day (weekdays + weekend)
+- **Week & day views** — Toggle between a full week layout and a focused two-day view (`Shift+W` / `Shift+D`)
 - **Drag & drop** — Reorder within a day or move between days
-- **Keyboard navigation** — Press `m` on a todo to enter move mode, then use arrow keys + Enter/Space to place
+- **Keyboard navigation** — Full keyboard control with vim-style bindings; press `?` to see all shortcuts
 - **Dark theme** — Outfit font, Tailwind CSS
+
+## Keyboard Shortcuts
+
+| Key                  | Action                                               |
+| -------------------- | ---------------------------------------------------- |
+| `?`                  | Show all shortcuts                                   |
+| `n`                  | New todo                                             |
+| `Shift+W`            | Switch to week view                                  |
+| `Shift+D`            | Switch to day view                                   |
+| `Shift+N` / `Ctrl+N` | Next week / day                                      |
+| `Shift+P` / `Ctrl+P` | Previous week / day                                  |
+| `m`                  | Enter move mode (then arrows + Enter/Space to place) |
+| `d` / `Cmd+Enter`    | Open todo details                                    |
+| `e`                  | Edit todo                                            |
+| `Space`              | Toggle complete                                      |
+| `x` / `Delete`       | Delete todo                                          |
+| `↑↓←→` / `hjkl`      | Navigate between todos                               |
 
 ## Tech Stack
 
