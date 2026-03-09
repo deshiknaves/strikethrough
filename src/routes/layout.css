@@ -48,6 +48,21 @@
     height: 100dvh;
   }
 
+  @media (max-width: 500px) {
+    html,
+    body {
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+  }
+
+  @media (max-height: 500px) {
+    html,
+    body {
+      overflow-y: auto;
+    }
+  }
+
   h1,
   h2,
   h3,

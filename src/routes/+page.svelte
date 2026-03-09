@@ -89,7 +89,7 @@
   <title>{pageTitle}</title>
 </svelte:head>
 
-<div class="flex flex-col overflow-y-auto p-4 min-[501px]:h-dvh min-[501px]:overflow-hidden">
+<div class="flex flex-col p-4 h-dvh overflow-hidden max-[500px]:min-w-[1024px] min-h-[100dvh] [@media(max-height:500px)]:min-h-[1024px]">
   <header class="mb-3 flex items-center justify-between">
     <h1 class="flex items-center gap-2 text-2xl font-bold text-text-primary">
       <Logo class="size-5" />{heading}
@@ -123,11 +123,11 @@
         sublabel={formatWeekday(day)}
         isToday={day.toString() === today.toString()}
         {columnOrder}
-        class="min-h-50 flex-1 min-[501px]:min-h-0"
+        class="flex-1"
       />
     {/each}
   </div>
-  <div class="mt-3 flex min-h-38 gap-3 min-[501px]:h-[35%] min-[501px]:min-h-0">
+  <div class="mt-3 flex h-[35%] gap-3">
     {#each weekend as day (day.toString())}
       <DayColumn
         dateKey={day.toString()}
