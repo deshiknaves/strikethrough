@@ -39,14 +39,14 @@
   let {
     dateKey,
     label,
-    sublabel,
+    day,
     isToday = false,
     columnOrder = [],
     class: extraClass = '',
   }: {
     dateKey: string
     label: string
-    sublabel: string
+    day: string
     isToday?: boolean
     columnOrder?: string[]
     class?: string
@@ -138,7 +138,7 @@
         <span>{label}</span>
       {/if}
     </span>
-    <span class="text-text-secondary">{sublabel}</span>
+    <span class="text-text-secondary">{day}</span>
   </h2>
   <div class="min-h-0 min-w-0 flex-1 scroll-pt-2 scroll-pb-2 overflow-y-auto px-2 py-2">
     {#each activeTodos as todo, index (todo.id)}

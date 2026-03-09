@@ -45,7 +45,7 @@
     <DayColumn
       dateKey={day.toString()}
       label={formatDate(day)}
-      sublabel={formatWeekday(day)}
+      day={formatWeekday(day)}
       isToday={day.toString() === today.toString()}
       {columnOrder}
       class="flex-1"
@@ -57,7 +57,7 @@
     <DayColumn
       dateKey={day.toString()}
       label={formatDate(day)}
-      sublabel={formatWeekday(day)}
+      day={formatWeekday(day)}
       isToday={day.toString() === today.toString()}
       {columnOrder}
       class="w-1/2"
