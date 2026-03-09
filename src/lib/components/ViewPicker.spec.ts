@@ -45,15 +45,15 @@ describe('ViewPicker', () => {
   it('marks the active segment', () => {
     render(ViewPicker, { props: { value: 'week', onchange: () => {} } })
 
-    expect(screen.getByRole('button', { name: 'Week' })).toHaveClass('bg-accent-blue')
-    expect(screen.getByRole('button', { name: 'Day' })).not.toHaveClass('bg-accent-blue')
+    expect(screen.getByRole('button', { name: 'Week' })).toHaveAttribute('data-state', 'active')
+    expect(screen.getByRole('button', { name: 'Day' })).toHaveAttribute('data-state', 'inactive')
   })
 
   it('marks Day as active when value is "day"', () => {
     render(ViewPicker, { props: { value: 'day', onchange: () => {} } })
 
-    expect(screen.getByRole('button', { name: 'Day' })).toHaveClass('bg-accent-blue')
-    expect(screen.getByRole('button', { name: 'Week' })).not.toHaveClass('bg-accent-blue')
+    expect(screen.getByRole('button', { name: 'Day' })).toHaveAttribute('data-state', 'active')
+    expect(screen.getByRole('button', { name: 'Week' })).toHaveAttribute('data-state', 'inactive')
   })
 
   it('calls onchange with "day" when Day is clicked', async () => {

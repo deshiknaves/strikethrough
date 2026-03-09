@@ -57,14 +57,16 @@ describe('/+page.svelte', () => {
     it('defaults to week view', () => {
       render(Page)
 
-      expect(screen.getByRole('button', { name: 'Week' })).toHaveClass('bg-accent-blue')
+      expect(screen.getByRole('button', { name: 'Week' })).toHaveAttribute('data-state', 'active')
+      expect(screen.getByRole('button', { name: 'Day' })).toHaveAttribute('data-state', 'inactive')
     })
 
     it('restores day view from localStorage', () => {
       localStorage.setItem(VIEW_MODE_STORAGE_KEY, 'day')
       render(Page)
 
-      expect(screen.getByRole('button', { name: 'Day' })).toHaveClass('bg-accent-blue')
+      expect(screen.getByRole('button', { name: 'Day' })).toHaveAttribute('data-state', 'active')
+      expect(screen.getByRole('button', { name: 'Week' })).toHaveAttribute('data-state', 'inactive')
     })
 
     it('saves view to localStorage when changed', async () => {
@@ -201,6 +203,40 @@ describe('/+page.svelte', () => {
       expect(newMonday.until(initialMonday).days).toBe(-7)
     })
 
+    it('navigates to next week when Ctrl+N is pressed', async () => {
+      const user = userEvent.setup()
+      render(Page)
+      await act()
+
+      const initialOrder = getColumnOrder()
+      const initialMonday = Temporal.PlainDate.from(initialOrder[0])
+
+      await user.click(screen.getByRole('heading', { level: 1 }))
+      await user.keyboard('{Control>}n{/Control}')
+      await act()
+
+      const newOrder = getColumnOrder()
+      const newMonday = Temporal.PlainDate.from(newOrder[0])
+      expect(newMonday.until(initialMonday).days).toBe(-7)
+    })
+
+    it('navigates to previous week when Ctrl+P is pressed', async () => {
+      const user = userEvent.setup()
+      render(Page)
+      await act()
+
+      const initialOrder = getColumnOrder()
+      const initialMonday = Temporal.PlainDate.from(initialOrder[0])
+
+      await user.click(screen.getByRole('heading', { level: 1 }))
+      await user.keyboard('{Control>}p{/Control}')
+      await act()
+
+      const newOrder = getColumnOrder()
+      const newMonday = Temporal.PlainDate.from(newOrder[0])
+      expect(initialMonday.until(newMonday).days).toBe(-7)
+    })
+
     it('navigates to previous week when Ctrl+H is pressed', async () => {
       const user = userEvent.setup()
       render(Page)
@@ -232,6 +268,83 @@ describe('/+page.svelte', () => {
         `[data-date-key="${firstColumnKey}"][data-todo-index="0"], [data-date-key="${firstColumnKey}"][data-todo-index="new"] input, [data-date-key="${firstColumnKey}"][data-todo-index="new"] button`
       )
       expect(firstCell).toHaveFocus()
+    })
+  })
+
+  describe('view switching shortcuts', () => {
+    beforeEach(() => {
+      resetTodos()
+    })
+
+    afterEach(() => {
+      exitMoveMode()
+    })
+
+    it('switches to day view when Shift+D is pressed', async () => {
+      const user = userEvent.setup()
+      render(Page)
+      await act()
+
+      await user.click(screen.getByRole('heading', { level: 1 }))
+      await user.keyboard('{Shift>}d{/Shift}')
+      await act()
+
+      expect(screen.getByRole('button', { name: 'Day' })).toHaveAttribute('data-state', 'active')
+      expect(screen.getByRole('button', { name: 'Week' })).toHaveAttribute('data-state', 'inactive')
+    })
+
+    it('switches to week view when Shift+W is pressed', async () => {
+      const user = userEvent.setup()
+      localStorage.setItem(VIEW_MODE_STORAGE_KEY, 'day')
+      render(Page)
+      await act()
+
+      await user.click(screen.getByRole('heading', { level: 1 }))
+      await user.keyboard('{Shift>}w{/Shift}')
+      await act()
+
+      expect(screen.getByRole('button', { name: 'Week' })).toHaveAttribute('data-state', 'active')
+      expect(screen.getByRole('button', { name: 'Day' })).toHaveAttribute('data-state', 'inactive')
+    })
+
+    it('does not switch view when Shift+D is pressed in move mode', async () => {
+      const user = userEvent.setup()
+      render(Page)
+
+      const columnOrder = getColumnOrder()
+      addTodo(columnOrder[0], 'Todo 1')
+      await act()
+
+      const todo = screen.getByRole('option', { name: /Todo: Todo 1/ })
+      todo.focus()
+      await user.keyboard('m')
+
+      expect(getKeyboardMoveState()).not.toBeNull()
+
+      await user.keyboard('{Shift>}d{/Shift}')
+      await act()
+
+      expect(screen.getByRole('button', { name: 'Week' })).toHaveClass('text-white')
+      expect(getKeyboardMoveState()).not.toBeNull()
+
+      exitMoveMode()
+    })
+
+    it('switches to day view when Shift+D is pressed on a focused todo (not opens details)', async () => {
+      const user = userEvent.setup()
+      render(Page)
+
+      const columnOrder = getColumnOrder()
+      addTodo(columnOrder[0], 'Todo 1')
+      await act()
+
+      const todo = screen.getByRole('option', { name: /Todo: Todo 1/ })
+      todo.focus()
+      await user.keyboard('{Shift>}d{/Shift}')
+      await act()
+
+      expect(screen.getByRole('button', { name: 'Day' })).toHaveClass('text-white')
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     })
   })
 

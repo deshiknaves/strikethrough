@@ -28,6 +28,7 @@
     <button
       bind:this={buttons[i]}
       onclick={() => onchange(seg.value)}
+      data-state={value === seg.value ? 'active' : 'inactive'}
       class="relative z-10 rounded-full px-3 py-0.5 transition-colors {value === seg.value
         ? 'text-white'
         : 'text-text-secondary hover:text-text-primary hover:bg-black/5'}"

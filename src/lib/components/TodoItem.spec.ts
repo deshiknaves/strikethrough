@@ -668,6 +668,38 @@ describe('TodoItem', () => {
     expect(onUpdateDetails).not.toHaveBeenCalled()
   })
 
+  it('closes delete modal when Escape is pressed', async () => {
+    const user = userEvent.setup()
+    const onDelete = vi.fn()
+    const todo = createTodo()
+    render(TodoItem, {
+      props: {
+        todo,
+        fromDate: '2025-02-24',
+        index: 0,
+        onToggle: vi.fn(),
+        onDelete,
+        onUpdate: vi.fn(),
+        onUpdateDetails: vi.fn(),
+      },
+    })
+
+    const todoOption = screen.getByRole('option', {
+      name: /Todo: Test todo\. Press m to move/i,
+    })
+    todoOption.focus()
+    await user.keyboard('x')
+
+    expect(screen.getByText('Delete this todo?')).toBeInTheDocument()
+
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' })
+
+    await waitFor(() => {
+      expect(screen.queryByText('Delete this todo?')).not.toBeInTheDocument()
+    })
+    expect(onDelete).not.toHaveBeenCalled()
+  })
+
   it('calls onUpdateDetails when Save is clicked in details modal', async () => {
     const user = userEvent.setup()
     const onUpdateDetails = vi.fn()
