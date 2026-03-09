@@ -81,6 +81,37 @@ describe('/+page.svelte', () => {
     })
   })
 
+  describe('keyboard shortcuts modal', () => {
+    it('shows week navigation shortcuts in week mode', async () => {
+      const user = userEvent.setup()
+      render(Page)
+      await act()
+
+      await user.click(screen.getByRole('button', { name: 'Show keyboard shortcuts' }))
+
+      expect(screen.getByText('Week navigation')).toBeInTheDocument()
+      expect(screen.getByText('Next week')).toBeInTheDocument()
+      expect(screen.getByText('Previous week')).toBeInTheDocument()
+    })
+
+    it('updates displayed shortcut wording when switching to day mode', async () => {
+      const user = userEvent.setup()
+      render(Page)
+      await act()
+
+      await user.click(screen.getByRole('button', { name: 'Show keyboard shortcuts' }))
+      expect(screen.getByText('Week navigation')).toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'Day' }))
+      await act()
+
+      expect(screen.getByText('Day navigation')).toBeInTheDocument()
+      expect(screen.getByText('Next day')).toBeInTheDocument()
+      expect(screen.getByText('Previous day')).toBeInTheDocument()
+      expect(screen.queryByText('Week navigation')).not.toBeInTheDocument()
+    })
+  })
+
   describe('week navigation', () => {
     it('renders previous and next week buttons', () => {
       render(Page)

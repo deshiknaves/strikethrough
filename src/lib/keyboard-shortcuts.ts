@@ -1,5 +1,6 @@
 type KeyLabel = string
 type KeyCombo = KeyLabel[]
+export type ShortcutDisplayMode = 'week' | 'day'
 
 type ShortcutItem = {
   id: string
@@ -117,9 +118,38 @@ export function getAriaShortcuts(id: string): string {
   return item.aria ?? deriveAria(item.keys)
 }
 
-export function getDisplaySections(): ShortcutSection[] {
-  return SHORTCUT_SECTIONS.map((s) => ({
-    ...s,
-    items: s.items.filter((item) => item.description !== ''),
-  })).filter((s) => s.items.length > 0)
+function getNavigationLabel(mode: ShortcutDisplayMode): string {
+  return mode === 'week' ? 'Week navigation' : 'Day navigation'
+}
+
+function getTemporalDirectionLabel(direction: 'next' | 'previous', mode: ShortcutDisplayMode): string {
+  const period = mode === 'week' ? 'week' : 'day'
+  return direction === 'next' ? `Next ${period}` : `Previous ${period}`
+}
+
+export function getDisplaySections(mode: ShortcutDisplayMode = 'week'): ShortcutSection[] {
+  return SHORTCUT_SECTIONS.map((s) => {
+    if (s.section !== 'Week navigation') {
+      return {
+        ...s,
+        items: s.items.filter((item) => item.description !== ''),
+      }
+    }
+
+    return {
+      ...s,
+      section: getNavigationLabel(mode),
+      items: s.items
+        .map((item) => {
+          if (item.id === 'next-week') {
+            return { ...item, description: getTemporalDirectionLabel('next', mode) }
+          }
+          if (item.id === 'previous-week') {
+            return { ...item, description: getTemporalDirectionLabel('previous', mode) }
+          }
+          return item
+        })
+        .filter((item) => item.description !== ''),
+    }
+  }).filter((s) => s.items.length > 0)
 }

@@ -1,10 +1,15 @@
 <script lang="ts">
   import Modal from './Modal.svelte'
   import { getDisplaySections } from '$lib/keyboard-shortcuts'
+  import type { ViewMode } from './ViewPicker.svelte'
 
-  let { open = false, onClose }: { open?: boolean; onClose: () => void } = $props()
+  let { open = false, onClose, viewMode = 'week' }: {
+    open?: boolean
+    onClose: () => void
+    viewMode?: ViewMode
+  } = $props()
 
-  const shortcuts = getDisplaySections()
+  const shortcuts = $derived(getDisplaySections(viewMode))
 </script>
 
 <Modal {open} {onClose} variant="large" ariaTitle="Keyboard shortcuts">

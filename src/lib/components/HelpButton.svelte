@@ -3,6 +3,9 @@
   import { browser } from '$app/environment'
   import KeyboardShortcutsModal from './KeyboardShortcutsModal.svelte'
   import { getAriaShortcuts } from '$lib/keyboard-shortcuts'
+  import type { ViewMode } from './ViewPicker.svelte'
+
+  let { viewMode = 'week' }: { viewMode?: ViewMode } = $props()
 
   let showShortcuts = $state(false)
 
@@ -45,4 +48,4 @@
   ?
 </button>
 
-<KeyboardShortcutsModal open={showShortcuts} onClose={closeShortcuts} />
+<KeyboardShortcutsModal open={showShortcuts} onClose={closeShortcuts} {viewMode} />

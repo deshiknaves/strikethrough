@@ -22,6 +22,7 @@
   } from '$lib/week-utils'
   import Logo from '$lib/components/logo.svelte'
   import IconButton from '$lib/components/IconButton.svelte'
+  import HelpButton from '$lib/components/HelpButton.svelte'
   import { getAriaShortcuts } from '$lib/keyboard-shortcuts'
 
   type ViewMode = VM
@@ -165,4 +166,5 @@
     defaultDate={today.toString()}
     onSave={handleNewTodo}
   />
+  <HelpButton {viewMode} />
 </div>
