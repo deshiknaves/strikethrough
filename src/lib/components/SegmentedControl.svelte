@@ -1,10 +1,10 @@
 <script lang="ts" generics="T extends string">
-  interface Segment {
+  type Segment = {
     value: T
     label: string
   }
 
-  interface Props {
+  type Props = {
     segments: Segment[]
     value: T
     onchange: (v: T) => void

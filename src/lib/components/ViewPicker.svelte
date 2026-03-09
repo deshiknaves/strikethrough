@@ -7,7 +7,7 @@
   import { browser } from '$app/environment'
   import SegmentedControl from './SegmentedControl.svelte'
 
-  interface Props {
+  type Props = {
     value: ViewMode
     onchange: (v: ViewMode) => void
   }

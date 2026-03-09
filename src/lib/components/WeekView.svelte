@@ -7,7 +7,7 @@
   import { getWeekDays, getWeekendDays, formatDate, formatWeekday } from '$lib/week-utils'
   import { focusFirstCell } from '$lib/board-keyboard-navigation'
 
-  interface Props {
+  type Props = {
     viewMonday: Temporal.PlainDate
     today: Temporal.PlainDate
     columnOrder: string[]

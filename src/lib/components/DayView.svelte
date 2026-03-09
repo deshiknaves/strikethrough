@@ -5,7 +5,7 @@
   import { loadRange } from '$lib/todos.svelte'
   import { formatDate, formatWeekday } from '$lib/week-utils'
 
-  interface Props {
+  type Props = {
     viewDate: Temporal.PlainDate
     today: Temporal.PlainDate
     isWide: boolean
