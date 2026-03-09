@@ -37,3 +37,7 @@ export function formatMonthYear(date: Temporal.PlainDate): string {
 export function addWeeks(date: Temporal.PlainDate, weeks: number): Temporal.PlainDate {
   return date.add({ weeks })
 }
+
+export function formatWeekOf(monday: Temporal.PlainDate): string {
+  return `Week of ${monday.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
+}

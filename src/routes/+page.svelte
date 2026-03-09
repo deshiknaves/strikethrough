@@ -15,6 +15,7 @@
     formatDate,
     formatWeekday,
     formatMonthYear,
+    formatWeekOf,
     addWeeks,
   } from '$lib/week-utils'
   import Logo from '$lib/components/logo.svelte'
@@ -28,6 +29,7 @@
   const weekend = $derived(getWeekendDays(viewMonday))
   const columnOrder = $derived(getColumnOrder(viewMonday))
   const heading = $derived(formatMonthYear(viewMonday))
+  const pageTitle = $derived(`Strikethrough · ${formatWeekOf(viewMonday)}`)
 
   $effect(() => {
     if (browser) {
@@ -82,6 +84,10 @@
     return () => document.removeEventListener('keydown', handleKeydown, true)
   })
 </script>
+
+<svelte:head>
+  <title>{pageTitle}</title>
+</svelte:head>
 
 <div class="flex flex-col overflow-y-auto p-4 min-[501px]:h-dvh min-[501px]:overflow-hidden">
   <header class="mb-3 flex items-center justify-between">
