@@ -1,10 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, render, screen, waitFor } from '@testing-library/svelte'
+import { flushSync } from 'svelte'
 import userEvent from '@testing-library/user-event'
 import { Temporal } from 'temporal-polyfill'
 import Page from './+page.svelte'
 import { addTodo, getTodos, resetTodos } from '$lib/todos.svelte'
 import { exitMoveMode, getKeyboardMoveState } from '$lib/keyboard-move-state.svelte'
+import { VIEW_MODE_STORAGE_KEY } from '$lib/components/ViewPicker.svelte'
+
+vi.mock('$app/environment', () => ({ browser: true }))
 
 function getColumnOrder(): string[] {
   const groups = document.querySelectorAll<HTMLElement>('[role="group"][data-date-key]')
@@ -13,12 +17,66 @@ function getColumnOrder(): string[] {
     .filter((key): key is string => key !== null)
 }
 
+function createLocalStorageMock() {
+  const store: Record<string, string> = {}
+  return {
+    getItem: (key: string) => store[key] ?? null,
+    setItem: (key: string, value: string) => {
+      store[key] = value
+    },
+    removeItem: (key: string) => {
+      delete store[key]
+    },
+    clear: () => {
+      Object.keys(store).forEach((k) => delete store[k])
+    },
+    key: (index: number) => Object.keys(store)[index] ?? null,
+    get length() {
+      return Object.keys(store).length
+    },
+  }
+}
+
 describe('/+page.svelte', () => {
+  beforeEach(() => {
+    vi.stubGlobal('localStorage', createLocalStorageMock())
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
   it('should render h1', () => {
     render(Page)
 
     const heading = screen.getByRole('heading', { level: 1 })
     expect(heading).toBeInTheDocument()
+  })
+
+  describe('view mode persistence', () => {
+    it('defaults to week view', () => {
+      render(Page)
+
+      expect(screen.getByRole('button', { name: 'Week' })).toHaveClass('bg-accent-blue')
+    })
+
+    it('restores day view from localStorage', () => {
+      localStorage.setItem(VIEW_MODE_STORAGE_KEY, 'day')
+      render(Page)
+
+      expect(screen.getByRole('button', { name: 'Day' })).toHaveClass('bg-accent-blue')
+    })
+
+    it('saves view to localStorage when changed', async () => {
+      const user = userEvent.setup()
+      render(Page)
+      await act()
+
+      await user.click(screen.getByRole('button', { name: 'Day' }))
+      flushSync()
+
+      expect(localStorage.getItem(VIEW_MODE_STORAGE_KEY)).toBe('day')
+    })
   })
 
   describe('week navigation', () => {

@@ -3,7 +3,10 @@
   import { browser } from '$app/environment'
   import { Temporal } from 'temporal-polyfill'
   import TodoDetailsModal from '$lib/components/TodoDetailsModal.svelte'
-  import SegmentedControl from '$lib/components/SegmentedControl.svelte'
+  import ViewPicker, {
+    type ViewMode as VM,
+    VIEW_MODE_STORAGE_KEY,
+  } from '$lib/components/ViewPicker.svelte'
   import WeekView from '$lib/components/WeekView.svelte'
   import DayView from '$lib/components/DayView.svelte'
   import { createBoardKeyboardHandler } from '$lib/board-keyboard-navigation'
@@ -20,12 +23,13 @@
   import Logo from '$lib/components/logo.svelte'
   import IconButton from '$lib/components/IconButton.svelte'
 
-  type ViewMode = 'week' | 'day'
+  type ViewMode = VM
 
   const today = Temporal.Now.plainDateISO()
   let viewMonday = $state(getMondayOfWeek(today))
   let viewDate = $state(today)
-  let viewMode = $state<ViewMode>('week')
+  const storedView = browser ? localStorage.getItem(VIEW_MODE_STORAGE_KEY) : null
+  let viewMode = $state<ViewMode>(storedView === 'day' ? 'day' : 'week')
   let isWide = $state(browser ? window.innerWidth > 500 : true)
   let newTodoModalOpen = $state(false)
   let dayColumnOrder = $state<string[]>([])
@@ -37,12 +41,12 @@
       ? formatMonthYear(viewMonday)
       : isWide
         ? `${formatDate(viewDate)} – ${formatDate(viewDate.add({ days: 1 }))}`
-        : formatDate(viewDate),
+        : formatDate(viewDate)
   )
   const pageTitle = $derived(
     viewMode === 'week'
       ? `Strikethrough · ${formatWeekOf(viewMonday)}`
-      : `Strikethrough · ${heading}`,
+      : `Strikethrough · ${heading}`
   )
 
   function handleNewTodo(updates: { text: string; description: string; date: string }) {
@@ -100,18 +104,14 @@
 </svelte:head>
 
 <div
-  class="flex flex-col p-4 h-dvh overflow-hidden max-[500px]:min-w-[1024px] min-h-[100dvh] [@media(max-height:500px)]:min-h-[1024px]"
+  class="flex h-dvh min-h-[100dvh] flex-col overflow-hidden p-4 max-[500px]:min-w-[1024px] [@media(max-height:500px)]:min-h-[1024px]"
 >
   <header class="mb-3 flex items-center justify-between">
     <div class="flex items-center gap-3">
       <h1 class="flex items-center gap-2 text-2xl font-bold text-text-primary">
         <Logo class="size-5" />{heading}
       </h1>
-      <SegmentedControl
-        segments={[
-          { value: 'week', label: 'Week' },
-          { value: 'day', label: 'Day' },
-        ]}
+      <ViewPicker
         value={viewMode}
         onchange={(v) => {
           viewMode = v
