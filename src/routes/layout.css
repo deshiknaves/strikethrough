@@ -41,6 +41,13 @@
   color: var(--color-text-primary);
   color-scheme: dark;
 
+  html,
+  body {
+    margin: 0;
+    overflow: hidden;
+    height: 100dvh;
+  }
+
   h1,
   h2,
   h3,
