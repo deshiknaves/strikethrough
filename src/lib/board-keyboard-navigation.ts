@@ -12,7 +12,7 @@ export function getWeekdayColForWeekend(colIndex: number): number {
 
 export type BoardKeyboardOptions = {
   getColumnOrder: () => string[]
-  getTodos: (dateKey: string) => { id: string }[]
+  getTodos: (dateKey: string) => { id: string; completed: boolean }[]
   moveTodo: (fromDate: string, toDate: string, todoId: string, toIndex?: number) => void
   getKeyboardMoveState: () => KeyboardMoveState | null
   updateTarget: (dateKey: string, index: number) => void
@@ -227,7 +227,11 @@ export function createBoardKeyboardHandler(
     if (!NAV_KEYS.includes(event.key as (typeof NAV_KEYS)[number])) return
 
     // Don't capture nav keys when user is typing in a text input
-    if (active?.tagName === 'INPUT' || active?.tagName === 'TEXTAREA' || active?.isContentEditable) {
+    if (
+      active?.tagName === 'INPUT' ||
+      active?.tagName === 'TEXTAREA' ||
+      active?.isContentEditable
+    ) {
       return
     }
 
@@ -353,7 +357,7 @@ export function createBoardKeyboardHandler(
 
 export type FocusFirstCellOptions = {
   getColumnOrder: () => string[]
-  getTodos: (dateKey: string) => { id: string }[]
+  getTodos: (dateKey: string) => { id: string; completed: boolean }[]
   getInitialFocusDateKey?: () => string
 }
 

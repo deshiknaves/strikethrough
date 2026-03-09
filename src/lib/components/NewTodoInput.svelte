@@ -78,7 +78,7 @@
     onkeydown={handleButtonKeydown}
     aria-label="Add new todo"
     aria-keyshortcuts="Enter Space"
-    class="relative flex w-full cursor-pointer items-center gap-1.5 rounded border border-border px-2 py-1.5 text-left text-sm text-text-muted transition-colors hover:bg-bg-elevated focus:z-10 focus:border-transparent focus:bg-bg-elevated focus:outline-none focus:ring-2 focus:ring-accent-blue focus:ring-offset-2 focus:ring-offset-bg-surface focus:text-accent-blue"
+    class="relative flex w-full cursor-pointer items-center gap-1.5 rounded border border-border px-2 py-1.5 text-left text-sm text-text-muted transition-colors hover:bg-bg-elevated focus:z-10 focus:border-transparent focus:bg-bg-elevated focus:text-accent-blue focus:ring-2 focus:ring-accent-blue focus:ring-offset-2 focus:ring-offset-bg-surface focus:outline-none"
   >
     <span aria-hidden="true">+</span>
     Add item...

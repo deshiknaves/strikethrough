@@ -24,8 +24,22 @@ export const SHORTCUT_SECTIONS: ShortcutSection[] = [
   {
     section: 'Week navigation',
     items: [
-      { id: 'next-week', keys: [['Shift', 'N'], ['Ctrl', 'N']], description: 'Next week' },
-      { id: 'previous-week', keys: [['Shift', 'P'], ['Ctrl', 'P']], description: 'Previous week' },
+      {
+        id: 'next-week',
+        keys: [
+          ['Shift', 'N'],
+          ['Ctrl', 'N'],
+        ],
+        description: 'Next week',
+      },
+      {
+        id: 'previous-week',
+        keys: [
+          ['Shift', 'P'],
+          ['Ctrl', 'P'],
+        ],
+        description: 'Previous week',
+      },
     ],
   },
   {
@@ -40,7 +54,14 @@ export const SHORTCUT_SECTIONS: ShortcutSection[] = [
     items: [
       { id: 'todo-move', keys: [['m']], description: 'Move todo' },
       { id: 'todo-details-d', keys: [['d']], description: 'Open todo details' },
-      { id: 'todo-details-cmd', keys: [['Cmd', 'Enter'], ['Ctrl', 'Enter']], description: 'Open todo details' },
+      {
+        id: 'todo-details-cmd',
+        keys: [
+          ['Cmd', 'Enter'],
+          ['Ctrl', 'Enter'],
+        ],
+        description: 'Open todo details',
+      },
       { id: 'todo-edit', keys: [['e']], description: 'Edit todo' },
       { id: 'todo-toggle', keys: [['Space']], description: 'Toggle complete' },
       { id: 'todo-delete', keys: [['x'], ['Delete']], description: 'Delete todo' },
@@ -55,7 +76,14 @@ export const SHORTCUT_SECTIONS: ShortcutSection[] = [
   {
     section: 'Todo details modal',
     items: [
-      { id: 'modal-save', keys: [['Cmd', 'Enter'], ['Ctrl', 'Enter']], description: 'Save and close' },
+      {
+        id: 'modal-save',
+        keys: [
+          ['Cmd', 'Enter'],
+          ['Ctrl', 'Enter'],
+        ],
+        description: 'Save and close',
+      },
       { id: 'modal-close', keys: [['Escape']], description: 'Close without saving' },
     ],
   },

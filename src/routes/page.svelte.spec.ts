@@ -377,7 +377,9 @@ describe('/+page.svelte', () => {
     })
 
     it('scrolls focused item into view when navigating with ArrowDown', async () => {
-      const scrollIntoViewSpy = vi.spyOn(Element.prototype, 'scrollIntoView').mockImplementation(() => {})
+      const scrollIntoViewSpy = vi
+        .spyOn(Element.prototype, 'scrollIntoView')
+        .mockImplementation(() => {})
       const user = userEvent.setup()
       render(Page)
 
@@ -884,7 +886,9 @@ describe('/+page.svelte', () => {
     })
 
     it('scrolls keyboard-move target into view when ArrowDown is pressed in move mode', async () => {
-      const scrollIntoViewSpy = vi.spyOn(Element.prototype, 'scrollIntoView').mockImplementation(() => {})
+      const scrollIntoViewSpy = vi
+        .spyOn(Element.prototype, 'scrollIntoView')
+        .mockImplementation(() => {})
       const user = userEvent.setup()
       render(Page)
 

@@ -21,7 +21,7 @@
 
 <div class="relative flex rounded-full border border-border p-0.5 text-sm">
   <div
-    class="absolute bottom-0.5 top-0.5 rounded-full bg-accent-blue transition-all duration-200 ease-in-out"
+    class="absolute top-0.5 bottom-0.5 rounded-full bg-accent-blue transition-all duration-200 ease-in-out"
     style="left: {indicatorLeft}px; width: {indicatorWidth}px;"
   ></div>
   {#each segments as seg, i (seg.value)}
@@ -31,7 +31,7 @@
       data-state={value === seg.value ? 'active' : 'inactive'}
       class="relative z-10 rounded-full px-3 py-0.5 transition-colors {value === seg.value
         ? 'text-white'
-        : 'text-text-secondary hover:text-text-primary hover:bg-black/5'}"
+        : 'text-text-secondary hover:bg-black/5 hover:text-text-primary'}"
     >
       {seg.label}
     </button>

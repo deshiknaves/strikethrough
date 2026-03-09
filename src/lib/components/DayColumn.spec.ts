@@ -135,7 +135,9 @@ describe('DayColumn', () => {
 
     const todoEl = screen.getByText('Active todo')
     const addButton = screen.getByRole('button', { name: /add new todo/i })
-    expect(todoEl.compareDocumentPosition(addButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(
+      todoEl.compareDocumentPosition(addButton) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy()
   })
 
   it('renders completed todos after the add button', () => {
@@ -150,7 +152,9 @@ describe('DayColumn', () => {
 
     const todoEl = screen.getByText('Completed todo')
     const addButton = screen.getByRole('button', { name: /add new todo/i })
-    expect(addButton.compareDocumentPosition(todoEl) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(
+      addButton.compareDocumentPosition(todoEl) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy()
   })
 
   it('moves todo below add button when completed', async () => {
@@ -164,12 +168,16 @@ describe('DayColumn', () => {
 
     const addButton = screen.getByRole('button', { name: /add new todo/i })
     const todoEl = screen.getByText('Move me down')
-    expect(todoEl.compareDocumentPosition(addButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(
+      todoEl.compareDocumentPosition(addButton) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy()
 
     await user.click(screen.getByRole('checkbox'))
 
     const updatedTodoEl = screen.getByText('Move me down')
-    expect(addButton.compareDocumentPosition(updatedTodoEl) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(
+      addButton.compareDocumentPosition(updatedTodoEl) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy()
   })
 
   it('deletes todo when delete button is clicked and confirmed', async () => {

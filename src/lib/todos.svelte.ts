@@ -12,7 +12,10 @@ export type Todo = PersistenceTodo
 
 const todos = $state<Record<string, Todo[]>>({})
 
-function syncFromYArray(handle: { array: { toArray: () => Todo[] }; weekDateKeys: SvelteSet<string> }) {
+function syncFromYArray(handle: {
+  array: { toArray: () => Todo[] }
+  weekDateKeys: SvelteSet<string>
+}) {
   const all = handle.array
     .toArray()
     .filter((t) => handle.weekDateKeys.has(t.date))
@@ -24,8 +27,7 @@ function syncFromYArray(handle: { array: { toArray: () => Todo[] }; weekDateKeys
       'order' in t && typeof t.order === 'number' ? t : { ...t, order: i }
     )
     byDate[dateKey] = withOrder.sort(
-      (a, b) =>
-        (a.completed ? 1 : 0) - (b.completed ? 1 : 0) || a.order - b.order
+      (a, b) => (a.completed ? 1 : 0) - (b.completed ? 1 : 0) || a.order - b.order
     )
   }
   for (const key of Object.keys(todos)) {
@@ -142,10 +144,7 @@ export function addTodo(date: string, text: string, description?: string): void 
   todos[date].push(todo)
 }
 
-function getMaxOrderForSection(
-  items: Todo[],
-  completed: boolean
-): number {
+function getMaxOrderForSection(items: Todo[], completed: boolean): number {
   const filtered = items.filter((t) => t.completed === completed)
   if (filtered.length === 0) return -1
   return Math.max(
@@ -164,9 +163,7 @@ export function toggleTodo(date: string, id: string): void {
       const dateItems = arr.filter((t) => t.date === date)
       const maxOrderIncomplete = getMaxOrderForSection(dateItems, false)
       const maxOrderCompleted = getMaxOrderForSection(dateItems, true)
-      const newOrder = todo.completed
-        ? maxOrderCompleted + 1
-        : maxOrderIncomplete + 1
+      const newOrder = todo.completed ? maxOrderCompleted + 1 : maxOrderIncomplete + 1
       const todoWithOrder = { ...todo, order: newOrder }
       let insertIdx = arr.length
       for (let i = arr.length - 1; i >= 0; i--) {
@@ -186,9 +183,7 @@ export function toggleTodo(date: string, id: string): void {
   if (todo) {
     todo.completed = !todo.completed
     const list = todos[date] ?? []
-    const othersInSection = list.filter(
-      (t) => t.id !== id && t.completed === todo.completed
-    )
+    const othersInSection = list.filter((t) => t.id !== id && t.completed === todo.completed)
     const maxOrder =
       othersInSection.length === 0
         ? -1
@@ -199,8 +194,7 @@ export function toggleTodo(date: string, id: string): void {
           )
     todo.order = maxOrder + 1
     const sorted = list.sort(
-      (a, b) =>
-        (a.completed ? 1 : 0) - (b.completed ? 1 : 0) || a.order - b.order
+      (a, b) => (a.completed ? 1 : 0) - (b.completed ? 1 : 0) || a.order - b.order
     )
     todos[date] = compactOrdersForList(sorted)
   }

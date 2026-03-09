@@ -26,10 +26,7 @@ let handle: WeekHandle | null = null
 let provider: IndexeddbPersistence | null = null
 let initPromise: Promise<WeekHandle> | null = null
 
-export async function load(
-  dateKeys: string[],
-  workspace = 'default'
-): Promise<WeekHandle> {
+export async function load(dateKeys: string[], workspace = 'default'): Promise<WeekHandle> {
   if (typeof window === 'undefined') {
     throw new Error('load can only be called in browser')
   }
