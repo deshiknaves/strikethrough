@@ -110,7 +110,7 @@
 </svelte:head>
 
 <div
-  class="flex h-dvh min-h-[100dvh] flex-col overflow-hidden p-4 max-[500px]:min-w-[1024px] [@media(max-height:500px)]:min-h-[1024px]"
+  class="flex h-dvh min-h-dvh flex-col overflow-hidden p-4 max-[500px]:min-w-[1024px] [@media(max-height:500px)]:min-h-[1024px]"
 >
   <header class="mb-3 flex items-center justify-between">
     <div class="flex items-center gap-3">
