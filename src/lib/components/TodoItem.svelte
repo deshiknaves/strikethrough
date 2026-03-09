@@ -28,6 +28,7 @@
     columnOrder = [],
     dropEdge = null,
     movingTodo = null,
+    isLastInSection = false,
   }: {
     todo: Todo
     fromDate: string
@@ -39,6 +40,7 @@
     columnOrder?: string[]
     dropEdge?: 'top' | 'bottom' | null
     movingTodo?: Todo | null
+    isLastInSection?: boolean
   } = $props()
 
   const keyboardMoveMode = $derived(getKeyboardMoveState())
@@ -335,8 +337,9 @@
     onclick={() => todoRowRef?.focus()}
     ondblclick={openDetailsModal}
     class={cn(
-      'group relative flex min-w-0 cursor-grab items-center gap-2 rounded border-b border-border px-1 py-1 transition-opacity focus-within:z-10 focus-within:border-transparent focus-within:bg-bg-elevated focus-within:ring-2 focus-within:ring-accent-blue focus-within:ring-offset-2 focus-within:ring-offset-bg-surface focus-within:outline-none hover:bg-bg-elevated active:cursor-grabbing',
+      'group relative flex min-w-0 cursor-grab items-center gap-2 rounded px-1 py-1 transition-opacity focus-within:z-10 focus-within:border-transparent focus-within:bg-bg-elevated focus-within:ring-2 focus-within:ring-accent-blue focus-within:ring-offset-2 focus-within:ring-offset-bg-surface focus-within:outline-none hover:bg-bg-elevated active:cursor-grabbing',
       {
+        'border-b border-border': !isLastInSection,
         'opacity-40': dragState.type === 'is-dragging',
         hidden: dragState.type === 'is-dragging-and-left-self' || isKeyboardMoving,
         'opacity-100':

@@ -155,6 +155,7 @@
           {index}
           {columnOrder}
           {dropEdge}
+          isLastInSection={index === activeTodos.length - 1}
           movingTodo={dropEdge ? movingTodo : null}
           onToggle={async () => {
             toggleTodo(dateKey, todo.id)
