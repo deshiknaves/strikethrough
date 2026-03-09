@@ -2,6 +2,7 @@
   import { onMount } from 'svelte'
   import { browser } from '$app/environment'
   import KeyboardShortcutsModal from './KeyboardShortcutsModal.svelte'
+  import { getAriaShortcuts } from '$lib/keyboard-shortcuts'
 
   let showShortcuts = $state(false)
 
@@ -38,7 +39,7 @@
   type="button"
   onclick={openShortcuts}
   aria-label="Show keyboard shortcuts"
-  aria-keyshortcuts="?"
+  aria-keyshortcuts={getAriaShortcuts('show-shortcuts')}
   class="fixed right-6 bottom-6 flex size-10 items-center justify-center rounded-full border border-border bg-bg-surface text-lg font-medium text-text-primary shadow-lg transition-colors hover:bg-bg-elevated focus-visible:ring-2 focus-visible:ring-accent-blue focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base focus-visible:outline-none"
 >
   ?

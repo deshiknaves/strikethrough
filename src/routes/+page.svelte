@@ -22,6 +22,7 @@
   } from '$lib/week-utils'
   import Logo from '$lib/components/logo.svelte'
   import IconButton from '$lib/components/IconButton.svelte'
+  import { getAriaShortcuts } from '$lib/keyboard-shortcuts'
 
   type ViewMode = VM
 
@@ -122,7 +123,7 @@
     <nav class="flex gap-1" aria-label="Week navigation">
       <IconButton
         aria-label={viewMode === 'week' ? 'Previous week' : 'Previous day'}
-        aria-keyshortcuts="Shift+P Ctrl+P"
+        aria-keyshortcuts={getAriaShortcuts('previous-week')}
         onclick={() => {
           if (viewMode === 'week') viewMonday = addWeeks(viewMonday, -1)
           else viewDate = viewDate.subtract({ days: 1 })
@@ -134,7 +135,7 @@
       </IconButton>
       <IconButton
         aria-label={viewMode === 'week' ? 'Next week' : 'Next day'}
-        aria-keyshortcuts="Shift+N Ctrl+N"
+        aria-keyshortcuts={getAriaShortcuts('next-week')}
         onclick={() => {
           if (viewMode === 'week') viewMonday = addWeeks(viewMonday, 1)
           else viewDate = viewDate.add({ days: 1 })

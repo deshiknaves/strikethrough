@@ -15,6 +15,7 @@
   import TodoDetailsModal from '$lib/components/TodoDetailsModal.svelte'
   import type { Todo } from '$lib/todos.svelte'
   import { cn } from '$lib/cn'
+  import { getAriaShortcuts } from '$lib/keyboard-shortcuts'
 
   let {
     todo,
@@ -328,7 +329,7 @@
     tabindex="0"
     role="option"
     aria-selected={isKeyboardMoving}
-    aria-keyshortcuts="m d e Space x Delete ArrowUp ArrowDown ArrowLeft ArrowRight j k h l"
+    aria-keyshortcuts={getAriaShortcuts('todo-item-element')}
     aria-label="Todo: {todo.text}. Press m to move, d for details, e to edit, Space to toggle, x or Delete to remove. Use arrow keys or j/k/h/l to navigate."
     onkeydown={handleKeydown}
     onclick={() => todoRowRef?.focus()}

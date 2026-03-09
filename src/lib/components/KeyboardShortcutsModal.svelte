@@ -1,80 +1,10 @@
 <script lang="ts">
   import Modal from './Modal.svelte'
+  import { getDisplaySections } from '$lib/keyboard-shortcuts'
 
   let { open = false, onClose }: { open?: boolean; onClose: () => void } = $props()
 
-  const shortcuts = [
-    {
-      section: 'General',
-      items: [
-        { keys: [['?']], description: 'Show keyboard shortcuts' },
-        { keys: [['n']], description: 'New todo (opens modal)' },
-      ],
-    },
-    {
-      section: 'Week navigation',
-      items: [
-        {
-          keys: [
-            ['Shift', 'N'],
-            ['Ctrl', 'N'],
-          ],
-          description: 'Next week',
-        },
-        {
-          keys: [
-            ['Shift', 'P'],
-            ['Ctrl', 'P'],
-          ],
-          description: 'Previous week',
-        },
-      ],
-    },
-    {
-      section: 'Todo item',
-      items: [
-        { keys: [['m']], description: 'Move todo' },
-        { keys: [['d']], description: 'Open todo details' },
-        {
-          keys: [
-            ['Cmd', 'Enter'],
-            ['Ctrl', 'Enter'],
-          ],
-          description: 'Open todo details',
-        },
-        { keys: [['e']], description: 'Edit todo' },
-        { keys: [['Space']], description: 'Toggle complete' },
-        { keys: [['x'], ['Delete']], description: 'Delete todo' },
-      ],
-    },
-    {
-      section: 'Todo details modal',
-      items: [
-        {
-          keys: [
-            ['Cmd', 'Enter'],
-            ['Ctrl', 'Enter'],
-          ],
-          description: 'Save and close',
-        },
-        { keys: [['Escape']], description: 'Close without saving' },
-      ],
-    },
-    {
-      section: 'Keyboard move mode',
-      items: [
-        { keys: [['Enter'], ['Space']], description: 'Place todo' },
-        { keys: [['Escape']], description: 'Cancel move' },
-      ],
-    },
-    {
-      section: 'Navigation',
-      items: [
-        { keys: [['↑', '↓', '←', '→']], description: 'Move focus' },
-        { keys: [['j', 'k', 'h', 'l']], description: 'Vim-style navigation' },
-      ],
-    },
-  ]
+  const shortcuts = getDisplaySections()
 </script>
 
 <Modal {open} {onClose} variant="large" ariaTitle="Keyboard shortcuts">
