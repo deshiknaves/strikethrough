@@ -7,6 +7,7 @@ import Page from './+page.svelte'
 import { addTodo, getTodos, resetTodos } from '$lib/todos.svelte'
 import { exitMoveMode, getKeyboardMoveState } from '$lib/keyboard-move-state.svelte'
 import { VIEW_MODE_STORAGE_KEY } from '$lib/components/ViewPicker.svelte'
+import { getMondayOfWeek } from '$lib/week-utils'
 
 vi.mock('$app/environment', () => ({ browser: true }))
 
@@ -376,6 +377,50 @@ describe('/+page.svelte', () => {
 
       expect(screen.getByRole('button', { name: 'Day' })).toHaveClass('text-white')
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('focus today shortcut', () => {
+    it('jumps to current week and focuses today when Shift+T is pressed in week view', async () => {
+      const user = userEvent.setup()
+      render(Page)
+      await act()
+
+      await user.click(screen.getByRole('button', { name: 'Next week' }))
+      await act()
+
+      await user.click(screen.getByRole('heading', { level: 1 }))
+      await user.keyboard('{Shift>}t{/Shift}')
+      await act()
+
+      const today = Temporal.Now.plainDateISO()
+      const expectedMonday = getMondayOfWeek(today).toString()
+      expect(getColumnOrder()[0]).toBe(expectedMonday)
+
+      const focusedEl = document.activeElement as HTMLElement
+      expect(focusedEl.closest(`[data-date-key="${today.toString()}"]`)).toBeInTheDocument()
+    })
+
+    it('jumps to today and focuses today when Shift+T is pressed in day view', async () => {
+      const user = userEvent.setup()
+      render(Page)
+      await act()
+
+      await user.click(screen.getByRole('button', { name: 'Day' }))
+      await act()
+
+      await user.click(screen.getByRole('button', { name: 'Next day' }))
+      await act()
+
+      await user.click(screen.getByRole('heading', { level: 1 }))
+      await user.keyboard('{Shift>}t{/Shift}')
+      await act()
+
+      const todayKey = Temporal.Now.plainDateISO().toString()
+      expect(getColumnOrder()[0]).toBe(todayKey)
+
+      const focusedEl = document.activeElement as HTMLElement
+      expect(focusedEl.closest(`[data-date-key="${todayKey}"]`)).toBeInTheDocument()
     })
   })
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
+  import { onMount, tick } from 'svelte'
   import { browser } from '$app/environment'
   import { Temporal } from 'temporal-polyfill'
   import TodoDetailsModal from '$lib/components/TodoDetailsModal.svelte'
@@ -9,7 +9,7 @@
   } from '$lib/components/ViewPicker.svelte'
   import WeekView from '$lib/components/WeekView.svelte'
   import DayView from '$lib/components/DayView.svelte'
-  import { createBoardKeyboardHandler } from '$lib/board-keyboard-navigation'
+  import { createBoardKeyboardHandler, focusFirstCell } from '$lib/board-keyboard-navigation'
   import { getKeyboardMoveState, updateTarget, exitMoveMode } from '$lib/keyboard-move-state.svelte'
   import { getTodos, moveTodo, loadWeek, addTodo } from '$lib/todos.svelte'
   import {
@@ -63,6 +63,22 @@
     }
   }
 
+  function focusTodayInCurrentView() {
+    if (viewMode === 'week') {
+      viewMonday = getMondayOfWeek(today)
+    } else {
+      viewDate = today
+    }
+
+    tick().then(() => {
+      focusFirstCell({
+        getColumnOrder: () => (viewMode === 'week' ? columnOrder : dayColumnOrder),
+        getTodos,
+        getInitialFocusDateKey: () => today.toString(),
+      })
+    })
+  }
+
   onMount(() => {
     const mq = window.matchMedia('(min-width: 501px)')
     isWide = mq.matches
@@ -95,6 +111,7 @@
         viewMode = 'day'
         viewDate = today
       },
+      onFocusToday: focusTodayInCurrentView,
     })
 
     document.addEventListener('keydown', handleKeydown, true)

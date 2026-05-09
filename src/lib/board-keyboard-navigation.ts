@@ -21,6 +21,7 @@ export type BoardKeyboardOptions = {
   onPreviousWeek?: () => void
   onWeekView?: () => void
   onDayView?: () => void
+  onFocusToday?: () => void
   /** When provided, returns the dateKey to focus when starting navigation (today when viewing current week, else first column). */
   getInitialFocusDateKey?: () => string
   /** When provided, pressing 'n' opens the new todo modal. */
@@ -82,6 +83,7 @@ export function createBoardKeyboardHandler(
     onPreviousWeek,
     onWeekView,
     onDayView,
+    onFocusToday,
     getInitialFocusDateKey,
     onNewTodo,
   } = options
@@ -118,6 +120,12 @@ export function createBoardKeyboardHandler(
           event.preventDefault()
           event.stopPropagation()
           onDayView()
+          return
+        }
+        if ((event.key === 'T' || event.key === 't') && onFocusToday) {
+          event.preventDefault()
+          event.stopPropagation()
+          onFocusToday()
           return
         }
       }

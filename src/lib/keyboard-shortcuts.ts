@@ -48,6 +48,7 @@ export const SHORTCUT_SECTIONS: ShortcutSection[] = [
     items: [
       { id: 'view-week', keys: [['Shift', 'W']], description: 'Switch to week view' },
       { id: 'view-day', keys: [['Shift', 'D']], description: 'Switch to day view' },
+      { id: 'focus-today', keys: [['Shift', 'T']], description: 'Focus today' },
     ],
   },
   {
